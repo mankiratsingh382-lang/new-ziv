@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Zivarr — Dashboard</title>
+  <link rel="stylesheet" href="style.css"/>
+  <style>
+    .dash-page{
+      min-height:100svh;
+      padding:100px 24px 80px;
+      background:linear-gradient(180deg,#FFFDFD 0%, #FFF7F8 100%);
+    }
+    .dash-wrap{
+      max-width:1200px;
+      margin:0 auto;
+      display:grid;
+      grid-template-columns:1fr .95fr;
+      gap:22px;
+      align-items:start;
+    }
+    .dash-panel{
+      border:1px solid rgba(212,114,126,.2);
+      background:rgba(255,255,255,.82);
+      backdrop-filter:blur(10px);
+      border-radius:16px;
+      padding:24px;
+      box-shadow:0 20px 60px rgba(181,80,92,.06);
+    }
+    .dash-title{
+      font-family:'Cormorant Garamond',serif;
+      font-size:38px;
+      font-weight:300;
+      color:var(--rose-dark);
+      margin-bottom:8px;
+    }
+    .dash-sub{font-size:12.5px;line-height:1.8;color:var(--text-muted);margin-bottom:18px;}
+
+    .btn-row{display:flex;gap:10px;flex-wrap:wrap;margin-top:10px;}
+    .btn-small{
+      padding:12px 18px;border-radius:999px;border:1px solid rgba(212,114,126,.3);
+      background:#fff;color:var(--rose-mid);font-size:9px;letter-spacing:2.5px;text-transform:uppercase;font-weight:400;
+      cursor:none;
+    }
+    .btn-primary{cursor:none;}
+
+    .order-form{display:flex;flex-direction:column;gap:14px;}
+    .order-form label{display:flex;flex-direction:column;gap:8px;font-size:9px;letter-spacing:2.5px;text-transform:uppercase;color:var(--text-muted);} 
+    .order-form input,.order-form textarea,select{
+      border:1px solid rgba(212,114,126,.25);
+      border-radius:10px;background:#fff;color:var(--rose-dark);
+      padding:13px 14px;font-family:'Jost',sans-serif;font-size:12.5px;outline:none;
+    }
+    .field-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+
+    .product-tiles{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;}
+    .tile{
+      border:1px solid rgba(212,114,126,.18);
+      border-radius:14px;
+      padding:14px;
+      background:#fff;
+      display:flex;flex-direction:column;gap:8px;
+    }
+    .tile-top{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;}
+    .tile-name{font-family:'Cormorant Garamond',serif;font-size:20px;color:var(--rose-dark);font-weight:400;}
+    .tile-price{font-size:12px;color:var(--text-muted);letter-spacing:1px;}
+    .tile button{margin-top:auto;}
+
+    .orders-list{display:flex;flex-direction:column;gap:12px;margin-top:14px;}
+    .order-card{
+      border:1px solid rgba(212,114,126,.18);
+      background:#fff;
+      border-radius:14px;
+      padding:14px;
+      display:flex;flex-direction:column;gap:8px;
+    }
+    .order-card .row{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;}
+    .order-card .id{font-family:'Cormorant Garamond',serif;font-size:20px;color:var(--rose-dark);}
+    .badge{
+      padding:6px 12px;border-radius:999px;
+      background:rgba(232,160,170,.16);
+      color:var(--rose-mid);
+      font-size:9px;letter-spacing:2.5px;text-transform:uppercase;font-weight:500;
+    }
+    .order-meta{font-size:12.5px;color:var(--text-muted);line-height:1.7;}
+
+    @media(max-width:900px){
+      .dash-wrap{grid-template-columns:1fr;}
+      .product-tiles{grid-template-columns:1fr;}
+      .dash-page{padding-top:92px;}
+    }
+  </style>
+</head>
+<body>
+  <div id="preloader">
+    <div class="pre-logo">ZIVARR</div>
+    <div class="pre-line"></div>
+    <div class="pre-tag">Thoughtfully Made · Beautifully Worn</div>
+  </div>
+
+  <div id="cur"></div>
+  <div id="cur-r"></div>
+
+  <main class="dash-page">
+    <div class="dash-wrap">
+      <section class="dash-panel">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:14px;flex-wrap:wrap;">
+          <div>
+            <div class="dash-title">Dashboard</div>
+            <div class="dash-sub" id="dashSub">—</div>
+          </div>
+          <div class="btn-row">
+            <button class="btn-small" id="logoutBtn" type="button">Logout</button>
+            <a class="btn-small" href="zivarr.html" style="text-decoration:none;display:inline-flex;align-items:center;">← Shop</a>
+          </div>
+        </div>
+
+        <h3 style="font-family:'Cormorant Garamond',serif;font-size:26px;font-weight:400;color:var(--rose-dark);margin-top:18px;">Place an order</h3>
+        <p class="dash-sub" style="margin-bottom:14px;">Choose a product, enter shipping details, and place an order. Orders are stored locally per user on this browser.</p>
+
+        <div class="product-tiles" id="productTiles">
+          <!-- Filled by JS -->
+        </div>
+
+        <form class="order-form" id="orderForm" style="margin-top:16px;">
+          <div class="field-grid">
+            <label>
+              Full Name
+              <input type="text" id="name" required />
+            </label>
+            <label>
+              Mobile Number
+              <input type="tel" id="phone" required />
+            </label>
+          </div>
+
+          <label>
+            Address
+            <input type="text" id="address" required />
+          </label>
+
+          <div class="field-grid">
+            <label>
+              City
+              <input type="text" id="city" required />
+            </label>
+            <label>
+              Pincode
+              <input type="text" id="pincode" required />
+            </label>
+          </div>
+
+          <label>
+            Delivery Notes
+            <textarea id="notes" rows="3"></textarea>
+          </label>
+
+          <label>
+            Delivery Speed
+            <select id="speed">
+              <option>Standard (3-5 days)</option>
+              <option>Express (1-2 days)</option>
+            </select>
+          </label>
+
+          <div class="btn-row">
+            <button type="submit" class="btn-primary" id="placeOrder">Place Order</button>
+            <button type="button" class="btn-small" id="clearFields">Clear</button>
+          </div>
+
+          <div id="orderFormStatus" class="login-status" style="margin-top:8px;display:none;"></div>
+        </form>
+      </section>
+
+      <aside class="dash-panel">
+        <h3 style="font-family:'Cormorant Garamond',serif;font-size:26px;font-weight:400;color:var(--rose-dark);margin-bottom:10px;">Your Orders</h3>
+        <p class="dash-sub" style="margin-bottom:0;">Track delivery status (demo timeline) per user.</p>
+
+        <div class="orders-list" id="ordersList">
+          <!-- Filled by JS -->
+        </div>
+
+        <div id="noOrders" class="empty-cart" style="margin-top:14px;display:none;">
+          No orders yet. Place your first order from the left panel.
+        </div>
+      </aside>
+    </div>
+  </main>
+
+  <script>
+    const USER_KEY = 'zivarr-demo-user';
+    const AUTH_TOKEN_KEY = 'zivarr-demo-auth-token';
+    const ORDERS_KEY = 'zivarr-demo-orders';
+    const SELECTED_PRODUCT_KEY = 'zivarr-demo-selected-product';
+
+    let availableProducts = [];
+    let orders = [];
+
+    function formatPrice(value){
+      return `₹${Number(value).toLocaleString('en-IN')}`;
+    }
+
+    function loadUser(){
+      try{
+        const saved = localStorage.getItem(USER_KEY);
+        return saved ? JSON.parse(saved) : null;
+      }catch{
+        return null;
+      }
+    }
+
+    function loadOrdersByUser(email){
+      try{
+        const saved = localStorage.getItem(ORDERS_KEY);
+        const map = saved ? JSON.parse(saved) : {};
+        return map[email] || [];
+      }catch{
+        return [];
+      }
+    }
+
+    function saveOrdersByUser(email, ordersList){
+      const saved = localStorage.getItem(ORDERS_KEY);
+      const map = saved ? JSON.parse(saved) : {};
+      map[email] = ordersList;
+      localStorage.setItem(ORDERS_KEY, JSON.stringify(map));
+    }
+
+    function saveSelectedProduct(product){
+      localStorage.setItem(SELECTED_PRODUCT_KEY, JSON.stringify(product));
+    }
+
+    function loadSelectedProduct(){
+      try{
+        const saved = localStorage.getItem(SELECTED_PRODUCT_KEY);
+        return saved ? JSON.parse(saved) : null;
+      }catch{
+        return null;
+      }
+    }
+
+    async function fetchJson(url, options = {}){
+      const response = await fetch(url, options);
+      const data = await response.json().catch(() => ({}));
+
+      if(!response.ok){
+        throw new Error(data.error || 'Request failed');
+      }
+
+      return data;
+    }
+
+    const user = loadUser();
+    const dashSub = document.getElementById('dashSub');
+    const logoutBtn = document.getElementById('logoutBtn');
+
+    const tiles = document.getElementById('productTiles');
+    const orderForm = document.getElementById('orderForm');
+    const orderFormStatus = document.getElementById('orderFormStatus');
+
+    const nameEl = document.getElementById('name');
+    const phoneEl = document.getElementById('phone');
+    const addressEl = document.getElementById('address');
+    const cityEl = document.getElementById('city');
+    const pincodeEl = document.getElementById('pincode');
+    const notesEl = document.getElementById('notes');
+    const speedEl = document.getElementById('speed');
+
+    const ordersList = document.getElementById('ordersList');
+    const noOrders = document.getElementById('noOrders');
+
+    let selectedProduct = loadSelectedProduct();
+
+    if(!user){
+      window.location.href = 'login.html';
+    }
+
+    const authToken = localStorage.getItem(AUTH_TOKEN_KEY);
+    dashSub.textContent = authToken
+      ? `Signed in as ${user.name}. Orders sync with the database.`
+      : `Signed in as ${user.name}. You are browsing in local demo mode.`;
+
+    nameEl.value = user?.isGuest ? '' : (user?.name || '');
+
+    logoutBtn.addEventListener('click',()=>{
+      localStorage.removeItem(USER_KEY);
+      localStorage.removeItem(AUTH_TOKEN_KEY);
+      window.location.href = 'login.html';
+    });
+
+    function setFormStatus(msg, isError=false){
+      orderFormStatus.style.display = 'block';
+      orderFormStatus.textContent = msg;
+      orderFormStatus.classList.toggle('success', !isError);
+    }
+
+    function renderProducts(){
+      tiles.innerHTML = availableProducts.map((p)=>{
+        const active = selectedProduct && selectedProduct.id === p.id;
+        return `
+          <div class="tile" style="border-color:${active ? 'rgba(181,80,92,.55)' : 'rgba(212,114,126,.18)'};">
+            <div class="tile-top">
+              <div>
+                <div class="tile-name">${p.name}</div>
+                <div class="tile-price">${p.category}</div>
+              </div>
+              <div class="tile-price" style="font-weight:600;color:var(--rose-dark);">${formatPrice(p.price)}</div>
+            </div>
+            <button class="btn-small" type="button" data-select="${p.id}" style="align-self:flex-start;">
+              ${active ? 'Selected' : 'Select'}
+            </button>
+          </div>
+        `;
+      }).join('');
+
+      tiles.querySelectorAll('button[data-select]').forEach(btn=>{
+        btn.addEventListener('click',()=>{
+          const p = availableProducts.find(x=>x.id === Number(btn.dataset.select));
+          if(!p){ return; }
+          selectedProduct = p;
+          saveSelectedProduct(p);
+          setFormStatus(`Selected: ${p.name} (${formatPrice(p.price)}).`, false);
+          renderProducts();
+        });
+      });
+    }
+
+    async function refreshProducts(){
+      try{
+        availableProducts = await fetchJson('/api/products');
+        if(selectedProduct && !availableProducts.some(product=>product.id === selectedProduct.id)){
+          selectedProduct = availableProducts[0] || null;
+          saveSelectedProduct(selectedProduct);
+        }
+        renderProducts();
+      } catch(error){
+        availableProducts = [
+          { id: 1, name: 'Seraphine Choker', price: 3499, category: 'Necklaces' },
+          { id: 2, name: 'Luna Drop Earrings', price: 2199, category: 'Earrings' },
+          { id: 3, name: 'Aurore Tennis Bracelet', price: 4799, category: 'Bracelets' },
+          { id: 4, name: 'Celeste Solitaire Ring', price: 1899, category: 'Rings' },
+          { id: 5, name: 'Bloom Stud Earrings', price: 999, category: 'Earrings' },
+          { id: 6, name: 'Crescent Pendant Necklace', price: 3299, category: 'Necklaces' },
+        ];
+        renderProducts();
+      }
+    }
+
+    async function refreshOrders(){
+      if(authToken){
+        try{
+          orders = await fetchJson('/api/orders', {
+            headers: { Authorization: `Bearer ${authToken}` }
+          });
+        } catch(error){
+          orders = loadOrdersByUser(user.email);
+        }
+      } else {
+        orders = loadOrdersByUser(user.email);
+      }
+
+      renderOrders();
+    }
+
+    function renderOrders(){
+      ordersList.innerHTML = '';
+
+      if(orders.length === 0){
+        noOrders.style.display='block';
+        return;
+      }
+      noOrders.style.display='none';
+
+      orders
+        .slice()
+        .sort((a,b)=> new Date(b.created_at || b.createdAt)-new Date(a.created_at || a.createdAt))
+        .forEach(order=>{
+          const status = order.status || 'pending';
+          const deliveryText = `${order.shipping_address || 'Address pending'}, ${order.shipping_city || ''} - ${order.shipping_pincode || ''}`;
+
+          const card = document.createElement('div');
+          card.className = 'order-card';
+          card.innerHTML = `
+            <div class="row">
+              <div>
+                <div class="id">ZIV-${String(order.id).padStart(4,'0')}</div>
+                <div class="order-meta">${order.product_name || order.productName} · ${formatPrice(order.total_price || order.productPrice)}</div>
+              </div>
+              <div class="badge">${status}</div>
+            </div>
+            <div class="order-meta">Delivery to: ${deliveryText}</div>
+            <div class="order-meta">Quantity: ${order.quantity || 1}</div>
+            <div class="order-meta">Placed: ${new Date(order.created_at || order.createdAt).toLocaleString('en-IN')}</div>
+          `;
+          ordersList.appendChild(card);
+        });
+    }
+
+    document.getElementById('clearFields').addEventListener('click',()=>{
+      orderForm.reset();
+      setFormStatus('Fields cleared. Select a product to continue.', false);
+    });
+
+    orderForm.addEventListener('submit', async (e)=>{
+      e.preventDefault();
+
+      if(!selectedProduct){
+        setFormStatus('Select a product first from above.', true);
+        return;
+      }
+
+      const payload = {
+        product_id: selectedProduct.id,
+        quantity: 1,
+        shipping_name: nameEl.value.trim(),
+        shipping_phone: phoneEl.value.trim(),
+        shipping_address: addressEl.value.trim(),
+        shipping_city: cityEl.value.trim(),
+        shipping_pincode: pincodeEl.value.trim(),
+        notes: notesEl.value.trim()
+      };
+
+      try {
+        if(authToken){
+          const response = await fetch('/api/orders', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${authToken}`
+            },
+            body: JSON.stringify(payload)
+          });
+
+          const data = await response.json().catch(() => ({}));
+
+          if(!response.ok){
+            setFormStatus(data.error || 'Order failed to place.', true);
+            return;
+          }
+
+          setFormStatus(`Order placed successfully! #${data.id} is now processing.`, false);
+        } else {
+          const fallbackOrder = {
+            orderId: `ZIV-${Date.now().toString().slice(-6)}`,
+            productName: selectedProduct.name,
+            productPrice: selectedProduct.price,
+            category: selectedProduct.category,
+            customerName: nameEl.value.trim(),
+            customerPhone: phoneEl.value.trim(),
+            address: addressEl.value.trim(),
+            city: cityEl.value.trim(),
+            pincode: pincodeEl.value.trim(),
+            notes: notesEl.value.trim(),
+            speed: speedEl.value,
+            createdAt: new Date().toISOString()
+          };
+
+          const currentOrders = loadOrdersByUser(user.email);
+          currentOrders.push(fallbackOrder);
+          saveOrdersByUser(user.email, currentOrders);
+
+          setFormStatus(`Order placed! Tracking status will update automatically for this demo. (${fallbackOrder.orderId})`, false);
+        }
+      } catch(error){
+        setFormStatus('Unable to connect to the backend. Check that the server is running.', true);
+        return;
+      }
+
+      await refreshOrders();
+      orderForm.reset();
+      nameEl.value = user?.isGuest ? '' : (user?.name || '');
+    });
+
+    refreshProducts();
+    refreshOrders();
+
+    setInterval(refreshOrders, 5000);
+  </script>
+
+  <script src="script.js" defer></script>
+
+</body>
+</html>
+

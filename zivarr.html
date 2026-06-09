@@ -1,0 +1,683 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Zivarr — Thoughtfully Made, Beautifully Worn</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600&family=Jost:wght@200;300;400;500&family=EB+Garamond:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="style.css"/>
+</head>
+<body>
+
+<!-- PRELOADER -->
+<div id="preloader">
+  <div class="pre-logo">ZIVARR</div>
+  <div class="pre-line"></div>
+  <div class="pre-tag">Thoughtfully Made · Beautifully Worn</div>
+</div>
+
+<!-- PROGRESS BAR -->
+<div id="progress-bar"></div>
+
+<!-- CURSOR -->
+<div id="cur"></div>
+<div id="cur-r"></div>
+
+<!-- PROMO BANNER -->
+<div class="promo-banner" id="promo-banner">
+  <p>✦ Complimentary gift wrapping on all orders above <strong>₹2,999</strong> · Use code <strong>ZIVARR10</strong> for 10% off ✦</p>
+  <button class="promo-close" onclick="document.getElementById('promo-banner').style.display='none'">×</button>
+</div>
+
+<!-- NAV -->
+<nav id="main-nav">
+  <a href="#" class="nav-logo">ZI<span>V</span>ARR</a>
+  <ul class="nav-links">
+    <li><a href="#collections">Collections</a></li>
+    <li><a href="#featured">Shop</a></li>
+    <li><a href="#commerce-flow">Order</a></li>
+    <li><a href="#story">Our Story</a></li>
+    <li><a href="#process">Craft</a></li>
+    <li><a href="#newsletter">Journal</a></li>
+  </ul>
+  <div class="nav-actions">
+    <button aria-label="Search">
+      <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+    </button>
+    <button aria-label="Wishlist">
+      <svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+    </button>
+    <button class="nav-login" id="registerToggle" type="button" onclick="window.location.href='registeruser.html'">Register</button>
+
+    <button aria-label="Cart" id="cartToggle" style="position:relative">
+
+      <svg viewBox="0 0 24 24"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+      <div class="cart-dot">0</div>
+    </button>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero" id="home">
+  <div class="hero-left">
+    <div class="hero-eyebrow">New Collection 2025</div>
+    <h1 class="hero-h1">Where Metal<br>Meets <em>Poetry</em></h1>
+    <p class="hero-sub">Each Zivarr piece is a dialogue between tradition and the modern feminine spirit — silver and gold jewellery crafted to be lived in, not just worn.</p>
+    <div class="hero-btns">
+      <a href="#featured" class="btn-primary">
+        Explore Collection
+        <svg viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+      </a>
+      <a href="#story" class="btn-ghost">Our Story</a>
+    </div>
+    <div class="hero-stats">
+      <div>
+        <div class="stat-num">2K+</div>
+        <div class="stat-label">Pieces Crafted</div>
+      </div>
+      <div>
+        <div class="stat-num">12</div>
+        <div class="stat-label">Collections</div>
+      </div>
+      <div>
+        <div class="stat-num">98%</div>
+        <div class="stat-label">Happy Customers</div>
+      </div>
+    </div>
+  </div>
+  <div class="hero-right">
+    <div class="hero-img-wrap">
+      <div class="hero-ornament"></div>
+      <div class="hero-gem">Z</div>
+      <div class="hero-badge">
+        <div class="badge-inner">
+          <div class="badge-num">★</div>
+          <div class="badge-txt">Handcrafted<br>Silver & Gold</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="hero-scroll">
+    <div class="scroll-line"></div>
+    <span>Scroll</span>
+  </div>
+</section>
+
+<!-- MARQUEE -->
+<div class="marquee-strip">
+  <div class="marquee-inner">
+    <span class="marquee-item">Handcrafted Jewellery</span>
+    <span class="marquee-item">Sterling Silver</span>
+    <span class="marquee-item">18K Gold Plated</span>
+    <span class="marquee-item">Made in India</span>
+    <span class="marquee-item">Bridal Collections</span>
+    <span class="marquee-item">Gift Wrapping Available</span>
+    <span class="marquee-item">Free Shipping above ₹1999</span>
+    <span class="marquee-item">Thoughtfully Made</span>
+    <span class="marquee-item">Beautifully Worn</span>
+    <!-- Duplicate for seamless loop -->
+    <span class="marquee-item">Handcrafted Jewellery</span>
+    <span class="marquee-item">Sterling Silver</span>
+    <span class="marquee-item">18K Gold Plated</span>
+    <span class="marquee-item">Made in India</span>
+    <span class="marquee-item">Bridal Collections</span>
+    <span class="marquee-item">Gift Wrapping Available</span>
+    <span class="marquee-item">Free Shipping above ₹1999</span>
+    <span class="marquee-item">Thoughtfully Made</span>
+    <span class="marquee-item">Beautifully Worn</span>
+  </div>
+</div>
+
+<!-- COLLECTIONS -->
+<section class="collections" id="collections">
+  <div class="collections-header">
+    <div class="left">
+      <div class="section-tag reveal">Curated Edits</div>
+      <h2 class="section-title reveal reveal-delay-1">Shop by <em>Collection</em></h2>
+      <p class="section-sub reveal reveal-delay-2">Every piece tells a story — discover yours across our curated edits.</p>
+    </div>
+    <a href="#" class="btn-ghost reveal reveal-delay-2">View All Collections</a>
+  </div>
+  <div class="collections-grid">
+    <div class="coll-card tall reveal">
+      <div class="coll-img">
+        <div class="coll-img-art">✦</div>
+        <div class="coll-img-overlay"></div>
+        <div class="coll-info">
+          <div class="coll-label">Signature Edit</div>
+          <div class="coll-name">Bridal<br>Treasures</div>
+          <div class="coll-count">48 Pieces</div>
+        </div>
+        <div class="coll-arrow">
+          <svg viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+        </div>
+      </div>
+    </div>
+    <div class="coll-card reveal reveal-delay-1">
+      <div class="coll-img" style="background:linear-gradient(145deg,#F5D5DA,#EFE0D8);">
+        <div class="coll-img-art">◇</div>
+        <div class="coll-img-overlay"></div>
+        <div class="coll-info">
+          <div class="coll-label">Classic</div>
+          <div class="coll-name">Everyday Glow</div>
+          <div class="coll-count">62 Pieces</div>
+        </div>
+        <div class="coll-arrow"><svg viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></div>
+      </div>
+    </div>
+    <div class="coll-card reveal reveal-delay-2">
+      <div class="coll-img" style="background:linear-gradient(145deg,#FAE8EB,#F5D5DA);">
+        <div class="coll-img-art">○</div>
+        <div class="coll-img-overlay"></div>
+        <div class="coll-info">
+          <div class="coll-label">Statement</div>
+          <div class="coll-name">Moonlit Nights</div>
+          <div class="coll-count">34 Pieces</div>
+        </div>
+        <div class="coll-arrow"><svg viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></div>
+      </div>
+    </div>
+    <div class="coll-card reveal reveal-delay-1">
+      <div class="coll-img" style="background:linear-gradient(145deg,#EFE0D8,#FDF6F0);">
+        <div class="coll-img-art">⬡</div>
+        <div class="coll-img-overlay"></div>
+        <div class="coll-info">
+          <div class="coll-label">Heritage</div>
+          <div class="coll-name">Golden Roots</div>
+          <div class="coll-count">27 Pieces</div>
+        </div>
+        <div class="coll-arrow"><svg viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></div>
+      </div>
+    </div>
+    <div class="coll-card reveal reveal-delay-2">
+      <div class="coll-img" style="background:linear-gradient(145deg,#F7EDE8,#FAE8EB);">
+        <div class="coll-img-art">♦</div>
+        <div class="coll-img-overlay"></div>
+        <div class="coll-info">
+          <div class="coll-label">Limited</div>
+          <div class="coll-name">Festive Bloom</div>
+          <div class="coll-count">19 Pieces</div>
+        </div>
+        <div class="coll-arrow"><svg viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURED PRODUCTS -->
+<section class="featured" id="featured">
+  <div class="featured-header">
+    <div>
+      <div class="section-tag reveal">New Arrivals</div>
+      <h2 class="section-title reveal reveal-delay-1">Handpicked <em>Favourites</em></h2>
+    </div>
+    <div class="feat-filters reveal reveal-delay-2">
+      <button class="feat-filter active" data-filter="All">All</button>
+      <button class="feat-filter" data-filter="Necklaces">Necklaces</button>
+      <button class="feat-filter" data-filter="Earrings">Earrings</button>
+      <button class="feat-filter" data-filter="Bracelets">Bracelets</button>
+      <button class="feat-filter" data-filter="Rings">Rings</button>
+    </div>
+  </div>
+  <div class="products-grid">
+
+    <!-- Product 1 -->
+    <div class="prod-card reveal" data-name="Seraphine Choker" data-price="3499" data-category="Necklaces">
+      <div class="prod-img-wrap">
+        <div class="prod-img-art">◈</div>
+        <div class="prod-badge new">New</div>
+        <div class="prod-actions">
+          <button class="prod-add">Add to Bag</button>
+          <button class="prod-wish"><svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></button>
+        </div>
+      </div>
+      <div class="prod-name">Seraphine Choker</div>
+      <div class="prod-material">Sterling Silver · Rhodium</div>
+      <div class="prod-price"><span class="prod-price-now">₹3,499</span><span class="prod-price-was">₹4,200</span></div>
+      <div class="prod-stars"><span>★★★★★</span></div>
+    </div>
+
+    <!-- Product 2 -->
+    <div class="prod-card reveal reveal-delay-1" data-name="Luna Drop Earrings" data-price="2199" data-category="Earrings">
+      <div class="prod-img-wrap" style="background:linear-gradient(145deg,#FDF0F2,#EFE0D8);">
+        <div class="prod-img-art">❋</div>
+        <div class="prod-badge">Bestseller</div>
+        <div class="prod-actions">
+          <button class="prod-add">Add to Bag</button>
+          <button class="prod-wish"><svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></button>
+        </div>
+      </div>
+      <div class="prod-name">Luna Drop Earrings</div>
+      <div class="prod-material">18K Gold Plated</div>
+      <div class="prod-price"><span class="prod-price-now">₹2,199</span></div>
+      <div class="prod-stars"><span>★★★★★</span></div>
+    </div>
+
+    <!-- Product 3 -->
+    <div class="prod-card reveal reveal-delay-2" data-name="Aurore Tennis Bracelet" data-price="4799" data-category="Bracelets">
+      <div class="prod-img-wrap" style="background:linear-gradient(145deg,#FAE8EB,#F7EDE8);">
+        <div class="prod-img-art">✧</div>
+        <div class="prod-badge new">New</div>
+        <div class="prod-actions">
+          <button class="prod-add">Add to Bag</button>
+          <button class="prod-wish"><svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></button>
+        </div>
+      </div>
+      <div class="prod-name">Aurore Tennis Bracelet</div>
+      <div class="prod-material">Sterling Silver · CZ</div>
+      <div class="prod-price"><span class="prod-price-now">₹4,799</span><span class="prod-price-was">₹5,500</span></div>
+      <div class="prod-stars"><span>★★★★☆</span></div>
+    </div>
+
+    <!-- Product 4 -->
+    <div class="prod-card reveal reveal-delay-3" data-name="Celeste Solitaire Ring" data-price="1899" data-category="Rings">
+      <div class="prod-img-wrap" style="background:linear-gradient(145deg,#EFE0D8,#FAE8EB);">
+        <div class="prod-img-art">⟡</div>
+        <div class="prod-actions">
+          <button class="prod-add">Add to Bag</button>
+          <button class="prod-wish"><svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></button>
+        </div>
+      </div>
+      <div class="prod-name">Celeste Solitaire Ring</div>
+      <div class="prod-material">18K Gold Plated · CZ</div>
+      <div class="prod-price"><span class="prod-price-now">₹1,899</span></div>
+      <div class="prod-stars"><span>★★★★★</span></div>
+    </div>
+
+    <!-- Product 5 -->
+    <div class="prod-card reveal" data-name="Bloom Stud Earrings" data-price="999" data-category="Earrings">
+      <div class="prod-img-wrap" style="background:linear-gradient(145deg,#F5D5DA,#FDF6F0);">
+        <div class="prod-img-art">⬦</div>
+        <div class="prod-badge">Bestseller</div>
+        <div class="prod-actions">
+          <button class="prod-add">Add to Bag</button>
+          <button class="prod-wish"><svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></button>
+        </div>
+      </div>
+      <div class="prod-name">Bloom Stud Earrings</div>
+      <div class="prod-material">Sterling Silver</div>
+      <div class="prod-price"><span class="prod-price-now">₹999</span></div>
+      <div class="prod-stars"><span>★★★★★</span></div>
+    </div>
+
+    <!-- Product 6 -->
+    <div class="prod-card reveal reveal-delay-1" data-name="Crescent Pendant Necklace" data-price="3299" data-category="Necklaces">
+      <div class="prod-img-wrap" style="background:linear-gradient(145deg,#FDF0F2,#FAE8EB);">
+        <div class="prod-img-art">☽</div>
+        <div class="prod-badge new">New</div>
+        <div class="prod-actions">
+          <button class="prod-add">Add to Bag</button>
+          <button class="prod-wish"><svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></button>
+        </div>
+      </div>
+      <div class="prod-name">Crescent Pendant Necklace</div>
+      <div class="prod-material">18K Gold Vermeil</div>
+      <div class="prod-price"><span class="prod-price-now">₹3,299</span><span class="prod-price-was">₹3,800</span></div>
+      <div class="prod-stars"><span>★★★★☆</span></div>
+    </div>
+
+    <!-- Product 7 -->
+    <div class="prod-card reveal reveal-delay-2" data-name="Heirloom Bangle Set" data-price="5499" data-category="Bracelets">
+      <div class="prod-img-wrap" style="background:linear-gradient(145deg,#F7EDE8,#F5D5DA);">
+        <div class="prod-img-art">✦</div>
+        <div class="prod-actions">
+          <button class="prod-add">Add to Bag</button>
+          <button class="prod-wish"><svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></button>
+        </div>
+      </div>
+      <div class="prod-name">Heirloom Bangle Set</div>
+      <div class="prod-material">Gold Plated Brass</div>
+      <div class="prod-price"><span class="prod-price-now">₹5,499</span><span class="prod-price-was">₹6,200</span></div>
+      <div class="prod-stars"><span>★★★★★</span></div>
+    </div>
+
+    <!-- Product 8 -->
+    <div class="prod-card reveal reveal-delay-3" data-name="Bridal Maang Tikka" data-price="8999" data-category="Necklaces">
+      <div class="prod-img-wrap" style="background:linear-gradient(145deg,#EFE0D8,#FDF0F2);">
+        <div class="prod-img-art">◉</div>
+        <div class="prod-badge">Limited</div>
+        <div class="prod-actions">
+          <button class="prod-add">Add to Bag</button>
+          <button class="prod-wish"><svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></button>
+        </div>
+      </div>
+      <div class="prod-name">Bridal Maang Tikka</div>
+      <div class="prod-material">22K Gold Plated</div>
+      <div class="prod-price"><span class="prod-price-now">₹8,999</span></div>
+      <div class="prod-stars"><span>★★★★★</span></div>
+    </div>
+
+  </div>
+  <div style="text-align:center;margin-top:64px;" class="reveal">
+    <a href="#" class="btn-primary" style="display:inline-flex;">
+      View All Products
+      <svg viewBox="0 0 24 24" style="width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:1.5;margin-left:12px;"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+    </a>
+  </div>
+</section>
+
+
+
+    <section class="commerce-panel cart-panel reveal reveal-delay-1">
+      <div class="panel-topline">Shopping Cart</div>
+      <div class="cart-header">
+        <div>
+          <h3>Your Order Basket</h3>
+          <p class="panel-copy">Add pieces from the collection to build your order.</p>
+        </div>
+        <div class="cart-count-badge" id="cartCountBadge">0 items</div>
+      </div>
+      <div class="cart-items" id="cartItems">
+        <div class="empty-cart">Your cart is empty. Add a few standout pieces to begin.</div>
+      </div>
+      <div class="cart-summary-block">
+        <div class="summary-row"><span>Subtotal</span><strong id="subtotalAmount">₹0</strong></div>
+        <div class="summary-row"><span>Shipping</span><strong id="shippingAmount">₹0</strong></div>
+        <div class="summary-row"><span>Gift Wrap</span><strong id="giftWrapAmount">₹0</strong></div>
+        <div class="summary-row total-row"><span>Total</span><strong id="totalAmount">₹0</strong></div>
+        <p class="shipping-note" id="shippingNote">Add items worth ₹2,000+ to unlock free doorstep delivery.</p>
+      </div>
+    </section>
+  </div>
+
+  <div class="commerce-grid bottom-grid">
+    <section class="commerce-panel reveal reveal-delay-2">
+      <div class="panel-topline">Delivery Address</div>
+      <h3>Where should we send it?</h3>
+      <p class="panel-copy">Enter the full shipping address before placing your order.</p>
+      <form id="checkoutForm" class="commerce-form">
+        <div class="field-grid">
+          <label>
+            Full Name
+            <input type="text" name="name" id="customerName" placeholder="Aarav Sharma" required>
+          </label>
+          <label>
+            Mobile Number
+            <input type="tel" name="mobile" id="customerPhone" placeholder="9876543210" required>
+          </label>
+        </div>
+        <label>
+          Email Address
+          <input type="email" name="checkoutEmail" id="checkoutEmail" placeholder="you@example.com" required>
+        </label>
+        <label>
+          Street Address
+          <input type="text" name="address" id="customerAddress" placeholder="12, Saffron Road" required>
+        </label>
+        <div class="field-grid">
+          <label>
+            City
+            <input type="text" name="city" id="customerCity" placeholder="Jaipur" required>
+          </label>
+          <label>
+            Pincode
+            <input type="text" name="pincode" id="customerPincode" placeholder="302001" required>
+          </label>
+        </div>
+        <label>
+          Delivery Notes
+          <textarea name="notes" id="customerNotes" rows="4" placeholder="Leave at the front desk or call before delivery"></textarea>
+        </label>
+        <label>
+          Delivery Speed
+          <select name="deliverySpeed" id="deliverySpeed">
+            <option value="Standard (3-5 days)">Standard (3-5 days)</option>
+            <option value="Express (1-2 days)">Express (1-2 days)</option>
+          </select>
+        </label>
+        <div class="form-row">
+          <button type="submit" class="btn-primary" id="placeOrderBtn">Place Order</button>
+          <button type="reset" class="btn-ghost" id="resetCartBtn">Clear Form</button>
+        </div>
+      </form>
+    </section>
+
+    <section class="commerce-panel summary-panel reveal reveal-delay-3">
+      <div class="panel-topline">Order Confirmation</div>
+      <h3>Ready to complete?</h3>
+      <p class="panel-copy">Once you place the order, the demo will confirm it and clear the cart.</p>
+      <div class="order-status-box" id="orderStatusBox">
+        <div class="status-title">Current status</div>
+        <p class="status-message">Add products and finish shipping details to place your order.</p>
+      </div>
+      <ul class="order-checklist">
+        <li>✔ Customer login verified locally in your browser</li>
+        <li>✔ Cart totals recalculated automatically</li>
+        <li>✔ Delivery address collected before checkout</li>
+        <li>✔ Order confirmation generated for demo use</li>
+      </ul>
+    </section>
+  </div>
+</section>
+
+<!-- STORY -->
+<section class="story" id="story">
+  <div class="story-visual">
+    <div class="story-visual-art">Z</div>
+    <div class="story-dots">
+      <span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span>
+      <span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span>
+    </div>
+    <div class="story-lines">
+      <span></span><span></span><span></span>
+    </div>
+  </div>
+  <div class="story-content">
+    <div class="section-tag reveal">Our Story</div>
+    <h2 class="section-title reveal reveal-delay-1">Rooted in <em>Tradition,</em><br>Designed for Today</h2>
+    <blockquote class="story-quote reveal reveal-delay-2">
+      "We believe jewellery is not decoration — it is memory, identity, and love made tangible."
+    </blockquote>
+    <p class="story-body reveal reveal-delay-3">
+      Zivarr was born from a simple belief: that every Indian woman deserves jewellery that honours her roots while celebrating who she is becoming. Founded in 2019, we work with third-generation artisans across Rajasthan and Jaipur, combining age-old silversmithing techniques with contemporary design language.<br><br>
+      Each piece passes through twelve hands before it reaches yours — designed, cast, polished, set, and finished with a care that machines simply cannot replicate.
+    </p>
+    <a href="#" class="btn-primary reveal reveal-delay-4" style="display:inline-flex;align-self:flex-start;">
+      Read Our Story
+      <svg viewBox="0 0 24 24" style="width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:1.5;"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+    </a>
+    <div class="story-pillars reveal">
+      <div class="pillar">
+        <div class="pillar-num">12</div>
+        <div class="pillar-title">Artisan Hands</div>
+        <div class="pillar-desc">Per piece crafted</div>
+      </div>
+      <div class="pillar">
+        <div class="pillar-num">6+</div>
+        <div class="pillar-title">Years of Legacy</div>
+        <div class="pillar-desc">Est. 2019</div>
+      </div>
+      <div class="pillar">
+        <div class="pillar-num">100%</div>
+        <div class="pillar-title">Hallmarked</div>
+        <div class="pillar-desc">BIS Certified</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PROCESS -->
+<section class="process" id="process">
+  <div class="process-header">
+    <div class="section-tag reveal">Our Craft</div>
+    <h2 class="section-title reveal reveal-delay-1">The Art of <em>Making</em></h2>
+    <p class="section-sub reveal reveal-delay-2" style="max-width:480px;margin:0 auto;">From first sketch to your doorstep — a journey of precision, passion, and craftsmanship.</p>
+  </div>
+  <div class="process-steps">
+    <div class="process-step">
+      <div class="step-icon">
+        <span class="step-num">01</span>
+        <svg viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+      </div>
+      <div class="step-title">Design</div>
+      <p class="step-desc">Each collection begins with hand-drawn sketches inspired by Indian motifs, temple architecture, and nature.</p>
+    </div>
+    <div class="process-step">
+      <div class="step-icon">
+        <span class="step-num">02</span>
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>
+      </div>
+      <div class="step-title">Casting</div>
+      <p class="step-desc">Lost-wax casting technique — a method over 4,000 years old — gives form to each intricate design with remarkable fidelity.</p>
+    </div>
+    <div class="process-step">
+      <div class="step-icon">
+        <span class="step-num">03</span>
+        <svg viewBox="0 0 24 24"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
+      </div>
+      <div class="step-title">Setting</div>
+      <p class="step-desc">Each stone is hand-set under magnification by artisans who have spent decades perfecting the art of precision stone placement.</p>
+    </div>
+    <div class="process-step">
+      <div class="step-icon">
+        <span class="step-num">04</span>
+        <svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+      </div>
+      <div class="step-title">Quality Check</div>
+      <p class="step-desc">Every piece passes 24-point quality inspection and BIS hallmarking before being lovingly packaged for you.</p>
+    </div>
+  </div>
+</section>
+
+<!-- TESTIMONIALS -->
+<section class="testimonials" id="testimonials">
+  <div class="testi-header">
+    <div class="section-tag reveal">Loved By Many</div>
+    <h2 class="section-title reveal reveal-delay-1">What Our <em>Customers</em> Say</h2>
+  </div>
+  <div class="testi-grid">
+    <div class="testi-card large reveal">
+      <div class="testi-quote-mark">"</div>
+      <div class="testi-stars">★★★★★</div>
+      <p class="testi-text">I wore my Zivarr bridal set on my wedding day and every single guest asked where my jewellery was from. The craftsmanship is extraordinary — it felt like wearing an heirloom even though it was brand new. I will be a Zivarr customer for life.</p>
+      <div class="testi-author">
+        <div class="testi-avatar">A</div>
+        <div>
+          <div class="testi-name">Ananya Sharma</div>
+          <div class="testi-meta">Delhi · Verified Buyer</div>
+        </div>
+      </div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:24px;">
+      <div class="testi-card reveal reveal-delay-1">
+        <div class="testi-quote-mark">"</div>
+        <div class="testi-stars">★★★★★</div>
+        <p class="testi-text">My Zivarr necklace is the first thing I reach for every morning. The craftsmanship is unlike anything I've owned before.</p>
+        <div class="testi-author">
+          <div class="testi-avatar">P</div>
+          <div>
+            <div class="testi-name">Priya S.</div>
+            <div class="testi-meta">Mumbai · Verified Buyer</div>
+          </div>
+        </div>
+      </div>
+      <div class="testi-card reveal reveal-delay-2">
+        <div class="testi-quote-mark">"</div>
+        <div class="testi-stars">★★★★★</div>
+        <p class="testi-text">Gifted the Luna Drop Earrings to my mother — she hasn't taken them off since. Stunning packaging, exceptional quality.</p>
+        <div class="testi-author">
+          <div class="testi-avatar">R</div>
+          <div>
+            <div class="testi-name">Ritu K.</div>
+            <div class="testi-meta">Bengaluru · Verified Buyer</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- NEWSLETTER -->
+<section class="newsletter" id="newsletter">
+  <div class="nl-content">
+    <div class="section-tag reveal">Stay Connected</div>
+    <h2 class="section-title reveal reveal-delay-1">Join the <em>Zivarr</em> Circle</h2>
+    <p class="section-sub reveal reveal-delay-2">Be the first to know about new collections, exclusive offers, and the stories behind our craft.</p>
+    <div class="nl-perks reveal reveal-delay-3">
+      <div class="nl-perk">
+        <div class="nl-perk-icon"><svg viewBox="0 0 24 24"><path d="M20 12V22H4V12"/><path d="M22 7H2v5h20V7z"/><path d="M12 22V7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/></svg></div>
+        <div class="nl-perk-text">10% off your first order, plus early access to every new drop</div>
+      </div>
+      <div class="nl-perk">
+        <div class="nl-perk-icon"><svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></div>
+        <div class="nl-perk-text">Exclusive member-only pieces and curated gifting guides</div>
+      </div>
+      <div class="nl-perk">
+        <div class="nl-perk-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg></div>
+        <div class="nl-perk-text">Care tips, styling inspiration, and behind-the-scenes artisan stories</div>
+      </div>
+    </div>
+  </div>
+  <div class="nl-form-wrap reveal reveal-delay-2">
+    <div class="nl-label">Your Email Address</div>
+    <div class="nl-input-wrap">
+      <input class="nl-input" type="email" placeholder="your@email.com"/>
+      <button class="nl-submit">Subscribe</button>
+    </div>
+    <p class="nl-note">We respect your privacy. No spam, ever. Unsubscribe anytime.</p>
+    <div class="nl-social-title">Follow us on</div>
+    <div class="nl-socials">
+      <div class="social-icon">ig</div>
+      <div class="social-icon">fb</div>
+      <div class="social-icon">yt</div>
+      <div class="social-icon">in</div>
+      <div class="social-icon">pt</div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-top">
+    <div>
+      <div class="footer-brand">ZI<span>V</span>ARR</div>
+      <div class="footer-tagline">Thoughtfully Made · Beautifully Worn</div>
+      <p class="footer-about">Luxury silver and gold jewellery crafted for the modern Indian woman. Rooted in tradition, designed for today. Every piece, a love letter.</p>
+      <div class="footer-badges">
+        <div class="footer-badge">BIS Hallmarked</div>
+        <div class="footer-badge">Made in India</div>
+        <div class="footer-badge">Secured Payments</div>
+      </div>
+    </div>
+    <div>
+      <div class="footer-col-title">Shop</div>
+      <ul class="footer-col-links">
+        <li>New Arrivals</li><li>Necklaces</li><li>Earrings</li>
+        <li>Bracelets</li><li>Rings</li><li>Bridal Sets</li><li>Gifting</li>
+      </ul>
+    </div>
+    <div>
+      <div class="footer-col-title">Help</div>
+      <ul class="footer-col-links">
+        <li>Size Guide</li><li>Care Instructions</li><li>Returns & Exchange</li>
+        <li>Track My Order</li><li>Contact Us</li><li>FAQs</li>
+      </ul>
+    </div>
+    <div>
+      <div class="footer-col-title">Company</div>
+      <ul class="footer-col-links">
+        <li>Our Story</li><li>Sustainability</li><li>Press & Media</li>
+        <li>Careers</li><li>Wholesale</li><li>Bespoke Orders</li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <div class="footer-copy">© 2025 Zivarr Jewellery. All rights reserved.</div>
+    <div class="footer-legal">
+      <a href="#">Privacy Policy</a>
+      <a href="#">Terms of Service</a>
+      <a href="#">Shipping Policy</a>
+    </div>
+  </div>
+</footer>
+
+<!-- BACK TO TOP -->
+<button id="btt" onclick="window.scrollTo({top:0,behavior:'smooth'})" aria-label="Back to top">
+  <svg viewBox="0 0 24 24"><polyline points="18 15 12 9 6 15"/></svg>
+</button>
+
+<script src="script.js" defer></script>
+
+</body>
+</html>
+

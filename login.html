@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Zivarr — Login</title>
+  <link rel="stylesheet" href="style.css"/>
+  <style>
+    /* Minimal page-local layout so we don't depend on missing CSS. */
+    .auth-page{
+      min-height:100svh;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:90px 24px 60px;
+      background:linear-gradient(180deg,var(--pink-pale) 0%, #ffffff 55%);
+    }
+    .auth-card{
+      width:min(520px,100%);
+      border:1px solid rgba(212,114,126,.25);
+      background:rgba(255,255,255,.85);
+      backdrop-filter:blur(10px);
+      border-radius:16px;
+      padding:26px;
+      box-shadow:0 20px 60px rgba(181,80,92,.08);
+    }
+    .auth-title{
+      font-family:'Cormorant Garamond',serif;
+      font-size:40px;
+      font-weight:300;
+      color:var(--rose-dark);
+      margin-bottom:8px;
+    }
+    .auth-sub{
+      font-size:13px;
+      color:var(--text-muted);
+      line-height:1.8;
+      margin-bottom:18px;
+    }
+    .auth-actions{display:flex;gap:12px;flex-wrap:wrap;}
+    .auth-link{font-size:12px;color:var(--rose-mid);text-decoration:none;border-bottom:1px solid rgba(212,114,126,.35);}
+    .auth-link:hover{color:var(--pink-mid)}
+    /* Use existing .commerce-form field styles if present */
+    .auth-form label{display:flex;flex-direction:column;gap:8px;font-size:9px;letter-spacing:2.5px;text-transform:uppercase;color:var(--text-muted);}
+    .auth-form input{border:1px solid rgba(212,114,126,.25);border-radius:10px;background:#fff;color:var(--rose-dark);padding:13px 14px;font-family:'Jost',sans-serif;font-size:12.5px;outline:none;}
+    .auth-form .btn-primary,.auth-form .btn-ghost{cursor:none;}
+  </style>
+</head>
+<body>
+  <!-- Reuse custom cursor + preloader from style.css/script.js -->
+  <div id="preloader">
+    <div class="pre-logo">ZIVARR</div>
+    <div class="pre-line"></div>
+    <div class="pre-tag">Thoughtfully Made · Beautifully Worn</div>
+  </div>
+
+  <div id="cur"></div>
+  <div id="cur-r"></div>
+
+  <div class="auth-page">
+    <div class="auth-card">
+      <div style="display:flex;align-items:baseline;justify-content:space-between;gap:16px;">
+        <div>
+          <div class="auth-title">Login</div>
+          <div class="auth-sub">Sign in to place orders and track them from your dashboard.</div>
+          <div style="margin-top:8px;font-size:12.5px;color:var(--text-muted);">
+            New here?
+            <a class="auth-link" href="registeruser.html" style="border-bottom:1px solid rgba(212,114,126,.35);">Register</a>
+          </div>
+
+
+
+        </div>
+        <a class="auth-link" href="zivarr.html">← Back</a>
+      </div>
+
+      <div id="authStatus" class="login-status" style="display:none;"></div>
+
+      <form id="authForm" class="commerce-form auth-form">
+        <label>
+          Email address
+          <input type="email" name="email" id="authEmail" placeholder="you@example.com" required/>
+        </label>
+        <label>
+          Password
+          <input type="password" name="password" id="authPassword" placeholder="Enter a password" required/>
+        </label>
+
+        <div class="auth-actions" style="margin-top:6px;">
+          <button type="submit" class="btn-primary">Login</button>
+          <button type="button" class="btn-ghost" id="guestBtn">Guest Login</button>
+        </div>
+      </form>
+
+      <p class="auth-sub" style="margin-top:16px;">
+        Demo mode: credentials are stored locally in your browser only.
+      </p>
+    </div>
+  </div>
+
+  <script>
+    // Keep this page self-contained; dashboard uses localStorage keys.
+    const USER_KEY = 'zivarr-demo-user';
+
+    const form = document.getElementById('authForm');
+    const emailEl = document.getElementById('authEmail');
+    const passEl = document.getElementById('authPassword');
+    const statusEl = document.getElementById('authStatus');
+    const guestBtn = document.getElementById('guestBtn');
+
+    function setStatus(msg){
+      statusEl.style.display='block';
+      statusEl.textContent=msg;
+    }
+
+    async function login({email,isGuest=false}){
+      if(!email){
+        setStatus('Please enter an email address.');
+        return;
+      }
+
+      if(isGuest){
+        const currentUser = { name: 'Guest', email: 'guest@local', isGuest: true };
+        localStorage.setItem(USER_KEY, JSON.stringify(currentUser));
+        localStorage.removeItem('zivarr-demo-auth-token');
+        window.location.href = 'dashboard.html';
+        return;
+      }
+
+      try {
+        const response = await fetch('/api/auth/login', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({ email, password: passEl.value.trim() })
+        });
+
+        const data = await response.json().catch(() => ({}));
+
+        if(!response.ok){
+          setStatus(data.error || 'Login failed.');
+          return;
+        }
+
+        localStorage.setItem(USER_KEY, JSON.stringify(data.user));
+        localStorage.setItem('zivarr-demo-auth-token', data.token);
+        window.location.href = 'dashboard.html';
+      } catch(error){
+        setStatus('Unable to connect to the backend. Start the server first.');
+      }
+    }
+
+    form.addEventListener('submit',(e)=>{
+      e.preventDefault();
+      const email = emailEl.value.trim();
+      const password = passEl.value.trim();
+
+      if(!email || !password){
+        setStatus('Please enter both email and password.');
+        return;
+      }
+
+      login({email,isGuest:false});
+    });
+
+    guestBtn.addEventListener('click',()=>{
+      localStorage.removeItem('zivarr-demo-user');
+      localStorage.removeItem('zivarr-demo-auth-token');
+      localStorage.setItem(USER_KEY, JSON.stringify({name:'Guest', email:'guest@local', isGuest:true}));
+      window.location.href = 'dashboard.html';
+    });
+  </script>
+
+  <script src="script.js" defer></script>
+</body>

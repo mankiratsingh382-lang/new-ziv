@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Zivarr — Register</title>
+  <link rel="stylesheet" href="style.css"/>
+  <style>
+    .auth-page{
+      min-height:100svh;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:90px 24px 60px;
+      background:linear-gradient(180deg,var(--pink-pale) 0%, #ffffff 55%);
+    }
+    .auth-card{
+      width:min(560px,100%);
+      border:1px solid rgba(212,114,126,.25);
+      background:rgba(255,255,255,.85);
+      backdrop-filter:blur(10px);
+      border-radius:16px;
+      padding:26px;
+      box-shadow:0 20px 60px rgba(181,80,92,.08);
+    }
+    .auth-title{
+      font-family:'Cormorant Garamond',serif;
+      font-size:40px;
+      font-weight:300;
+      color:var(--rose-dark);
+      margin-bottom:8px;
+    }
+    .auth-sub{
+      font-size:13px;
+      color:var(--text-muted);
+      line-height:1.8;
+      margin-bottom:18px;
+    }
+    .auth-actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:10px;}
+    .auth-link{font-size:12px;color:var(--rose-mid);text-decoration:none;border-bottom:1px solid rgba(212,114,126,.35);}
+    .auth-link:hover{color:var(--pink-mid)}
+
+    .auth-form label{display:flex;flex-direction:column;gap:8px;font-size:9px;letter-spacing:2.5px;text-transform:uppercase;color:var(--text-muted);} 
+    .auth-form input{
+      border:1px solid rgba(212,114,126,.25);
+      border-radius:10px;background:#fff;color:var(--rose-dark);
+      padding:13px 14px;font-family:'Jost',sans-serif;font-size:12.5px;outline:none;
+    }
+    .auth-form .btn-primary,.auth-form .btn-ghost{cursor:none;}
+    .hint{font-size:12.5px;color:var(--text-muted);margin-top:12px;line-height:1.7;}
+  </style>
+</head>
+<body>
+  <div id="preloader">
+    <div class="pre-logo">ZIVARR</div>
+    <div class="pre-line"></div>
+    <div class="pre-tag">Thoughtfully Made · Beautifully Worn</div>
+  </div>
+
+  <div id="cur"></div>
+  <div id="cur-r"></div>
+
+  <div class="auth-page">
+    <div class="auth-card">
+      <div style="display:flex;align-items:baseline;justify-content:space-between;gap:16px;flex-wrap:wrap;">
+        <div>
+          <div class="auth-title">Register</div>
+          <div class="auth-sub">Create an account so you can log in anytime on this browser.</div>
+        </div>
+        <a class="auth-link" href="login.html">← Back to Login</a>
+      </div>
+
+      <div id="authStatus" class="login-status" style="display:none;"></div>
+
+      <form id="registerForm" class="commerce-form auth-form">
+        <label>
+          Full Name
+          <input type="text" id="regName" placeholder="Your name" required/>
+        </label>
+
+        <label>
+          Email address
+          <input type="email" id="regEmail" placeholder="you@example.com" required/>
+        </label>
+
+        <label>
+          Password
+          <input type="password" id="regPassword" placeholder="Create a password" required/>
+        </label>
+
+        <label>
+          Confirm Password
+          <input type="password" id="regPassword2" placeholder="Re-enter password" required/>
+        </label>
+
+        <div class="auth-actions">
+          <button type="submit" class="btn-primary">Create Account</button>
+          <button type="button" class="btn-ghost" id="goLogin">Go to Login</button>
+        </div>
+      </form>
+
+      <div class="hint">
+        Demo note: This project doesn’t have a backend server yet, so “database” here is implemented with <strong>localStorage</strong>.
+        To connect a real database, we’d replace this with API calls.
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Local demo "database".
+    const USERS_KEY = 'zivarr-demo-users'; // array of {name,email,password}
+    const USER_KEY = 'zivarr-demo-user';  // current logged in user
+
+    const form = document.getElementById('registerForm');
+    const statusEl = document.getElementById('authStatus');
+    const regName = document.getElementById('regName');
+    const regEmail = document.getElementById('regEmail');
+    const regPassword = document.getElementById('regPassword');
+    const regPassword2 = document.getElementById('regPassword2');
+    const goLogin = document.getElementById('goLogin');
+
+    function setStatus(msg){
+      statusEl.style.display='block';
+      statusEl.textContent = msg;
+    }
+
+    function normalizeEmail(email){
+      return String(email||'').trim().toLowerCase();
+    }
+
+    form.addEventListener('submit', async (e)=>{
+      e.preventDefault();
+
+      const name = regName.value.trim();
+      const email = normalizeEmail(regEmail.value);
+      const password = regPassword.value;
+      const password2 = regPassword2.value;
+
+      if(!name || !email || !password){
+        setStatus('Please fill in all fields.');
+        return;
+      }
+
+      if(password.length < 4){
+        setStatus('Password should be at least 4 characters (demo rule).');
+        return;
+      }
+
+      if(password !== password2){
+        setStatus('Passwords do not match.');
+        return;
+      }
+
+      try {
+        const response = await fetch('/api/auth/register', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({ name, email, password })
+        });
+
+        const data = await response.json().catch(() => ({}));
+
+        if(!response.ok){
+          setStatus(data.error || 'Registration failed.');
+          return;
+        }
+
+        localStorage.setItem(USER_KEY, JSON.stringify(data.user));
+        localStorage.setItem('zivarr-demo-auth-token', data.token);
+        window.location.href = 'dashboard.html';
+      } catch(error){
+        setStatus('Unable to connect to the backend. Start the server first.');
+      }
+    });
+
+    goLogin.addEventListener('click',()=>{
+      window.location.href = 'login.html';
+    });
+  </script>
+
+  <script src="script.js" defer></script>
+</body>
+</html>
+
