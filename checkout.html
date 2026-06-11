@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ZIVARR — Checkout</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+  <style>.page-shell{min-height:100svh;padding:110px 24px 72px;background:linear-gradient(180deg,#fffafc 0%, #fff 45%, #fff7f8 100%);} .page-wrap{max-width:1100px;margin:0 auto;display:grid;grid-template-columns:1fr .95fr;gap:24px;} .glass-panel{background:rgba(255,255,255,.82);backdrop-filter:blur(18px);border:1px solid rgba(212,114,126,.18);border-radius:28px;box-shadow:0 18px 50px rgba(61,24,32,.08);padding:24px;} .eyebrow{font-size:10px;letter-spacing:4px;text-transform:uppercase;color:var(--pink-mid);} .title{font-family:'Cormorant Garamond',serif;font-size:clamp(36px,6vw,56px);color:var(--rose-dark);margin-top:8px;} .muted{color:var(--text-muted);font-size:13px;line-height:1.8;} label{display:grid;gap:6px;font-size:10px;letter-spacing:2.5px;text-transform:uppercase;color:var(--text-muted);margin-bottom:10px;} input{border:1px solid rgba(212,114,126,.18);border-radius:14px;padding:12px 14px;background:rgba(255,255,255,.88);color:var(--rose-dark);} .step-card{border:1px solid rgba(212,114,126,.18);border-radius:18px;padding:14px;background:rgba(255,255,255,.92);margin-bottom:10px;} .step-card h3{font-family:'Cormorant Garamond',serif;font-size:22px;color:var(--rose-dark);} @media (max-width:980px){.page-wrap{grid-template-columns:1fr;}}</style>
+</head>
+<body>
+  <div id="preloader"><div class="pre-logo">ZIVARR</div><div class="pre-line"></div><div class="pre-tag">Thoughtfully Made · Beautifully Worn</div></div>
+  <div id="cur"></div><div id="cur-r"></div>
+  <nav id="main-nav">
+    <a class="nav-logo" href="index.html">ZIVARR<span>.</span></a>
+    <ul class="nav-links"><li><a href="collections.html">Collections</a></li><li><a href="about.html">About</a></li><li><a href="contact.html">Contact</a></li><li><a href="account.html">Account</a></li></ul>
+    <div class="nav-actions"><a href="login.html" class="btn-ghost">Login</a><button id="cartToggle" aria-label="Cart"><svg viewBox="0 0 24 24"><path d="M3 4h2l2 10h10l2-8H7"/><circle cx="10" cy="19" r="1.5"/><circle cx="17" cy="19" r="1.5"/></svg><span class="cart-dot">0</span></button></div>
+  </nav>
+  <main class="page-shell"><section class="page-wrap"><article class="glass-panel"><p class="eyebrow">Checkout</p><h1 class="title">A secure checkout flow with payment gateway placeholders.</h1><p class="muted">This page hosts the multi-step checkout experience the ZIVARR brand needs. The current build keeps it elegant and ready for React stepper components and gateway integration.</p><div class="step-card"><h3>Step 1 · Delivery</h3><label>Full Name<input type="text" placeholder="Ava Sharma" /></label><label>Address<input type="text" placeholder="14, Blossom Lane" /></label><label>City<input type="text" placeholder="Jaipur" /></label></div><div class="step-card"><h3>Step 2 · Payment</h3><p class="muted">Visa, Mastercard, and UPI placeholders can be connected here via a payment provider.</p></div><div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:12px;"><a class="btn-primary" href="dashboard.html">Confirm Order</a><a class="btn-ghost" href="cart.html">Back to Cart</a></div></article><article class="glass-panel"><p class="eyebrow">Checkout Notes</p><p class="muted">The checkout page is built for a secure, premium handoff with clear trust signals, payment placeholders, and status panels. It is ready to evolve into a full multi-step form once a gateway is enabled.</p></article></section></main>
+  <script src="script.js" defer></script>
+</body>
+</html>

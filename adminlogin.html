@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Zivarr — Admin Login</title>
+  <link rel="stylesheet" href="style.css"/>
+  <style>
+    .auth-page{
+      min-height:100svh;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:90px 24px 60px;
+      background:linear-gradient(180deg,var(--pink-pale) 0%, #ffffff 55%);
+    }
+    .auth-card{
+      width:min(520px,100%);
+      border:1px solid rgba(212,114,126,.25);
+      background:rgba(255,255,255,.85);
+      backdrop-filter:blur(10px);
+      border-radius:16px;
+      padding:26px;
+      box-shadow:0 20px 60px rgba(181,80,92,.08);
+    }
+    .auth-title{
+      font-family:'Cormorant Garamond',serif;
+      font-size:40px;
+      font-weight:300;
+      color:var(--rose-dark);
+      margin-bottom:8px;
+    }
+    .auth-sub{
+      font-size:13px;
+      color:var(--text-muted);
+      line-height:1.8;
+      margin-bottom:18px;
+    }
+    .auth-actions{display:flex;gap:12px;flex-wrap:wrap;}
+    .auth-link{font-size:12px;color:var(--rose-mid);text-decoration:none;border-bottom:1px solid rgba(212,114,126,.35);}
+
+    .auth-form label{display:flex;flex-direction:column;gap:8px;font-size:9px;letter-spacing:2.5px;text-transform:uppercase;color:var(--text-muted);}
+    .auth-form input{border:1px solid rgba(212,114,126,.25);border-radius:10px;background:#fff;color:var(--rose-dark);padding:13px 14px;font-family:'Jost',sans-serif;font-size:12.5px;outline:none;}
+    .auth-form .btn-primary,.auth-form .btn-ghost{cursor:none;}
+
+    .hint{font-size:12.5px;color:var(--text-muted);margin-top:10px;line-height:1.6;}
+  </style>
+</head>
+<body>
+  <div id="cur"></div>
+  <div id="cur-r"></div>
+
+  <div class="auth-page">
+    <div class="auth-card">
+      <div style="display:flex;align-items:baseline;justify-content:space-between;gap:16px;">
+        <div>
+          <div class="auth-title">Admin Login</div>
+          <div class="auth-sub">Sign in to manage products and update order status.</div>
+        </div>
+        <a class="auth-link" href="index.html">← Back</a>
+      </div>
+
+      <div id="authStatus" class="login-status" style="display:none;margin-top:12px;"></div>
+
+      <form id="adminLoginForm" class="commerce-form auth-form">
+        <label>
+          Admin Token
+          <input id="adminToken" type="password" placeholder="Enter ADMIN_TOKEN" required/>
+        </label>
+
+        <div class="auth-actions" style="margin-top:14px;">
+          <button type="submit" class="btn-primary">Login</button>
+          <button type="button" class="btn-ghost" id="clearBtn">Clear</button>
+        </div>
+      </form>
+
+      <div class="hint">
+        Uses the same backend admin authentication as `admin.html`.
+        The token is stored locally in your browser after login.
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const ADMIN_TOKEN_KEY = 'zivarr-admin-token';
+    const form = document.getElementById('adminLoginForm');
+    const tokenEl = document.getElementById('adminToken');
+    const statusEl = document.getElementById('authStatus');
+    const clearBtn = document.getElementById('clearBtn');
+
+    function setStatus(msg, kind='err'){
+      statusEl.style.display='block';
+      statusEl.textContent = msg;
+      statusEl.style.color = kind==='ok' ? 'var(--rose-dark)' : 'var(--rose-mid)';
+    }
+
+    form.addEventListener('submit', (e)=>{
+      e.preventDefault();
+      const token = (tokenEl.value||'').trim();
+      if(!token){ setStatus('Enter admin token.'); return; }
+
+      // Store token locally and redirect.
+      localStorage.setItem(ADMIN_TOKEN_KEY, token);
+      setStatus('Logged in. Redirecting...', 'ok');
+      window.location.href = 'admin.html';
+    });
+
+    clearBtn.addEventListener('click',()=>{
+      tokenEl.value='';
+      statusEl.style.display='none';
+      localStorage.removeItem(ADMIN_TOKEN_KEY);
+    });
+  </script>
+</body>
+</html>
+

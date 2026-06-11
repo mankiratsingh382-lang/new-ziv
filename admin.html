@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Zivarr — Admin</title>
+  <link rel="stylesheet" href="style.css"/>
+  <style>
+    body{background:var(--white);padding:30px 18px;}
+    .admin-wrap{max-width:1200px;margin:0 auto;display:flex;gap:16px;align-items:flex-start;}
+    .admin-nav{width:260px;position:sticky;top:20px;align-self:flex-start;}
+    .admin-nav button{
+      width:100%;text-align:left;padding:14px 16px;border-radius:14px;border:1px solid rgba(212,114,126,.25);
+      background:rgba(255,255,255,.82);backdrop-filter:blur(8px);
+      color:var(--rose-mid);font-size:12px;letter-spacing:2.5px;text-transform:uppercase;font-weight:400;
+      margin-bottom:10px;cursor:none;
+      transition:all .25s;
+    }
+    .admin-nav button.active{background:var(--rose-dark);color:var(--pink-soft);border-color:var(--rose-dark);}
+    .admin-panel{
+      flex:1;border:1px solid rgba(212,114,126,.25);border-radius:16px;padding:18px 18px;background:rgba(255,255,255,.86);
+      box-shadow:0 20px 60px rgba(181,80,92,.06);
+    }
+    h1{font-family:'Cormorant Garamond',serif;font-size:44px;font-weight:300;color:var(--rose-dark);margin:0 0 8px;}
+    .sub{color:var(--text-muted);font-size:13px;line-height:1.8;margin-bottom:14px;}
+    .field-row{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px;align-items:center;}
+    .field-row input{flex:1;min-width:240px;border:1px solid rgba(212,114,126,.25);border-radius:12px;padding:12px 14px;font-family:'Jost',sans-serif;font-size:13px;outline:none;}
+    .btn-primary, .btn-ghost{cursor:none;}
+    .btn-admin{padding:12px 16px;border-radius:999px;border:1px solid rgba(212,114,126,.35);background:transparent;color:var(--rose-mid);font-size:10px;letter-spacing:3px;text-transform:uppercase;font-weight:400;}
+    .btn-admin:hover{background:var(--rose-dark);color:var(--pink-soft);border-color:var(--rose-dark);}
+
+    .table{
+      width:100%;border-collapse:separate;border-spacing:0;overflow:hidden;border-radius:14px;border:1px solid rgba(212,114,126,.18);
+    }
+    .table th,.table td{padding:12px 10px;border-bottom:1px solid rgba(212,114,126,.12);vertical-align:top;font-size:12.5px;}
+    .table th{font-size:10.5px;letter-spacing:2.5px;text-transform:uppercase;color:var(--text-muted);font-weight:500;background:rgba(245,213,218,.28);}
+    .table tr:last-child td{border-bottom:none;}
+
+    .cell-actions{display:flex;gap:8px;flex-wrap:wrap;}
+    .mini-btn{
+      border:none;border-radius:999px;padding:8px 12px;background:rgba(232,160,170,.18);color:var(--rose-mid);
+      font-size:10px;letter-spacing:2px;text-transform:uppercase;cursor:none;
+    }
+    .mini-btn.danger{background:rgba(181,80,92,.14);color:var(--rose-mid);} 
+
+    .hidden{display:none;}
+    select{border:1px solid rgba(212,114,126,.25);border-radius:12px;padding:10px 12px;font-family:'Jost',sans-serif;font-size:12.5px;outline:none;}
+    textarea{width:100%;min-height:70px;border:1px solid rgba(212,114,126,.25);border-radius:12px;padding:12px 14px;font-family:'Jost',sans-serif;font-size:12.5px;outline:none;}
+
+    .toast{padding:12px 14px;border-radius:12px;margin-top:10px;border:1px solid rgba(212,114,126,.2);background:rgba(245,213,218,.18);color:var(--rose-mid);font-size:12.5px;display:none;}
+    .toast.ok{background:rgba(164,123,70,.14);border-color:rgba(164,123,70,.25);}
+    .toast.err{background:rgba(181,80,92,.12);border-color:rgba(181,80,92,.25);}
+
+    @media(max-width:900px){.admin-wrap{flex-direction:column;} .admin-nav{width:100%;position:static;}}
+  </style>
+</head>
+<body>
+  <div id="cur"></div>
+  <div id="cur-r"></div>
+
+  <div class="admin-wrap">
+    <aside class="admin-nav">
+      <h1 style="font-size:30px;letter-spacing:0;margin-top:4px;">Admin</h1>
+      <div class="sub" style="margin-bottom:12px;">View/edit products, users, and update order status.</div>
+
+      <div style="margin-bottom:14px;">
+        <div class="sub" style="margin-bottom:8px;">Admin access is protected.</div>
+        <button class="btn-admin" id="logoutBtn" type="button">Logout</button>
+      </div>
+
+      <button id="tabProducts" class="active" type="button">Products</button>
+
+      <button id="tabUsers" type="button">Users</button>
+      <button id="tabOrders" type="button">Orders</button>
+    </aside>
+
+    <section class="admin-panel">
+      <div class="toast" id="toast"></div>
+
+      <div id="panelProducts">
+        <div class="field-row">
+          <div style="flex:1;min-width:240px;">
+            <label style="display:block;font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--text-muted);margin-bottom:8px;">Select product</label>
+            <select id="productSelect"></select>
+          </div>
+        </div>
+
+        <form id="editProductForm">
+          <div class="field-row">
+            <input id="pName" placeholder="Name" required/>
+            <input id="pCategory" placeholder="Category" required/>
+          </div>
+          <div class="field-row">
+            <input id="pPrice" type="number" placeholder="Price" required/>
+            <input id="pMaterial" placeholder="Material"/>
+          </div>
+          <div class="field-row">
+            <input id="pBadge" placeholder="Badge (New/Bestseller/...)"/>
+            <input id="pSortOrder" type="number" placeholder="Sort order"/>
+          </div>
+          <div class="field-row">
+            <div style="flex:1;min-width:240px;">
+              <label style="display:block;font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--text-muted);margin-bottom:8px;">Description</label>
+              <textarea id="pDescription" placeholder="Description"></textarea>
+            </div>
+          </div>
+          <div class="field-row">
+            <button class="btn-admin" type="submit">Save changes</button>
+            <button class="btn-admin" type="button" id="deleteProductBtn" style="border-color:rgba(181,80,92,.35);">Delete product</button>
+          </div>
+        </form>
+
+        <h2 style="font-family:'Cormorant Garamond',serif;font-weight:400;color:var(--rose-dark);font-size:26px;margin:18px 0 10px;">All products</h2>
+        <table class="table">
+          <thead>
+            <tr>
+              <th style="width:70px;">ID</th>
+              <th>Name</th>
+              <th>Category</th>
+              <th style="width:120px;">Price</th>
+              <th>Badge</th>
+              <th style="width:150px;">Sort</th>
+              <th style="width:160px;">Actions</th>
+            </tr>
+          </thead>
+          <tbody id="productsTbody"></tbody>
+        </table>
+      </div>
+
+      <div id="panelUsers" class="hidden">
+        <h2 style="font-family:'Cormorant Garamond',serif;font-weight:400;color:var(--rose-dark);font-size:26px;margin:0 0 10px;">Users</h2>
+        <table class="table">
+          <thead>
+            <tr>
+              <th style="width:70px;">ID</th>
+              <th>Name</th>
+              <th>Email</th>
+              <th style="width:170px;">Created</th>
+            </tr>
+          </thead>
+          <tbody id="usersTbody"></tbody>
+        </table>
+      </div>
+
+      <div id="panelOrders" class="hidden">
+        <h2 style="font-family:'Cormorant Garamond',serif;font-weight:400;color:var(--rose-dark);font-size:26px;margin:0 0 10px;">Orders</h2>
+        <table class="table">
+          <thead>
+            <tr>
+              <th style="width:70px;">ID</th>
+              <th>User</th>
+              <th>Product</th>
+              <th style="width:90px;">Qty</th>
+              <th style="width:140px;">Total</th>
+              <th style="width:180px;">Status</th>
+              <th style="width:160px;">Action</th>
+            </tr>
+          </thead>
+          <tbody id="ordersTbody"></tbody>
+        </table>
+      </div>
+    </section>
+  </div>
+
+  <script>
+    const ADMIN_TOKEN_KEY = 'zivarr-admin-token';
+
+    const els = {
+      toast: document.getElementById('toast'),
+      tabProducts: document.getElementById('tabProducts'),
+      tabUsers: document.getElementById('tabUsers'),
+      tabOrders: document.getElementById('tabOrders'),
+      panelProducts: document.getElementById('panelProducts'),
+      panelUsers: document.getElementById('panelUsers'),
+      panelOrders: document.getElementById('panelOrders'),
+      logoutBtn: document.getElementById('logoutBtn'),
+      productSelect: document.getElementById('productSelect'),
+      editProductForm: document.getElementById('editProductForm'),
+      deleteProductBtn: document.getElementById('deleteProductBtn'),
+      productsTbody: document.getElementById('productsTbody'),
+      usersTbody: document.getElementById('usersTbody'),
+      ordersTbody: document.getElementById('ordersTbody'),
+      pName: document.getElementById('pName'),
+      pCategory: document.getElementById('pCategory'),
+      pPrice: document.getElementById('pPrice'),
+      pMaterial: document.getElementById('pMaterial'),
+      pBadge: document.getElementById('pBadge'),
+      pSortOrder: document.getElementById('pSortOrder'),
+      pDescription: document.getElementById('pDescription'),
+    };
+
+    function showToast(msg, kind='ok'){
+      els.toast.style.display='block';
+      els.toast.classList.remove('ok','err');
+      els.toast.classList.add(kind==='err'?'err':'ok');
+      els.toast.textContent = msg;
+      setTimeout(()=>{ els.toast.style.display='none'; }, 3500);
+    }
+
+    function getToken(){
+      return (localStorage.getItem(ADMIN_TOKEN_KEY) || '').trim();
+    }
+
+
+    function authHeaders(){
+      const token = getToken();
+      return token ? { Authorization: `Bearer ${token}` } : {};
+    }
+
+    function setPanel(which){
+      els.tabProducts.classList.toggle('active', which==='products');
+      els.tabUsers.classList.toggle('active', which==='users');
+      els.tabOrders.classList.toggle('active', which==='orders');
+
+      els.panelProducts.classList.toggle('hidden', which!=='products');
+      els.panelUsers.classList.toggle('hidden', which!=='users');
+      els.panelOrders.classList.toggle('hidden', which!=='orders');
+    }
+
+    // Security: admin token required for each action.
+    els.tabProducts.addEventListener('click',()=>{ setPanel('products'); loadProducts(); });
+    els.tabUsers.addEventListener('click',()=>{ setPanel('users'); loadUsers(); });
+    els.tabOrders.addEventListener('click',()=>{ setPanel('orders'); loadOrders(); });
+
+    els.logoutBtn.addEventListener('click',()=>{
+      localStorage.removeItem(ADMIN_TOKEN_KEY);
+      showToast('Logged out. Redirecting...','ok');
+      setTimeout(()=>{ window.location.href = 'adminlogin.html'; }, 500);
+    });
+
+
+    // State
+    let products = [];
+
+    function escapeHtml(str){
+      return String(str ?? '').replace(/[&<>"']/g, (c)=>({ '&':'&amp;','<':'<','>':'>','"':'"',"'":'&#39;' }[c]));
+    }
+
+    function loadFormForProduct(p){
+      els.pName.value = p.name || '';
+      els.pCategory.value = p.category || '';
+      els.pPrice.value = p.price ?? '';
+      els.pMaterial.value = p.material || '';
+      els.pBadge.value = p.badge || '';
+      els.pSortOrder.value = p.sort_order ?? '';
+      els.pDescription.value = p.description || '';
+    }
+
+    function currentSelectedProductId(){
+      return Number(els.productSelect.value);
+    }
+
+    async function apiJson(url, options={}){
+      const headers = { 'Content-Type':'application/json', ...(options.headers||{}) };
+      const response = await fetch(url, { ...options, headers });
+      const data = await response.json().catch(()=>({}));
+      if(!response.ok){
+        throw new Error(data.error || `Request failed: ${response.status}`);
+      }
+      return data;
+    }
+
+    async function loadProducts(){
+      if(!getToken()){ showToast('Admin login required.','err'); window.location.href='adminlogin.html'; return; }
+
+      products = await apiJson('/api/admin/products', { headers: authHeaders() });
+
+      els.productsTbody.innerHTML = products.map(p=>`
+        <tr>
+          <td>${p.id}</td>
+          <td>${escapeHtml(p.name)}</td>
+          <td>${escapeHtml(p.category)}</td>
+          <td>₹${Number(p.price).toLocaleString('en-IN')}</td>
+          <td>${escapeHtml(p.badge||'')}</td>
+          <td>${p.sort_order ?? ''}</td>
+          <td>
+            <div class="cell-actions">
+              <button class="mini-btn" type="button" data-pid="${p.id}">Edit</button>
+            </div>
+          </td>
+        </tr>
+      `).join('');
+
+      els.productSelect.innerHTML = products.map(p=>
+        `<option value="${p.id}">${p.id} — ${escapeHtml(p.name)}</option>`
+      ).join('');
+
+      if(products[0]){
+        els.productSelect.value = products[0].id;
+        loadFormForProduct(products[0]);
+      }
+
+      els.productsTbody.querySelectorAll('button[data-pid]').forEach(btn=>{
+        btn.addEventListener('click',()=>{
+          const p = products.find(x=>x.id===Number(btn.dataset.pid));
+          if(!p) return;
+          els.productSelect.value = p.id;
+          loadFormForProduct(p);
+        });
+      });
+
+
+      els.productSelect.onchange = ()=>{
+        const pid = Number(els.productSelect.value);
+        const p = products.find(x=>x.id===pid);
+        if(p) loadFormForProduct(p);
+      };
+
+    }
+
+    async function loadUsers(){
+      if(!getToken()){ showToast('Admin login required.','err'); window.location.href='adminlogin.html'; return; }
+
+      const users = await apiJson('/api/admin/users', { headers: authHeaders() });
+      els.usersTbody.innerHTML = users.map(u=>`
+        <tr>
+          <td>${u.id}</td>
+          <td>${escapeHtml(u.name||'')}</td>
+          <td>${escapeHtml(u.email||'')}</td>
+          <td>${escapeHtml(u.created_at||'')}</td>
+        </tr>
+      `).join('');
+    }
+
+    async function loadOrders(){
+      if(!getToken()){ showToast('Admin login required.','err'); window.location.href='adminlogin.html'; return; }
+
+      const orders = await apiJson('/api/admin/orders', { headers: authHeaders() });
+
+      const allowedStatuses = ['pending','processing','shipped','delivered','cancelled'];
+
+      els.ordersTbody.innerHTML = orders.map(o=>{
+        const safeId = Number(o.id);
+        const safeStatus = o.status || 'pending';
+        const statusOptions = allowedStatuses.map(s=>`
+          <option value="${s}" ${s===safeStatus ? 'selected' : ''}>${s}</option>
+        `).join('');
+
+        return `
+          <tr>
+            <td>${o.id}</td>
+            <td>${escapeHtml(o.user_name||o.email||'')}</td>
+            <td>${escapeHtml(o.product_name||'')}</td>
+            <td>${o.quantity}</td>
+            <td>₹${Number(o.total_price).toLocaleString('en-IN')}</td>
+            <td>
+              <select data-oid="${safeId}" class="order-status-select">
+                ${statusOptions}
+              </select>
+            </td>
+            <td>
+              <button class="mini-btn" type="button" data-update-oid="${safeId}">Update</button>
+            </td>
+          </tr>
+        `;
+      }).join('');
+
+      els.ordersTbody.querySelectorAll('button[data-update-oid]').forEach(btn=>{
+        btn.addEventListener('click', async ()=>{
+          const oid = Number(btn.dataset.updateOid);
+          const row = btn.closest('tr');
+          const select = row && row.querySelector('select.order-status-select');
+          const newStatus = (select && select.value) ? select.value : 'pending';
+
+          try{
+            await apiJson(`/api/admin/orders/${oid}/status`, {
+              method: 'POST',
+              headers: authHeaders(),
+              body: JSON.stringify({ status: newStatus }),
+            });
+            showToast('Order status updated.');
+            await loadOrders();
+          }catch(err){
+            showToast(err.message || 'Failed to update order status','err');
+          }
+        });
+      });
+    }
+
+    // Product CRUD
+    els.editProductForm.addEventListener('submit', async (e)=>{
+      e.preventDefault();
+      if(!getToken()){ showToast('Enter ADMIN token first.','err'); return; }
+      if(!els.productSelect.value){ showToast('Select a product first.','err'); return; }
+
+      const body = {
+        id: currentSelectedProductId(),
+        name: els.pName.value.trim(),
+        category: els.pCategory.value.trim(),
+        price: Number(els.pPrice.value),
+        material: els.pMaterial.value.trim() || null,
+        description: els.pDescription.value.trim() || null,
+        badge: els.pBadge.value.trim() || null,
+        sort_order: els.pSortOrder.value.trim() === '' ? null : Number(els.pSortOrder.value),
+      };
+
+      try{
+        await apiJson('/api/admin/products', {
+          method: 'POST',
+          headers: authHeaders(),
+          body: JSON.stringify(body),
+        });
+        showToast('Product saved.');
+        await loadProducts();
+      }catch(err){
+        showToast(err.message || 'Failed to save product','err');
+      }
+    });
+
+    // After save/delete, reload the whole product list from DB so edits always apply to fresh data.
+    // (This is handled by awaiting loadProducts() below.)
+
+    els.deleteProductBtn.addEventListener('click', async ()=>{
+      if(!getToken()){ showToast('Enter ADMIN token first.','err'); return; }
+      const pid = currentSelectedProductId();
+      if(!pid){ showToast('Select a product to delete.','err'); return; }
+      if(!confirm(`Delete product ID ${pid}? This cannot be undone.`)) return;
+
+      try{
+        await apiJson(`/api/admin/products/${pid}`, {
+          method: 'DELETE',
+          headers: authHeaders(),
+        });
+        showToast('Product deleted.');
+        await loadProducts();
+      }catch(err){
+        showToast(err.message || 'Failed to delete product','err');
+      }
+    });
+
+    // Auto-load products if admin is already logged in
+    if(getToken()){
+      setPanel('products');
+      loadProducts().catch((err)=>{
+        // 401 likely means the token is wrong or backend ADMIN_TOKEN differs.
+        showToast(err?.message ? err.message : 'Admin authentication failed.','err');
+        setTimeout(()=>{ window.location.href='adminlogin.html'; }, 800);
+      });
+    }else{
+      // If admin isn't logged in, send them to admin login.
+      window.location.href='adminlogin.html';
+    }
+
+
+  </script>
+</body>
+</html>
+

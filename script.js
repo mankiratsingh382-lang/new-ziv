@@ -53,10 +53,7 @@ document.querySelectorAll('.reveal,.process-step').forEach(el=>io.observe(el));
 const CART_KEY='zivarr-demo-cart';
 const USER_KEY='zivarr-demo-user';
 
-// If user is logged in on dashboard/login page, optionally reflect login state on homepage.
-// (No redirects here; this script is used by multiple pages.)
-
-
+// This script is included by many pages. Guard all page-specific DOM wiring.
 const cartItems=document.getElementById('cartItems');
 const subtotalAmount=document.getElementById('subtotalAmount');
 const shippingAmount=document.getElementById('shippingAmount');
@@ -79,15 +76,56 @@ const placeOrderBtn=document.getElementById('placeOrderBtn');
 const clearFormBtn=document.getElementById('resetCartBtn');
 const cartToggle=document.getElementById('cartToggle');
 const loginToggle=document.getElementById('loginToggle');
-const productCards=document.querySelectorAll('.prod-card');
-const filterButtons=document.querySelectorAll('.feat-filter');
+let productCards=document.querySelectorAll('.prod-card');
+let filterButtons=document.querySelectorAll('.feat-filter');
+const productsGrid=document.querySelector('.products-grid');
 
 let cart=[];
 let currentUser=null;
 let guestMode=false;
 
+const hasCheckoutUI = !!(cartItems && subtotalAmount && shippingAmount && totalAmount && cartCountBadge && shippingNote && orderStatusBox && loginStatus && loginForm && checkoutForm && guestCheckoutBtn && checkoutEmail && customerName && customerAddress && customerPhone && customerCity && customerPincode && placeOrderBtn);
+// Homepage: the Handpicked Favourites section uses .products-grid but cards may be empty at load.
+const hasHomepageCommerce = !!(productsGrid && filterButtons && filterButtons.length);
+
 function formatPrice(value){
-  return `₹${value.toLocaleString('en-IN')}`;
+  return `₹${Number(value).toLocaleString('en-IN')}`;
+}
+
+function getApiBaseUrl(){
+  if (typeof window === 'undefined' || !window.location) return 'http://localhost:3000';
+
+  if (window.location.protocol === 'file:') {
+    return 'http://localhost:3000';
+  }
+
+  return window.location.origin || 'http://localhost:3000';
+}
+
+async function fetchProductsFromApi(){
+  const endpoints = Array.from(new Set([
+    '/api/products',
+    `${getApiBaseUrl()}/api/products`,
+  ]));
+
+  for (const endpoint of endpoints) {
+    try {
+      const response = await fetch(endpoint);
+      const data = await response.json();
+
+      if (response.ok && Array.isArray(data) && data.length > 0) {
+        return data;
+      }
+
+      if (response.ok && Array.isArray(data)) {
+        return data;
+      }
+    } catch (error) {
+      // Try the next endpoint if this one fails.
+    }
+  }
+
+  return [];
 }
 
 function loadCart(){
@@ -174,6 +212,80 @@ function applyFilter(filter){
     const matches=filter==='All' || card.dataset.category===filter;
     card.classList.toggle('hidden',!matches);
   });
+}
+
+function renderProductCards(products){
+  if(!productsGrid || !Array.isArray(products) || products.length === 0) return;
+
+  // Reset grid (homepage only) and render cards from DB.
+  productsGrid.innerHTML = products.map((product, index) => `
+    <article class="prod-card reveal ${index % 4 === 0 ? '' : index % 4 === 1 ? 'reveal-delay-1' : index % 4 === 2 ? 'reveal-delay-2' : 'reveal-delay-3'}" data-name="${product.name}" data-price="${product.price}" data-category="${product.category || 'Jewelry'}">
+      <div class="prod-img-wrap" style="background:linear-gradient(145deg,#FDF0F2,#FAE8EB);">
+        <div class="prod-img-art">✦</div>
+        <div class="prod-badge ${product.badge === 'New' ? 'new' : ''}">${product.badge || 'Featured'}</div>
+        <div class="prod-actions">
+          <button class="prod-add">Add to Bag</button>
+          <button class="prod-wish" aria-label="Add to wishlist"><svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></button>
+        </div>
+      </div>
+      <div class="prod-name">${product.name}</div>
+      <div class="prod-material">${product.material || 'Handcrafted gemstone jewelry'}</div>
+      <div class="prod-price"><span class="prod-price-now">${formatPrice(product.price)}</span></div>
+      <div class="prod-stars"><span>★★★★★</span></div>
+    </article>
+  `).join('');
+
+  productCards = document.querySelectorAll('.prod-card');
+  filterButtons = document.querySelectorAll('.feat-filter');
+
+  // Re-bind events and ensure the section shows ALL products by default.
+  bindProductCardEvents();
+  if(filterButtons && filterButtons.length) bindFilterButtons();
+  applyFilter('All');
+}
+
+
+
+function bindProductCardEvents(){
+  productCards.forEach(card => {
+    const addBtn = card.querySelector('.prod-add');
+    if (addBtn) {
+      addBtn.onclick = () => addToCart(card);
+    }
+  });
+}
+
+function bindFilterButtons(){
+  filterButtons.forEach(button => {
+    button.onclick = () => {
+      filterButtons.forEach(item => item.classList.remove('active'));
+      button.classList.add('active');
+      applyFilter(button.dataset.filter);
+    };
+  });
+}
+
+async function hydrateProductsFromApi(){
+  if(!productsGrid) return;
+
+  const loadingCard = document.getElementById('handpickedLoading');
+  if (loadingCard) loadingCard.style.display = 'flex';
+
+  try {
+    const products = await fetchProductsFromApi();
+
+    if (!Array.isArray(products) || products.length === 0) {
+      console.warn('No products returned from /api/products');
+      if (loadingCard) loadingCard.textContent = 'No products available right now.';
+      return;
+    }
+
+    if (loadingCard) loadingCard.remove();
+    renderProductCards(products);
+  } catch (error) {
+    console.warn('Unable to refresh products from API:', error);
+    if (loadingCard) loadingCard.textContent = 'Unable to load products right now.';
+  }
 }
 
 function addToCart(card){
@@ -314,35 +426,29 @@ function resetCheckoutForm(){
 
 cart=loadCart();
 currentUser=loadUser();
-updateCartUI();
-updateLoginStatus();
-applyFilter('All');
 
-filterButtons.forEach(button=>{
-  button.addEventListener('click',()=>{
-    filterButtons.forEach(item=>item.classList.remove('active'));
-    button.classList.add('active');
-    applyFilter(button.dataset.filter);
+if(hasCheckoutUI){
+  updateCartUI();
+  updateLoginStatus();
+  loginForm.addEventListener('submit',submitLogin);
+  guestCheckoutBtn.addEventListener('click',enableGuestCheckout);
+  checkoutForm.addEventListener('submit',handleCheckoutSubmit);
+  clearFormBtn.addEventListener('click',resetCheckoutForm);
+  cartToggle.addEventListener('click',()=>{
+    document.getElementById('commerce-flow').scrollIntoView({behavior:'smooth'});
   });
-});
+  loginToggle.addEventListener('click',()=>{
+    document.getElementById('customerLogin').scrollIntoView({behavior:'smooth'});
+    document.getElementById('customerEmail').focus();
+  });
+}
 
-productCards.forEach(card=>{
-  card.querySelector('.prod-add').addEventListener('click',()=>addToCart(card));
-});
+if(hasHomepageCommerce){
+  bindFilterButtons();
+  bindProductCardEvents();
+  hydrateProductsFromApi();
+}
 
-loginForm.addEventListener('submit',submitLogin);
-guestCheckoutBtn.addEventListener('click',enableGuestCheckout);
-checkoutForm.addEventListener('submit',handleCheckoutSubmit);
-clearFormBtn.addEventListener('click',resetCheckoutForm);
-
-cartToggle.addEventListener('click',()=>{
-  document.getElementById('commerce-flow').scrollIntoView({behavior:'smooth'});
-});
-
-loginToggle.addEventListener('click',()=>{
-  document.getElementById('customerLogin').scrollIntoView({behavior:'smooth'});
-  document.getElementById('customerEmail').focus();
-});
 
 /* ── PARALLAX HERO ── */
 window.addEventListener('scroll',()=>{

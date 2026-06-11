@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ZIVARR — Cart</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    .page-shell{min-height:100svh;padding:110px 24px 72px;background:linear-gradient(180deg,#fffafc 0%, #fff 45%, #fff7f8 100%);}
+    .page-wrap{max-width:1100px;margin:0 auto;display:grid;grid-template-columns:1.1fr .9fr;gap:24px;}
+    .glass-panel{background:rgba(255,255,255,.82);backdrop-filter:blur(18px);border:1px solid rgba(212,114,126,.18);border-radius:28px;box-shadow:0 18px 50px rgba(61,24,32,.08);padding:24px;} .eyebrow{font-size:10px;letter-spacing:4px;text-transform:uppercase;color:var(--pink-mid);} .title{font-family:'Cormorant Garamond',serif;font-size:clamp(36px,6vw,56px);color:var(--rose-dark);margin-top:8px;} .muted{color:var(--text-muted);font-size:13px;line-height:1.8;} .summary-row{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid rgba(212,114,126,.12);} .summary-row strong{color:var(--rose-dark);} .tag{display:inline-flex;gap:8px;align-items:center;padding:8px 10px;border-radius:999px;background:rgba(181,80,92,.12);color:var(--rose-mid);font-size:9px;letter-spacing:2px;text-transform:uppercase;} @media (max-width:980px){.page-wrap{grid-template-columns:1fr;} }
+  </style>
+</head>
+<body>
+  <div id="preloader"><div class="pre-logo">ZIVARR</div><div class="pre-line"></div><div class="pre-tag">Thoughtfully Made · Beautifully Worn</div></div>
+  <div id="cur"></div><div id="cur-r"></div>
+  <nav id="main-nav">
+    <a class="nav-logo" href="index.html">ZIVARR<span>.</span></a>
+    <ul class="nav-links"><li><a href="collections.html">Collections</a></li><li><a href="about.html">About</a></li><li><a href="contact.html">Contact</a></li><li><a href="account.html">Account</a></li></ul>
+    <div class="nav-actions"><a href="login.html" class="btn-ghost">Login</a><button id="cartToggle" aria-label="Cart"><svg viewBox="0 0 24 24"><path d="M3 4h2l2 10h10l2-8H7"/><circle cx="10" cy="19" r="1.5"/><circle cx="17" cy="19" r="1.5"/></svg><span class="cart-dot">0</span></button></div>
+  </nav>
+  <main class="page-shell"><section class="page-wrap"><article class="glass-panel"><p class="eyebrow">Cart</p><h1 class="title">A glassmorphic cart view, ready for checkout.</h1><p class="muted">This page mirrors the premium cart experience from the landing page and can be expanded into a full slide-out drawer, coupon code entry, and delivery selection.</p><div class="summary-row"><span>Subtotal</span><strong>₹0</strong></div><div class="summary-row"><span>Shipping</span><strong>Free over ₹2,000</strong></div><div class="summary-row"><span>Estimated Total</span><strong>₹0</strong></div><div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:14px;"><a class="btn-primary" href="checkout.html">Proceed to Checkout</a><a class="btn-ghost" href="collections.html">Continue Shopping</a></div></article><article class="glass-panel"><p class="eyebrow">Why it works</p><p class="muted">This cart view keeps the luxury aesthetic intact with high contrast, soft blur, and an airy layout. It is ready to connect to the backend orders API as soon as payment and inventory modules are wired in.</p><div class="tag">Secure Payment Placeholder</div><div class="tag">Guest or Member Checkout</div><div class="tag">Real-time Totals</div></article></section></main>
+  <script src="script.js" defer></script>
+</body>
+</html>
