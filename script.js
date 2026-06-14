@@ -93,13 +93,13 @@ function formatPrice(value){
 }
 
 function getApiBaseUrl(){
-  if (typeof window === 'undefined' || !window.location) return 'http://localhost:3000';
+  if (typeof window === 'undefined' || !window.location) return process.env.URL || 'http://localhost:3000';
 
   if (window.location.protocol === 'file:') {
-    return 'http://localhost:3000';
+    return 'process.env.URL' in window ? window.process.env.URL : 'http://localhost:3000';
   }
 
-  return window.location.origin || 'http://localhost:3000';
+  return window.location.origin || 'process.env.URL' in window ? window.process.env.URL : 'http://localhost:3000';
 }
 
 async function fetchProductsFromApi(){
