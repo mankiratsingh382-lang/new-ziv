@@ -1,26 +1,30 @@
-const Database = require('better-sqlite3');
-const path = require('path');
-const fs = require('fs');
+const { Pool } = require('pg');
+require('dotenv').config();
 
-const DATA_DIR = path.join(__dirname, 'data');
-const DB_NAME = process.env.DB_NAME || 'zivarr';
-const DB_PATH = path.join(DATA_DIR, `${DB_NAME}.db`);
+// This script is intended as a quick check of Postgres product data in pgAdmin.
+// It uses the same env var conventions as server.js.
+const pool = new Pool({
+  host: process.env.POSTGRES_HOST || process.env.DB_HOST || 'localhost',
+  port: process.env.POSTGRES_PORT
+    ? Number(process.env.POSTGRES_PORT)
+    : (process.env.DB_PORT ? Number(process.env.DB_PORT) : 5432),
+  user: process.env.POSTGRES_USER || process.env.DB_USER || 'postgres',
+  password:
+    process.env.POSTGRES_PASSWORD ??
+    process.env.DB_PASSWORD ??
+    undefined,
+  database: process.env.POSTGRES_DB || process.env.DB_NAME || 'zivarr',
+});
 
-fs.mkdirSync(DATA_DIR, { recursive: true });
-
-const db = new Database(DB_PATH, { fileMustExist: false });
-
-function main() {
+async function main() {
   try {
-    const rows = db
-      .prepare(`
-        SELECT id, name, category, price, material, description, badge, sort_order, created_at
-        FROM products
-        ORDER BY sort_order, name
-      `)
-      .all();
+    const { rows } = await pool.query(
+      `SELECT id, name, category, price, material, description, badge, sort_order, created_at
+       FROM products
+       ORDER BY sort_order, name`
+    );
 
-    console.log(`Database: ${DB_PATH}`);
+    console.log(`Database: ${process.env.POSTGRES_DB || process.env.DB_NAME || 'zivarr'}`);
     console.log(`Products found: ${rows.length}`);
     console.table(
       rows.map((r) => ({
@@ -35,10 +39,15 @@ function main() {
       }))
     );
   } catch (err) {
-    console.error('Failed to read products table:', err);
+    console.error('Failed to read products from Postgres:', err);
     process.exitCode = 1;
+  } finally {
+    await pool.end().catch(() => {});
   }
 }
 
 main();
+
+
+
 
