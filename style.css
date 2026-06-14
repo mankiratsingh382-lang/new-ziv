@@ -15,6 +15,7 @@
   --rose-mid:   #6B2D38;
   --text-muted: #A07880;
   --text-light: #C4A0A8;
+  
 }
 html{scroll-behavior:smooth;}
 body{
@@ -28,7 +29,7 @@ body{
 /* ─── PRELOADER ─────────────────────────────────────── */
 #preloader{
   position:fixed;inset:0;z-index:9999;
-  background:var(--pink-soft);
+  background:var(--white);
   display:flex;flex-direction:column;
   align-items:center;justify-content:center;
   gap:24px;
@@ -36,12 +37,20 @@ body{
 }
 #preloader.gone{opacity:0;visibility:hidden;}
 .pre-logo{
-  font-family:'Cormorant Garamond',serif;
-  font-size:52px;letter-spacing:18px;font-weight:300;
-  color:var(--rose-dark);
   opacity:0;
   animation:fadeUp .9s .3s forwards;
+  display:flex;
+  align-items:center;
+  justify-content:center;
 }
+
+.pre-logo-img{
+  height:150px;
+  width:auto;
+  display:block;
+}
+
+
 .pre-line{
   width:0;height:1px;
   background:linear-gradient(90deg,transparent,var(--pink),transparent);
@@ -67,18 +76,26 @@ nav{
   position:fixed;top:0;left:0;right:0;z-index:500;
   display:flex;align-items:center;justify-content:space-between;
   padding:0 60px;height:76px;
-  background:rgba(255,255,255,.92);
+  background:#FFFFFF;
   backdrop-filter:blur(20px);
+
   border-bottom:1px solid rgba(232,160,170,.2);
   transition:box-shadow .4s;
 }
 nav.scrolled{box-shadow:0 6px 40px rgba(181,80,92,.07);}
 .nav-logo{
-  font-family:'Cormorant Garamond',serif;
-  font-size:24px;letter-spacing:9px;font-weight:600;
-  color:var(--rose-dark);text-decoration:none;
+  text-decoration:none;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
 }
-.nav-logo span{color:var(--pink-mid);}
+
+/* Nav logo image */
+.nav-logo-img{
+  height:60px;
+  width:auto;
+  display:block;
+}
 .nav-links{display:flex;gap:40px;list-style:none;}
 .nav-links a{
   font-size:9.5px;letter-spacing:3.5px;text-transform:uppercase;font-weight:400;

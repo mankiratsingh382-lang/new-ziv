@@ -35,21 +35,7 @@
   <main class="page-shell">
     <section class="page-wrap">
       <article class="glass-panel">
-        <p class="eyebrow">Luxury Collections</p>
-        <h1 class="page-title">Curated edits for every moment of wear.</h1>
-        <p class="page-copy">Navigate the premium ZIVARR jewelry landscape with glassmorphic collection cards, artisan storytelling, and quick access to the best-selling pieces. This layout is designed to scale into a full React router experience without changing the brand language.</p>
-        <div class="chip-row">
-          <a class="chip" href="collections.html">All Jewelry</a>
-          <a class="chip" href="product.html?id=1">Turkish Collection</a>
-          <a class="chip" href="account.html">Account & Orders</a>
-          <a class="chip" href="checkout.html">Secure Checkout</a>
-        </div>
-      </article>
-      <article class="glass-panel">
-        <div class="grid-3" id="collectionGrid"></div>
-      </article>
-      <article class="glass-panel">
-        <p class="eyebrow">Featured pieces</p>
+        <p class="eyebrow" style="font-weight:1000">Featured pieces</p>
         <div class="grid-2" id="productGrid"></div>
       </article>
     </section>
@@ -69,7 +55,6 @@
       render();
     }
     function render(){
-      document.getElementById('collectionGrid').innerHTML = collectionData.map(item=>`<article class="collection-card"><span class="badge">${item.tag}</span><h3>${item.title}</h3><p>${item.desc}</p><a class="btn-ghost" href="product.html?id=${item.title.toLowerCase().replace(/ /g,'-') === 'turkish collection' ? 1 : 2}">View edit</a></article>`).join('');
       document.getElementById('productGrid').innerHTML = productData.map(product=>`<article class="product-card"><span class="badge">${product.category}</span><h3>${product.name}</h3><p class="muted">${product.material}</p><p class="muted">${product.description}</p><div class="price">₹${product.price.toLocaleString('en-IN')}</div><a class="btn-primary" href="product.html?id=${product.id}">View Product</a></article>`).join('');
     }
   </script>
