@@ -1,37 +1,49 @@
-const Database = require('better-sqlite3');
-const path = require('path');
-const fs = require('fs');
+const { Pool } = require('pg');
+require('dotenv').config();
 
-const DATA_DIR = path.join(__dirname, 'data');
-const DB_NAME = process.env.DB_NAME || 'zivarr';
-const DB_PATH = path.join(DATA_DIR, `${DB_NAME}.db`);
+// ---- Postgres ----
+// Supports both legacy `POSTGRES_*` env vars and optional `DB_*` aliases.
+const pool = new Pool({
+  host: process.env.POSTGRES_HOST || process.env.DB_HOST || 'localhost',
+  port: process.env.POSTGRES_PORT
+    ? Number(process.env.POSTGRES_PORT)
+    : (process.env.DB_PORT ? Number(process.env.DB_PORT) : 5432),
+  user: process.env.POSTGRES_USER || process.env.DB_USER || 'postgres',
+  password:
+    process.env.POSTGRES_PASSWORD ??
+    process.env.DB_PASSWORD ??
+    undefined,
+  database: process.env.POSTGRES_DB || process.env.DB_NAME || 'zivarr',
+});
 
-fs.mkdirSync(DATA_DIR, { recursive: true });
+async function listUsers() {
+  const { rows } = await pool.query(
+    'SELECT id, name, email, created_at FROM users ORDER BY id DESC'
+  );
 
-const db = new Database(DB_PATH, { readonly: true });
-
-function listUsers() {
-  const users = db
-    .prepare('SELECT id, name, email, created_at FROM users ORDER BY id DESC')
-    .all();
-
-  if (!users.length) {
+  if (!rows.length) {
     console.log('No registered users found.');
     return;
   }
 
-  console.table(users.map(u => ({
-    id: u.id,
-    name: u.name,
-    email: u.email,
-    created_at: u.created_at,
-  })));
+  console.table(
+    rows.map(u => ({
+      id: u.id,
+      name: u.name,
+      email: u.email,
+      created_at: u.created_at,
+    }))
+  );
 }
 
-try {
-  listUsers();
-} catch (err) {
-  console.error('Failed to read users from DB:', err.message);
-  process.exitCode = 1;
-}
+(async () => {
+  try {
+    await listUsers();
+  } catch (err) {
+    console.error('Failed to read users from DB:', err.message);
+    process.exitCode = 1;
+  } finally {
+    await pool.end();
+  }
+})();
 

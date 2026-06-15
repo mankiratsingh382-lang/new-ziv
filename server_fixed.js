@@ -99,6 +99,7 @@ async function ensureSchema() {
   `);
 
   // Seed placeholder image URLs.
+  // Replace /images/IMG_6489.JPG with your real URLs later.
   await pool.query(`
     INSERT INTO product_images (product_id, image_url, alt_text, sort_order)
     VALUES
@@ -142,6 +143,7 @@ app.get('/api/health', async (req, res) => {
   res.json({ status: 'ok', database: process.env.POSTGRES_DB || null });
 });
 
+// UPDATED: return images[] per product
 app.get('/api/products', async (req, res) => {
   try {
     const { rows } = await pool.query(
@@ -164,28 +166,26 @@ app.get('/api/products', async (req, res) => {
        ORDER BY p.sort_order, p.name`
     );
 
-    res.json(
-      rows.map((r) => ({
-        id: r.id,
-        name: r.name,
-        category: r.category,
-        price: r.price,
-        material: r.material,
-        description: r.description,
-        badge: r.badge,
-        sort_order: r.sort_order,
-        images: Array.isArray(r.images) ? r.images : JSON.parse(r.images || '[]'),
-      }))
-    );
+    res.json(rows.map(r => ({
+      id: r.id,
+      name: r.name,
+      category: r.category,
+      price: r.price,
+      material: r.material,
+      description: r.description,
+      badge: r.badge,
+      sort_order: r.sort_order,
+      images: Array.isArray(r.images) ? r.images : JSON.parse(r.images || '[]'),
+    })));
   } catch (e) {
     res.status(500).json({ error: 'Failed to load products.' });
   }
 });
 
+// Auth (sessions table)
 app.post('/api/auth/register', async (req, res) => {
   const { name, email, password } = req.body || {};
   if (!name || !email || !password) return res.status(400).json({ error: 'Name, email, and password are required.' });
-
   const normalizedEmail = normalizeEmail(email);
   if (password.length < 4) return res.status(400).json({ error: 'Password must be at least 4 characters long.' });
 
@@ -242,18 +242,9 @@ app.get('/api/auth/me', authMiddleware, (req, res) => {
   res.json({ user: req.user });
 });
 
+// Orders
 app.post('/api/orders', authMiddleware, async (req, res) => {
-  const {
-    product_id,
-    quantity = 1,
-    shipping_name,
-    shipping_phone,
-    shipping_address,
-    shipping_city,
-    shipping_pincode,
-    notes,
-  } = req.body || {};
-
+  const { product_id, quantity = 1, shipping_name, shipping_phone, shipping_address, shipping_city, shipping_pincode, notes } = req.body || {};
   if (!product_id) return res.status(400).json({ error: 'product_id is required.' });
 
   try {
@@ -301,194 +292,3 @@ app.post('/api/orders', authMiddleware, async (req, res) => {
 });
 
 app.get('/api/orders', authMiddleware, async (req, res) => {
-  try {
-    const { rows } = await pool.query(
-      `SELECT o.id, o.product_id, p.name AS product_name, o.quantity, o.total_price, o.shipping_price, o.status,
-              o.shipping_name, o.shipping_phone, o.shipping_address, o.shipping_city, o.shipping_pincode,
-              o.notes, o.created_at
-       FROM orders o
-       JOIN products p ON p.id = o.product_id
-       WHERE o.user_id = $1
-       ORDER BY o.created_at DESC`,
-      [req.user.id]
-    );
-
-    res.json(rows);
-  } catch (e) {
-    res.status(500).json({ error: 'Failed to load orders.' });
-  }
-});
-
-const ADMIN_TOKEN = process.env.ADMIN_TOKEN || 'admin123';
-function adminAuth(req, res, next) {
-  const authHeader = req.headers.authorization || '';
-  const token = authHeader.startsWith('Bearer ') ? authHeader.slice(7).trim() : '';
-  if (!token || token !== ADMIN_TOKEN) return res.status(401).json({ error: 'Admin authentication required.' });
-  next();
-}
-
-app.get('/api/admin/products', adminAuth, async (req, res) => {
-  try {
-    const { rows } = await pool.query(
-      `SELECT id, name, category, price, material, description, badge, sort_order, created_at
-       FROM products
-       ORDER BY sort_order, name`
-    );
-    res.json(rows);
-  } catch (e) {
-    res.status(500).json({ error: 'Failed to load products.' });
-  }
-});
-
-app.post('/api/admin/products', adminAuth, async (req, res) => {
-  const body = req.body || {};
-  const { id, name, category, price, material, description, badge, sort_order } = body;
-
-  if (!name || !category || price === undefined || price === null || Number(price) <= 0) {
-    return res.status(400).json({ error: 'name, category, and valid price are required.' });
-  }
-
-  const pid = id !== undefined && id !== null && String(id).trim() !== '' ? Number(id) : null;
-  const sortOrderValue = sort_order !== undefined && sort_order !== null && String(sort_order).trim() !== '' ? Number(sort_order) : 0;
-
-  try {
-    if (pid) {
-      const existing = await pool.query('SELECT id FROM products WHERE id = $1', [pid]);
-      if (!existing.rows.length) return res.status(404).json({ error: 'Product not found.' });
-
-      await pool.query(
-        `UPDATE products
-         SET name=$1, category=$2, price=$3, material=$4, description=$5, badge=$6, sort_order=$7
-         WHERE id=$8`,
-        [
-          String(name).trim(),
-          String(category).trim(),
-          Number(price),
-          material ?? null,
-          description ?? null,
-          badge ?? null,
-          sortOrderValue,
-          pid,
-        ]
-      );
-    } else {
-      await pool.query(
-        `INSERT INTO products (name, category, price, material, description, badge, sort_order)
-         VALUES ($1,$2,$3,$4,$5,$6,$7)`,
-        [
-          String(name).trim(),
-          String(category).trim(),
-          Number(price),
-          material ?? null,
-          description ?? null,
-          badge ?? null,
-          sortOrderValue,
-        ]
-      );
-    }
-
-    const targetId = pid || null;
-    const rows = await pool.query(
-      `SELECT id, name, category, price, material, description, badge, sort_order, created_at
-       FROM products
-       ORDER BY sort_order, name`
-    );
-
-    const first = targetId ? rows.rows.find((r) => Number(r.id) === Number(targetId)) : rows.rows[0];
-    res.json(first || { ok: true });
-  } catch (e) {
-    res.status(500).json({ error: 'Failed to save product.' });
-  }
-});
-
-app.delete('/api/admin/products/:id', adminAuth, async (req, res) => {
-  const id = Number(req.params.id);
-  if (!id) return res.status(400).json({ error: 'Invalid id.' });
-
-  try {
-    const existing = await pool.query('SELECT id FROM products WHERE id = $1', [id]);
-    if (!existing.rows.length) return res.status(404).json({ error: 'Product not found.' });
-
-    await pool.query('DELETE FROM products WHERE id = $1', [id]);
-    res.json({ ok: true });
-  } catch (e) {
-    res.status(500).json({ error: 'Failed to delete product.' });
-  }
-});
-
-app.get('/api/admin/users', adminAuth, async (req, res) => {
-  try {
-    const { rows } = await pool.query(
-      `SELECT id, name, email, created_at
-       FROM users
-       ORDER BY created_at DESC`
-    );
-    res.json(rows);
-  } catch (e) {
-    res.status(500).json({ error: 'Failed to load users.' });
-  }
-});
-
-app.get('/api/admin/orders', adminAuth, async (req, res) => {
-  try {
-    const { rows } = await pool.query(
-      `SELECT o.id,
-              o.user_id,
-              u.email,
-              u.name AS user_name,
-              o.product_id,
-              p.name AS product_name,
-              o.quantity,
-              o.total_price,
-              o.status,
-              o.created_at
-       FROM orders o
-       JOIN users u ON u.id = o.user_id
-       JOIN products p ON p.id = o.product_id
-       ORDER BY o.created_at DESC`
-    );
-    res.json(rows);
-  } catch (e) {
-    res.status(500).json({ error: 'Failed to load orders.' });
-  }
-});
-
-app.post('/api/admin/orders/:id/status', adminAuth, async (req, res) => {
-  const id = Number(req.params.id);
-  const { status } = req.body || {};
-
-  if (!id) return res.status(400).json({ error: 'Invalid order id.' });
-  if (!status || typeof status !== 'string') return res.status(400).json({ error: 'status is required.' });
-
-  const allowed = new Set(['pending', 'processing', 'shipped', 'delivered', 'cancelled']);
-  if (!allowed.has(status)) return res.status(400).json({ error: 'Invalid status.' });
-
-  try {
-    const existing = await pool.query('SELECT id FROM orders WHERE id = $1', [id]);
-    if (!existing.rows.length) return res.status(404).json({ error: 'Order not found.' });
-
-    await pool.query('UPDATE orders SET status = $1 WHERE id = $2', [status, id]);
-
-    const updated = await pool.query(
-      `SELECT id, user_id, product_id, quantity, total_price, status, created_at
-       FROM orders WHERE id = $1`,
-      [id]
-    );
-
-    res.json(updated.rows[0]);
-  } catch (e) {
-    res.status(500).json({ error: 'Failed to update order status.' });
-  }
-});
-
-ensureSchema()
-  .then(() => {
-    app.listen(PORT, () => {
-      console.log(`Zivarr backend running at http://localhost:${PORT}`);
-    });
-  })
-  .catch((err) => {
-    console.error('Failed to initialize database schema:', err);
-    process.exit(1);
-  });
-

@@ -1,4 +1,4 @@
--- ZIVARR PostgreSQL / pgAdmin initialization script
+-- ZIVARR PostgreSQL / pgAdmin initialization script (with product images)
 -- Run this in pgAdmin Query Tool on your target database.
 
 DROP TABLE IF EXISTS product_images;
@@ -34,6 +34,18 @@ CREATE TABLE products (
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
+CREATE TABLE product_images (
+  id SERIAL PRIMARY KEY,
+  product_id INTEGER NOT NULL REFERENCES products(id) ON DELETE CASCADE,
+  image_url TEXT NOT NULL,
+  alt_text VARCHAR(255),
+  sort_order INTEGER DEFAULT 0,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS product_images_product_order_idx
+  ON product_images(product_id, sort_order);
+
 CREATE TABLE orders (
   id SERIAL PRIMARY KEY,
   user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
@@ -61,4 +73,17 @@ VALUES
   (6, 'Crescent Pendant Necklace', 'Necklaces', 3299, 'Gold vermeil', 'A graceful pendant necklace with a soft moonlit silhouette.', 'Limited', 6)
 ON CONFLICT (id) DO NOTHING;
 
-SELECT 'Database initialized successfully.' AS status;
+-- Seed placeholder image rows (URL-based). You can replace URLs anytime.
+-- IMPORTANT: your app must serve static files from /images (server.js uses express.static(__dirname)).
+INSERT INTO product_images (product_id, image_url, alt_text, sort_order)
+VALUES
+  (1, '/images/IMG_6489.JPG', 'Seraphine Choker - Image 1', 1),
+  (2, '/images/IMG_6489.JPG', 'Luna Drop Earrings - Image 1', 1),
+  (3, '/images/IMG_6489.JPG', 'Aurore Tennis Bracelet - Image 1', 1),
+  (4, '/images/IMG_6489.JPG', 'Celeste Solitaire Ring - Image 1', 1),
+  (5, '/images/IMG_6489.JPG', 'Bloom Stud Earrings - Image 1', 1),
+  (6, '/images/IMG_6489.JPG', 'Crescent Pendant Necklace - Image 1', 1)
+ON CONFLICT DO NOTHING;
+
+SELECT 'Database initialized successfully (with product_images).' AS status;
+
