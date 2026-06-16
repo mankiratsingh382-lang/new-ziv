@@ -1,9 +1,13 @@
-const express = require('express');
+ const express = require('express');
 const cors = require('cors');
 const bcrypt = require('bcryptjs');
 const { v4: uuidv4 } = require('uuid');
 const { Pool } = require('pg');
+const path = require('path');
+const fs = require('fs');
+const multer = require('multer');
 require('dotenv').config();
+
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -12,7 +16,29 @@ app.use(cors());
 app.use(express.json());
 app.use(express.static(__dirname));
 
+// Uploads for product images (admin uses file upload)
+const uploadsDir = path.join(__dirname, 'uploads');
+if (!fs.existsSync(uploadsDir)) fs.mkdirSync(uploadsDir, { recursive: true });
+
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, uploadsDir);
+  },
+  filename: function (req, file, cb) {
+    const ext = path.extname(file.originalname || '').toLowerCase() || '';
+    const safeExt = ext.match(/^\.(jpg|jpeg|png|gif|webp|svg)$/i) ? ext : '.jpg';
+    const filename = `product_${Date.now()}_${Math.random().toString(16).slice(2)}${safeExt}`;
+    cb(null, filename);
+  },
+});
+
+const upload = multer({
+  storage,
+  limits: { fileSize: 5 * 1024 * 1024 },
+});
+
 const pool = new Pool({
+
   host: process.env.POSTGRES_HOST || process.env.DB_HOST || 'localhost',
   port: process.env.POSTGRES_PORT
     ? Number(process.env.POSTGRES_PORT)
@@ -416,6 +442,73 @@ app.delete('/api/admin/products/:id', adminAuth, async (req, res) => {
   }
 });
 
+
+// Admin: product images
+app.get('/api/admin/products/:id/images', adminAuth, async (req, res) => {
+  const id = Number(req.params.id);
+  if (!id) return res.status(400).json({ error: 'Invalid product id.' });
+
+  try {
+    const existing = await pool.query('SELECT id FROM products WHERE id = $1', [id]);
+    if (!existing.rows.length) return res.status(404).json({ error: 'Product not found.' });
+
+    const { rows } = await pool.query(
+      `SELECT id, image_url, alt_text, sort_order, created_at
+       FROM product_images
+       WHERE product_id = $1
+       ORDER BY sort_order, created_at`,
+      [id]
+    );
+
+    res.json(rows);
+  } catch (e) {
+    res.status(500).json({ error: 'Failed to load product images.' });
+  }
+});
+
+app.post('/api/admin/products/:id/images', adminAuth, upload.single('image'), async (req, res) => {
+  const id = Number(req.params.id);
+  if (!id) return res.status(400).json({ error: 'Invalid product id.' });
+  if (!req.file) return res.status(400).json({ error: 'Image file is required.' });
+
+  const alt_text = (req.body?.alt_text || '').trim() || null;
+  const sort_order_raw = (req.body?.sort_order ?? '').toString().trim();
+  const sort_order = sort_order_raw === '' ? 0 : Number(sort_order_raw);
+
+  try {
+    const existing = await pool.query('SELECT id FROM products WHERE id = $1', [id]);
+    if (!existing.rows.length) return res.status(404).json({ error: 'Product not found.' });
+
+    // Save URL (server is serving __dirname statically, so uploads are publicly accessible)
+    const image_url = `/uploads/${req.file.filename}`;
+
+    await pool.query(
+      `INSERT INTO product_images (product_id, image_url, alt_text, sort_order)
+       VALUES ($1,$2,$3,$4)`,
+      [id, image_url, alt_text, Number.isFinite(sort_order) ? sort_order : 0]
+    );
+
+    res.json({ ok: true });
+  } catch (e) {
+    res.status(500).json({ error: 'Failed to save product image.' });
+  }
+});
+
+app.delete('/api/admin/product-images/:imageId', adminAuth, async (req, res) => {
+  const imageId = Number(req.params.imageId);
+  if (!imageId) return res.status(400).json({ error: 'Invalid image id.' });
+
+  try {
+    const existing = await pool.query('SELECT id FROM product_images WHERE id = $1', [imageId]);
+    if (!existing.rows.length) return res.status(404).json({ error: 'Image not found.' });
+
+    await pool.query('DELETE FROM product_images WHERE id = $1', [imageId]);
+    res.json({ ok: true });
+  } catch (e) {
+    res.status(500).json({ error: 'Failed to delete product image.' });
+  }
+});
+
 app.get('/api/admin/users', adminAuth, async (req, res) => {
   try {
     const { rows } = await pool.query(
@@ -428,6 +521,7 @@ app.get('/api/admin/users', adminAuth, async (req, res) => {
     res.status(500).json({ error: 'Failed to load users.' });
   }
 });
+
 
 app.get('/api/admin/orders', adminAuth, async (req, res) => {
   try {

@@ -78,10 +78,24 @@
       <div class="toast" id="toast"></div>
 
       <div id="panelProducts">
-        <div class="field-row">
+        <div class="field-row" style="align-items:flex-end;">
           <div style="flex:1;min-width:240px;">
             <label style="display:block;font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--text-muted);margin-bottom:8px;">Select product</label>
             <select id="productSelect"></select>
+          </div>
+          <button class="btn-admin" type="button" id="addNewProductBtn" style="white-space:nowrap;">
+            Add new product
+          </button>
+        </div>
+
+        <div class="field-row" style="margin:10px 0 2px; align-items:flex-start;">
+          <div style="flex:1;min-width:240px;">
+            <label style="display:block;font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--text-muted);margin-bottom:8px;">Product photos</label>
+            <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;">
+              <input id="productImageFile" type="file" accept="image/*" style="flex:1;min-width:240px;"/>
+              <button class="btn-admin" type="button" id="addProductImageBtn">Upload photo</button>
+            </div>
+            <div style="margin-top:10px;" id="productImagesList"></div>
           </div>
         </div>
 
@@ -177,7 +191,9 @@
       productSelect: document.getElementById('productSelect'),
       editProductForm: document.getElementById('editProductForm'),
       deleteProductBtn: document.getElementById('deleteProductBtn'),
+      addNewProductBtn: document.getElementById('addNewProductBtn'),
       productsTbody: document.getElementById('productsTbody'),
+
       usersTbody: document.getElementById('usersTbody'),
       ordersTbody: document.getElementById('ordersTbody'),
       pName: document.getElementById('pName'),
@@ -187,9 +203,13 @@
       pBadge: document.getElementById('pBadge'),
       pSortOrder: document.getElementById('pSortOrder'),
       pDescription: document.getElementById('pDescription'),
+      productImageFile: document.getElementById('productImageFile'),
+      addProductImageBtn: document.getElementById('addProductImageBtn'),
+      productImagesList: document.getElementById('productImagesList'),
     };
 
     function showToast(msg, kind='ok'){
+
       els.toast.style.display='block';
       els.toast.classList.remove('ok','err');
       els.toast.classList.add(kind==='err'?'err':'ok');
@@ -247,8 +267,28 @@
     }
 
     function currentSelectedProductId(){
-      return Number(els.productSelect.value);
+      const v = els.productSelect.value;
+      if(v === undefined || v === null || String(v).trim() === '') return NaN;
+      const n = Number(v);
+      return Number.isFinite(n) ? n : NaN;
     }
+
+    function clearForm(){
+      els.pName.value = '';
+      els.pCategory.value = '';
+      els.pPrice.value = '';
+      els.pMaterial.value = '';
+      els.pBadge.value = '';
+      els.pSortOrder.value = '';
+      els.pDescription.value = '';
+    }
+
+    function setDeleteEnabled(enabled){
+      els.deleteProductBtn.disabled = !enabled;
+      els.deleteProductBtn.style.opacity = enabled ? '1' : '.55';
+      els.deleteProductBtn.style.cursor = enabled ? 'pointer' : 'not-allowed';
+    }
+
 
     async function apiJson(url, options={}){
       const headers = { 'Content-Type':'application/json', ...(options.headers||{}) };
@@ -288,30 +328,100 @@
       if(products[0]){
         els.productSelect.value = products[0].id;
         loadFormForProduct(products[0]);
+        setDeleteEnabled(true);
+        loadProductImages(products[0].id);
+      } else {
+        els.productSelect.value = '';
+        clearForm();
+        setDeleteEnabled(false);
+        loadProductImages(null);
       }
 
       els.productsTbody.querySelectorAll('button[data-pid]').forEach(btn=>{
+
+
         btn.addEventListener('click',()=>{
           const p = products.find(x=>x.id===Number(btn.dataset.pid));
           if(!p) return;
           els.productSelect.value = p.id;
           loadFormForProduct(p);
+          setDeleteEnabled(true);
+          loadProductImages(p.id);
         });
+
       });
 
 
       els.productSelect.onchange = ()=>{
         const pid = Number(els.productSelect.value);
         const p = products.find(x=>x.id===pid);
-        if(p) loadFormForProduct(p);
+        if(p){
+          loadFormForProduct(p);
+          setDeleteEnabled(true);
+          loadProductImages(pid);
+        } else {
+          clearForm();
+          setDeleteEnabled(false);
+          loadProductImages(null);
+        }
       };
 
+
+    }
+
+    async function loadProductImages(productId){
+      if(!getToken()) return;
+      if(!productId) {
+        els.productImagesList.innerHTML = '';
+        return;
+      }
+
+      try{
+        const images = await apiJson(`/api/admin/products/${productId}/images`, {
+          headers: authHeaders(),
+        });
+
+        const listHtml = Array.isArray(images) && images.length ? images.map(img=>`
+          <div style="display:flex;align-items:center;gap:10px;margin:8px 0;padding:10px 12px;border:1px solid rgba(212,114,126,.18);border-radius:12px;background:rgba(255,255,255,.6);">
+            <img src="${img.image_url}" alt="" style="width:70px;height:50px;object-fit:cover;border-radius:10px;border:1px solid rgba(212,114,126,.18);"/>
+            <div style="flex:1;min-width:120px;">
+              <div style="font-size:12px;color:var(--rose-mid);">Image #${img.id}</div>
+              <div style="font-size:11px;color:var(--text-muted);margin-top:2px;">sort: ${img.sort_order ?? 0}</div>
+            </div>
+            <button class="mini-btn danger" type="button" data-del-imageid="${img.id}">Delete</button>
+          </div>
+        `).join('') : '<div class="sub" style="margin:6px 0 0;">No photos yet.</div>';
+
+        els.productImagesList.innerHTML = listHtml;
+
+        els.productImagesList.querySelectorAll('button[data-del-imageid]').forEach(btn=>{
+          btn.addEventListener('click', async ()=>{
+            const imageId = Number(btn.dataset.delImageid);
+            if(!imageId) return;
+            if(!confirm(`Delete image ID ${imageId}?`)) return;
+            try{
+              await apiJson(`/api/admin/product-images/${imageId}`, {
+                method:'DELETE',
+                headers: authHeaders(),
+              });
+              showToast('Image deleted.');
+              await loadProductImages(productId);
+            }catch(err){
+              showToast(err.message || 'Failed to delete image','err');
+            }
+          });
+        });
+      }catch(err){
+        els.productImagesList.innerHTML='';
+        showToast(err.message || 'Failed to load images','err');
+      }
     }
 
     async function loadUsers(){
       if(!getToken()){ showToast('Admin login required.','err'); window.location.href='adminlogin.html'; return; }
 
       const users = await apiJson('/api/admin/users', { headers: authHeaders() });
+
       els.usersTbody.innerHTML = users.map(u=>`
         <tr>
           <td>${u.id}</td>
@@ -378,13 +488,53 @@
     }
 
     // Product CRUD
+    function setAddNewMode(){
+      els.productSelect.value = '';
+      clearForm();
+      setDeleteEnabled(false);
+      els.pName.focus();
+    }
+
+    els.addNewProductBtn.addEventListener('click', ()=>{
+      setAddNewMode();
+    });
+
+    // Upload product image (creates images for existing product only)
+    els.addProductImageBtn.addEventListener('click', async ()=>{
+      if(!getToken()){ showToast('Enter ADMIN token first.','err'); return; }
+      const pid = currentSelectedProductId();
+      if(Number.isNaN(pid) || !pid){ showToast('Select a product first.','err'); return; }
+      const file = els.productImageFile.files && els.productImageFile.files[0];
+      if(!file){ showToast('Choose an image file first.','err'); return; }
+
+      const formData = new FormData();
+      formData.append('image', file);
+      try{
+        await fetch(`/api/admin/products/${pid}/images`, {
+          method: 'POST',
+          headers: authHeaders(),
+          body: formData,
+        }).then(r=>r.json().then(d=>{ if(!r.ok) throw new Error(d.error || 'Failed to upload'); }));
+
+        showToast('Photo uploaded.');
+        loadProductImages(pid);
+        els.productImageFile.value='';
+      }catch(err){
+        showToast(err.message || 'Upload failed','err');
+      }
+    });
+
+    // Create/update product
     els.editProductForm.addEventListener('submit', async (e)=>{
+
       e.preventDefault();
       if(!getToken()){ showToast('Enter ADMIN token first.','err'); return; }
-      if(!els.productSelect.value){ showToast('Select a product first.','err'); return; }
+
+      const selectedId = currentSelectedProductId();
+      const creatingNew = !els.productSelect.value || Number.isNaN(selectedId);
 
       const body = {
-        id: currentSelectedProductId(),
+        id: creatingNew ? null : selectedId,
         name: els.pName.value.trim(),
         category: els.pCategory.value.trim(),
         price: Number(els.pPrice.value),
@@ -400,12 +550,16 @@
           headers: authHeaders(),
           body: JSON.stringify(body),
         });
-        showToast('Product saved.');
+        showToast(creatingNew ? 'Product created.' : 'Product saved.');
         await loadProducts();
       }catch(err){
-        showToast(err.message || 'Failed to save product','err');
+        // Surface backend validation error in the toast.
+        const msg = err?.message ? String(err.message) : 'Failed to save product';
+        showToast(msg,'err');
       }
+
     });
+
 
     // After save/delete, reload the whole product list from DB so edits always apply to fresh data.
     // (This is handled by awaiting loadProducts() below.)
@@ -413,7 +567,7 @@
     els.deleteProductBtn.addEventListener('click', async ()=>{
       if(!getToken()){ showToast('Enter ADMIN token first.','err'); return; }
       const pid = currentSelectedProductId();
-      if(!pid){ showToast('Select a product to delete.','err'); return; }
+      if(Number.isNaN(pid) || !pid){ showToast('Select a product to delete.','err'); return; }
       if(!confirm(`Delete product ID ${pid}? This cannot be undone.`)) return;
 
       try{
@@ -427,6 +581,7 @@
         showToast(err.message || 'Failed to delete product','err');
       }
     });
+
 
     // Auto-load products if admin is already logged in
     if(getToken()){
