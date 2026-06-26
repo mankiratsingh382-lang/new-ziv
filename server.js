@@ -15,6 +15,8 @@ const PORT = process.env.PORT || 3000;
 app.use(cors());
 app.use(express.json());
 app.use(express.static(__dirname));
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+app.use('/images', express.static(path.join(__dirname, 'images')));
 
 // Uploads for product images (admin uses file upload)
 const uploadsDir = path.join(__dirname, 'uploads');
@@ -37,16 +39,30 @@ const upload = multer({
   limits: { fileSize: 5 * 1024 * 1024 },
 });
 
-const pool = new Pool({
+const connectionString = process.env.DATABASE_URL || process.env.POSTGRES_URL || process.env.POSTGRES_CONNECTION_STRING || process.env.NEON_DATABASE_URL;
+const sslConfig = process.env.VERCEL || connectionString?.includes('sslmode=require') || process.env.PGSSLMODE === 'require'
+  ? { rejectUnauthorized: false }
+  : false;
 
-  host: process.env.POSTGRES_HOST || process.env.DB_HOST || 'localhost',
-  port: process.env.POSTGRES_PORT
-    ? Number(process.env.POSTGRES_PORT)
-    : (process.env.DB_PORT ? Number(process.env.DB_PORT) : 5432),
-  user: process.env.POSTGRES_USER || process.env.DB_USER || 'postgres',
-  password: process.env.POSTGRES_PASSWORD ?? process.env.DB_PASSWORD ?? undefined,
-  database: process.env.POSTGRES_DB || process.env.DB_NAME || 'zivarr',
-});
+const pool = new Pool(
+  connectionString
+    ? {
+        connectionString,
+        ssl: sslConfig,
+        connectionTimeoutMillis: 3000,
+      }
+    : {
+        host: process.env.POSTGRES_HOST || process.env.DB_HOST || 'localhost',
+        port: process.env.POSTGRES_PORT
+          ? Number(process.env.POSTGRES_PORT)
+          : (process.env.DB_PORT ? Number(process.env.DB_PORT) : 5432),
+        user: process.env.POSTGRES_USER || process.env.DB_USER || 'postgres',
+        password: process.env.POSTGRES_PASSWORD ?? process.env.DB_PASSWORD ?? undefined,
+        database: process.env.POSTGRES_DB || process.env.DB_NAME || 'zivarr',
+        ssl: sslConfig,
+        connectionTimeoutMillis: 3000,
+      }
+);
 
 function normalizeEmail(email) {
   return String(email || '').trim().toLowerCase();
@@ -575,14 +591,30 @@ app.post('/api/admin/orders/:id/status', adminAuth, async (req, res) => {
   }
 });
 
-ensureSchema()
-  .then(() => {
-    app.listen(PORT, () => {
-      console.log(`Zivarr backend running at http://localhost:${PORT}`);
-    });
-  })
-  .catch((err) => {
-    console.error('Failed to initialize database schema:', err);
-    process.exit(1);
-  });
+// Ensure schema is ready on cold start (Vercel serverless) or local boot
+const serverReady = ensureSchema().catch(err => {
+  console.error('Schema init failed:', err);
+});
+
+if (!process.env.VERCEL) {
+  serverReady
+    .then(() => {
+      app.listen(PORT, () => {
+        console.log(`Zivarr backend running at http://localhost:${PORT}`);
+      });
+    })
+    .catch(() => process.exit(1));
+}
+
+// Middleware to wait for schema before handling requests
+app.use(async (req, res, next) => {
+  try {
+    await serverReady;
+  } catch (e) {
+    return res.status(500).json({ error: 'Database not ready.' });
+  }
+  next();
+});
+
+module.exports = app;
 
