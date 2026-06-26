@@ -54,7 +54,7 @@ const connectionString = process.env.DATABASE_URL || process.env.POSTGRES_URL ||
 
 function buildPool(connectionStringOverride) {
   const resolvedConnectionString = connectionStringOverride || connectionString;
-  const sslConfig = process.env.VERCEL || resolvedConnectionString?.includes('sslmode=require') || process.env.PGSSLMODE === 'require'
+  const sslConfig = resolvedConnectionString?.includes('neon.tech') || resolvedConnectionString?.includes('sslmode=') || process.env.VERCEL || process.env.PGSSLMODE === 'require'
     ? { rejectUnauthorized: false }
     : false;
 
