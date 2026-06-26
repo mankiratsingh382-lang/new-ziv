@@ -52,6 +52,7 @@
     </section>
   </main>
   <script>
+    const neonConnectionString = 'postgresql://neondb_owner:npg_n2i5vWTSCHus@ep-wild-dew-ahi26wh0-pooler.c-3.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require';
     const collectionData = [
       {title:'All Jewelry',desc:'A full view of our modern heirlooms — chokers, rings, earrings, and statement pieces.',tag:'Signature'},
       {title:'Necklaces',desc:'Soft silhouettes and sculpted chokers designed for layering or a solo statement.',tag:'Layered'},
@@ -60,7 +61,10 @@
       {title:'Turkish Collection',desc:'An inspired heritage edit with rich metals, warm gold tones, and ornate textures.',tag:'Heritage'}
     ];
     const productData = [];
-    fetch('/api/products').then(r=>r.json()).then(data=>{productData.push(...data); render();}).catch(()=>renderFallback());
+    fetch('/api/products', { headers: { 'X-Neon-Connection': neonConnectionString } })
+      .then(r => r.json())
+      .then(data => { productData.push(...data); render(); })
+      .catch(() => renderFallback());
     function renderFallback(){
       productData.push({id:1,name:'Seraphine Choker',category:'Necklaces',price:3499,material:'Sterling Silver · Rhodium',description:'Signature choker with sculpted sparkle.'},{id:2,name:'Luna Drop Earrings',category:'Earrings',price:2199,material:'18K Gold Plated',description:'Lightweight drop earrings with luminous movement.'});
       render();

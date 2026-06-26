@@ -12,6 +12,17 @@ require('dotenv').config();
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+app.use((req, res, next) => {
+  res.setHeader(
+    'Content-Security-Policy',
+    "default-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; object-src 'none'; img-src 'self' data: blob: https:; font-src 'self' https://fonts.gstatic.com data:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; script-src 'self' 'unsafe-inline'; connect-src 'self' https:; upgrade-insecure-requests;"
+  );
+  res.setHeader('X-Content-Type-Options', 'nosniff');
+  res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
+  res.setHeader('Permissions-Policy', 'geolocation=(), microphone=(), camera=()');
+  next();
+});
+
 app.use(cors());
 app.use(express.json());
 app.use(express.static(__dirname));
@@ -40,29 +51,35 @@ const upload = multer({
 });
 
 const connectionString = process.env.DATABASE_URL || process.env.POSTGRES_URL || process.env.POSTGRES_CONNECTION_STRING || process.env.NEON_DATABASE_URL;
-const sslConfig = process.env.VERCEL || connectionString?.includes('sslmode=require') || process.env.PGSSLMODE === 'require'
-  ? { rejectUnauthorized: false }
-  : false;
 
-const pool = new Pool(
-  connectionString
-    ? {
-        connectionString,
-        ssl: sslConfig,
-        connectionTimeoutMillis: 3000,
-      }
-    : {
-        host: process.env.POSTGRES_HOST || process.env.DB_HOST || 'localhost',
-        port: process.env.POSTGRES_PORT
-          ? Number(process.env.POSTGRES_PORT)
-          : (process.env.DB_PORT ? Number(process.env.DB_PORT) : 5432),
-        user: process.env.POSTGRES_USER || process.env.DB_USER || 'postgres',
-        password: process.env.POSTGRES_PASSWORD ?? process.env.DB_PASSWORD ?? undefined,
-        database: process.env.POSTGRES_DB || process.env.DB_NAME || 'zivarr',
-        ssl: sslConfig,
-        connectionTimeoutMillis: 3000,
-      }
-);
+function buildPool(connectionStringOverride) {
+  const resolvedConnectionString = connectionStringOverride || connectionString;
+  const sslConfig = process.env.VERCEL || resolvedConnectionString?.includes('sslmode=require') || process.env.PGSSLMODE === 'require'
+    ? { rejectUnauthorized: false }
+    : false;
+
+  return new Pool(
+    resolvedConnectionString
+      ? {
+          connectionString: resolvedConnectionString,
+          ssl: sslConfig,
+          connectionTimeoutMillis: 3000,
+        }
+      : {
+          host: process.env.POSTGRES_HOST || process.env.DB_HOST || 'localhost',
+          port: process.env.POSTGRES_PORT
+            ? Number(process.env.POSTGRES_PORT)
+            : (process.env.DB_PORT ? Number(process.env.DB_PORT) : 5432),
+          user: process.env.POSTGRES_USER || process.env.DB_USER || 'postgres',
+          password: process.env.POSTGRES_PASSWORD ?? process.env.DB_PASSWORD ?? undefined,
+          database: process.env.POSTGRES_DB || process.env.DB_NAME || 'zivarr',
+          ssl: sslConfig,
+          connectionTimeoutMillis: 3000,
+        }
+  );
+}
+
+const pool = buildPool();
 
 function normalizeEmail(email) {
   return String(email || '').trim().toLowerCase();
@@ -185,8 +202,11 @@ app.get('/api/health', async (req, res) => {
 });
 
 app.get('/api/products', async (req, res) => {
+  const neonConnectionString = req.headers['x-neon-connection'] || req.headers['x-neon-connection-string'];
+  const requestPool = neonConnectionString ? buildPool(String(neonConnectionString)) : pool;
+
   try {
-    const { rows } = await pool.query(
+    const { rows } = await requestPool.query(
       `SELECT 
          p.id, p.name, p.category, p.price, p.material, p.description, p.badge, p.sort_order,
          COALESCE(
