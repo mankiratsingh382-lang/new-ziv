@@ -376,6 +376,8 @@ nav.scrolled{box-shadow:0 6px 40px rgba(181,80,92,.07);}
   font-family:'Cormorant Garamond',serif;font-size:200px;font-weight:700;font-style:italic;
   color:rgba(232,160,170,.06);letter-spacing:20px;
   white-space:nowrap;user-select:none;
+  pointer-events:none;
+  z-index:-1;
 }
 .featured-header{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:60px;}
 .feat-filters{display:flex;gap:6px;}
