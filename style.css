@@ -206,7 +206,7 @@ nav.scrolled{box-shadow:0 6px 40px rgba(181,80,92,.07);}
 .hero-img-wrap::before{
   content:'';position:absolute;inset:0;
   /* Make the hero background image clear/visible (no softened overlay) */
-  background:none;
+  
 }
 .hero-ornament{
   position:absolute;top:50%;left:50%;
