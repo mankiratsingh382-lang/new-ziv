@@ -44,9 +44,56 @@
     .auth-form label{display:flex;flex-direction:column;gap:8px;font-size:9px;letter-spacing:2.5px;text-transform:uppercase;color:var(--text-muted);}
     .auth-form input{border:1px solid rgba(212,114,126,.25);border-radius:10px;background:#fff;color:var(--rose-dark);padding:13px 14px;font-family:'Jost',sans-serif;font-size:12.5px;outline:none;}
     .auth-form .btn-primary,.auth-form .btn-ghost{cursor:none;}
+
+    @media (max-width:760px) {
+      .auth-page {
+        padding:60px 16px 40px;
+      }
+      .auth-card {
+        padding:20px;
+      }
+      .auth-title {
+        font-size:32px;
+        margin-bottom:10px;
+      }
+      .auth-sub {
+        font-size:14px;
+        margin-bottom:14px;
+      }
+      .auth-card > div {
+        flex-wrap:wrap;
+        justify-content:flex-start;
+        gap:12px;
+      }
+      .auth-card > div > a.auth-link {
+        margin-top:10px;
+      }
+      .auth-actions {
+        flex-direction:column;
+        align-items:stretch;
+        gap:10px;
+      }
+      .auth-actions .btn-primary,
+      .auth-actions .btn-ghost {
+        width:100%;
+      }
+      .auth-form label {
+        font-size:10px;
+      }
+      .auth-form input {
+        font-size:13px;
+      }
+    }
   </style>
 </head>
 <body>
+  <nav id="main-nav">
+    <a class="nav-logo" href="index.html" aria-label="ZIVARR">
+      <img class="nav-logo-img" src="images/IMG_6489.JPG" alt="ZIVARR" />
+    </a>
+    <ul class="nav-links"><li><a href="collections.html">Collections</a></li><li><a href="about.html">About</a></li><li><a href="contact.html">Contact</a></li><li><a href="account.html">Account</a></li></ul>
+    <div class="nav-actions"><a href="index.html" class="btn-ghost">Home</a></div>
+  </nav>
   <div id="cur"></div>
   <div id="cur-r"></div>
 
@@ -56,16 +103,16 @@
         <div>
           <div class="auth-title">Login</div>
           <div class="auth-sub">Sign in to place orders and track them from your dashboard.</div>
-          <div style="margin-top:8px;font-size:12.5px;color:var(--text-muted);">
+          <div style="margin-top:2px;margin-bottom:18px;font-size:12.5px;color:var(--text-muted);">
             New here?
             <a class="auth-link" href="registeruser.html" style="border-bottom:1px solid rgba(212,114,126,.35);">Register</a>
           </div>
 
 
 
-        </div>
+       <!-- </div>
         <a class="auth-link" href="index.html">← Back</a>
-      </div>
+      </div>-->
 
       <div id="authStatus" class="login-status" style="display:none;"></div>
 
@@ -81,12 +128,12 @@
 
         <div class="auth-actions" style="margin-top:6px;">
           <button type="submit" class="btn-primary">Login</button>
-          <button type="button" class="btn-ghost" id="guestBtn">Guest Login</button>
+          <!-- <button type="button" class="btn-ghost" id="guestBtn">Guest Login</button> -->
         </div>
       </form>
 
       <p class="auth-sub" style="margin-top:16px;">
-        Secure login uses the real SQLite-backed API on this server, with sessions saved for your browser.
+        Secure login ! Your security is our priority. We use industry-standard encryption to protect your data and ensure a safe login experience.
       </p>
     </div>
   </div>
