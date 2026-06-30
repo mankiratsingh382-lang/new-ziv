@@ -12,6 +12,36 @@
     .detail-shell{min-height:100svh;padding:110px 24px 72px;background:linear-gradient(180deg,#fffafc 0%, #fff 45%, #fff7f8 100%);}
     .detail-grid{max-width:1200px;margin:0 auto;display:grid;grid-template-columns:1.1fr .9fr;gap:24px;}
     .glass-panel{background:rgba(255,255,255,.82);backdrop-filter:blur(18px);border:1px solid rgba(212,114,126,.18);border-radius:28px;box-shadow:0 18px 50px rgba(61,24,32,.08);padding:24px;} .eyebrow{font-size:10px;letter-spacing:4px;text-transform:uppercase;color:var(--pink-mid);} .title{font-family:'Cormorant Garamond',serif;font-size:clamp(36px,6vw,56px);color:var(--rose-dark);margin-top:8px;} .muted{color:var(--text-muted);font-size:13px;line-height:1.8;} .price{font-family:'Cormorant Garamond',serif;font-size:32px;color:var(--rose-dark);margin:6px 0 10px;} .spec-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-top:14px;} .pill{padding:12px;border-radius:18px;border:1px solid rgba(212,114,126,.18);background:rgba(255,255,255,.92);} .pill strong{display:block;color:var(--rose-dark);font-size:11px;letter-spacing:2px;text-transform:uppercase;margin-bottom:4px;} .pill span{color:var(--text-muted);font-size:12px;line-height:1.6;} details{border:1px solid rgba(212,114,126,.18);border-radius:18px;padding:12px 14px;background:rgba(255,255,255,.9);margin-top:10px;} summary{list-style:none;cursor:pointer;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--rose-mid);} details p{color:var(--text-muted);font-size:13px;line-height:1.8;margin-top:8px;} .hero-preview{min-height:360px;border-radius:26px;background:linear-gradient(145deg,rgba(232,160,170,.18),rgba(255,255,255,.88));border:1px solid rgba(212,114,126,.18);display:grid;place-items:center;position:relative;overflow:hidden;} .hero-preview::before{content:'✦';font-family:'Cormorant Garamond',serif;font-size:180px;color:rgba(181,80,92,.12);position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);} .preview-card{position:relative;z-index:1;background:rgba(255,255,255,.75);backdrop-filter:blur(12px);border:1px solid rgba(212,114,126,.2);border-radius:24px;padding:18px;max-width:300px;text-align:center;} .preview-card h2{font-family:'Cormorant Garamond',serif;font-size:28px;color:var(--rose-dark);} .preview-card p{color:var(--text-muted);font-size:13px;line-height:1.7;} .hero-img{width:min(240px,80%);height:auto;border-radius:18px;border:1px solid rgba(212,114,126,.18);box-shadow:0 18px 36px rgba(181,80,92,.10);background:rgba(255,255,255,.65);} @media (max-width:980px){.detail-grid{grid-template-columns:1fr;} }
+    @media(max-width:1100px){
+      .detail-shell{padding:90px 20px 64px;}
+      .detail-grid{grid-template-columns:1fr;gap:20px;}
+      .glass-panel{padding:22px;}
+      .hero-preview{min-height:320px;}
+      .hero-preview::before{font-size:150px;}
+      .preview-card{max-width:100%;}
+      .spec-grid{grid-template-columns:1fr;}
+    }
+
+    @media(max-width:760px){
+      .detail-shell{padding:80px 16px 56px;}
+      .glass-panel{padding:20px;border-radius:24px;}
+      .title{font-size:clamp(30px,8vw,44px);}
+      .price{font-size:28px;}
+      .hero-preview{min-height:260px;}
+      .hero-img{width:100%;height:auto;max-width:100%;display:block;object-fit:contain;}
+      .preview-card{padding:16px;max-width:100%;}
+      .preview-card h2{font-size:24px;}
+      .preview-card p{font-size:13px;}
+      .detail-grid{gap:18px;}
+      .spec-grid{gap:10px;}
+      .btn-primary,.btn-ghost{width:100%;justify-content:center;}
+      .btn-primary{padding:14px 24px;}
+      .glass-panel .btn-primary{margin-bottom:8px;}
+      .nav{padding:14px 18px;height:auto;flex-wrap:wrap;justify-content:center;row-gap:12px;}
+      .nav-links{gap:18px;flex-wrap:wrap;justify-content:center;}
+      .nav-actions{width:100%;justify-content:center;gap:16px;}
+      .nav-actions .btn-ghost,.nav-actions button{font-size:11px;}
+    }
   </style>
 </head>
 <body>
@@ -30,7 +60,7 @@
     <ul class="nav-links"><li><a href="collections.html">Collections</a></li><li><a href="about.html">About</a></li><li><a href="contact.html">Contact</a></li><li><a href="account.html">Account</a></li></ul>
     <div class="nav-actions"><a href="login.html" class="btn-ghost">Login</a><button id="cartToggle" aria-label="Cart"><svg viewBox="0 0 24 24"><path d="M3 4h2l2 10h10l2-8H7"/><circle cx="10" cy="19" r="1.5"/><circle cx="17" cy="19" r="1.5"/></svg><span class="cart-dot">0</span></button></div>
   </nav>
-  <main class="detail-shell"><section class="detail-grid"><article class="glass-panel"><p class="eyebrow">Product Detail</p><div id="productName" class="title"></div><p id="productMaterial" class="muted"></p><div id="productPrice" class="price"></div><p id="productDescription" class="muted"></p><div class="spec-grid"><div class="pill"><strong>Category</strong><span id="productCategory"></span></div><div class="pill"><strong>Badge</strong><span id="productBadge"></span></div><div class="pill"><strong>Care</strong><span>Store in a soft pouch and avoid moisture.</span></div><div class="pill"><strong>Warranty</strong><span>30-day craftsmanship coverage on all pieces.</span></div></div><div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:16px;"><a class="btn-primary" href="cart.html">Add to Cart</a><a class="btn-ghost" href="checkout.html">Buy Now</a></div></article><article class="glass-panel"><div class="hero-preview"><img id="productHeroImage" class="hero-img" src="" alt="Product image" loading="lazy" onerror="this.style.display='none'"/><div class="preview-card"><h2 id="previewTitle"></h2><p id="previewText"></p><a class="btn-ghost" href="collections.html">Browse more pieces</a></div></div></article></section><section class="detail-grid" style="margin-top:24px;"><article class="glass-panel"><details open><summary>Material & Finish</summary><p>Crafted in premium sterling silver and gold vermeil, with refined plating and artisan polish. Every piece is designed to glow softly in natural light and feel luxurious every day.</p></details><details><summary>Sizing & Fit</summary><p>Standard sizes are listed for each piece. We recommend visiting a local jeweler for custom sizing and bridal adjustments, especially for rings and bangles.</p></details><article class="glass-panel"><p class="eyebrow">Why it feels premium</p><p class="muted">The ZIVARR detail page is built to support the full luxury journey: 3D gallery hooks, product specs, add-to-cart, and buy-now CTAs. It is ready to evolve into a React-based product page with dynamic image swatches and variant selection.</p></article></section></main>
+  <main class="detail-shell"><section class="detail-grid"><article class="glass-panel"><p class="eyebrow">Product Detail</p><div id="productName" class="title"></div><p id="productMaterial" class="muted"></p><div id="productPrice" class="price"></div><p id="productDescription" class="muted"></p><div class="spec-grid"><div class="pill"><strong>Category</strong><span id="productCategory"></span></div><div class="pill"><strong>Badge</strong><span id="productBadge"></span></div><div class="pill"><strong>Care</strong><span>Store in a soft pouch and avoid moisture.</span></div><div class="pill"><strong>Warranty</strong><span>30-day craftsmanship coverage on all pieces.</span></div></div><div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:16px;"><a class="btn-primary" href="cart.html">Add to Cart</a><a class="btn-ghost" href="checkout.html">Buy Now</a></div></article><article class="glass-panel"><div class="hero-preview"><img id="productHeroImage" class="hero-img" src="" alt="Product image" loading="lazy" onerror="this.style.display='none'"/><div class="preview-card"><h2 id="previewTitle"></h2><p id="previewText"></p><a class="btn-ghost" href="collections.html">Browse more pieces</a></div></div></article></section><section class="detail-grid" style="margin-top:24px;"><article class="glass-panel"><details open><summary>Material & Finish</summary><p>Crafted in premium sterling silver and gold vermeil, with refined plating and artisan polish. Every piece is designed to glow softly in natural light and feel luxurious every day.</p></details><details><summary>Sizing & Fit</summary><p>Standard sizes are listed for each piece. We recommend visiting a local jeweler for custom sizing and bridal adjustments, especially for rings and bangles.</p></details></article><article class="glass-panel"><p class="eyebrow">Why it feels premium</p><p class="muted">The ZIVARR detail page is built to support the full luxury journey: 3D gallery hooks, product specs, add-to-cart, and buy-now CTAs. It is ready to evolve into a React-based product page with dynamic image swatches and variant selection.</p></article></section></main>
   <script>
     const params = new URLSearchParams(window.location.search);
     const id = Number(params.get('id') || 1);
