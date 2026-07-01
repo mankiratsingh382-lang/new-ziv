@@ -650,6 +650,14 @@ nav.scrolled{box-shadow:0 6px 40px rgba(181,80,92,.07);}
 }
 .social-icon:hover{border-color:var(--pink-mid);background:var(--pink-pale);color:var(--pink-mid);}
 
+.social-icon svg{
+  width:20px;
+  height:20px;
+  stroke:currentColor;
+  fill:none;
+  stroke-width:1.6;
+}
+
 /* ─── FOOTER ─────────────────────────────────────────── */
 footer{
   padding:80px 80px 40px;
@@ -675,6 +683,15 @@ footer{
 }
 .footer-col-title{font-size:9px;letter-spacing:4px;text-transform:uppercase;color:var(--pink-soft);margin-bottom:24px;font-weight:500;}
 .footer-col-links{list-style:none;display:flex;flex-direction:column;gap:12px;}
+
+@media(min-width:900px){
+  /* Move Help block (and its WhatsApp button) to the right on desktop */
+  footer .footer-top > div:last-child{
+    grid-column:4/5;
+    justify-self:end;
+  }
+}
+
 .footer-col-links li{
   font-size:12.5px;color:rgba(196,160,168,.6);
   transition:color .3s;cursor:pointer;
@@ -688,6 +705,20 @@ footer{
 .footer-legal{display:flex;gap:28px;}
 .footer-legal a{font-size:10px;color:rgba(196,160,168,.4);text-decoration:none;letter-spacing:.5px;transition:color .3s;}
 .footer-legal a:hover{color:var(--pink);}
+
+.footer-whatsapp-btn{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:10px;
+  margin-top:18px;
+  padding:12px 18px;
+}
+
+.footer-whatsapp-btn svg{
+  width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:1.5;
+}
+
 
 /* ─── REVEAL ON SCROLL ───────────────────────────────── */
 .reveal{opacity:0;transform:translateY(40px);transition:opacity .8s cubic-bezier(.25,.46,.45,.94),transform .8s cubic-bezier(.25,.46,.45,.94);}
