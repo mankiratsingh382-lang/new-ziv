@@ -458,7 +458,20 @@ nav.scrolled{box-shadow:0 6px 40px rgba(181,80,92,.07);}
 .story-visual{
   position:relative;overflow:hidden;
   background:linear-gradient(145deg,var(--rose-dark) 0%,var(--rose-mid) 100%);
+  min-height:580px;
 }
+
+/* Responsive Story image */
+.story-photo{
+  position:absolute;
+  left:10%;
+  top:14%;
+  width:80%;
+  height:78%;
+  object-fit:cover;
+  border-radius:24px;
+}
+
 .story-visual-art{
   position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
   font-family:'Cormorant Garamond',serif;font-size:280px;font-weight:200;font-style:italic;
@@ -776,6 +789,16 @@ footer{
   .hero-right{min-height:400px;height:100%;}
   .hero-left{padding:120px 32px 60px;max-width:none;}
   .hero-scroll{bottom:24px;}
+
+  /* Story image on mobile */
+  .story-photo{
+    left:6%;
+    top:10%;
+    width:88%;
+    height:72%;
+    border-radius:20px;
+  }
+
 
 
 
