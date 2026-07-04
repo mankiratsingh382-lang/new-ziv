@@ -143,6 +143,18 @@ async function ensureSchema() {
       notes TEXT,
       created_at TIMESTAMPTZ DEFAULT NOW()
     );
+
+    -- Password reset tokens (demo/local flow)
+    CREATE TABLE IF NOT EXISTS password_reset_tokens (
+      id SERIAL PRIMARY KEY,
+      user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      token_hash TEXT NOT NULL,
+      expires_at BIGINT NOT NULL,
+      created_at TIMESTAMPTZ DEFAULT NOW()
+    );
+
+    CREATE INDEX IF NOT EXISTS password_reset_tokens_user_id_idx
+      ON password_reset_tokens(user_id);
   `);
 
   await pool.query(`
@@ -636,5 +648,109 @@ app.use(async (req, res, next) => {
   next();
 });
 
+// ── Password reset flow ─────────────────────────────────────────────────────
+
+function randomResetToken(){
+  // URL-safe token
+  return uuidv4() + uuidv4();
+}
+
+function makeResetExpiryMs(){
+  // 15 minutes
+  return Date.now() + 15 * 60 * 1000;
+}
+
+
+app.post('/api/auth/forgot-password', async (req, res) => {
+  const { email } = req.body || {};
+
+  if (!email) return res.status(400).json({ error: 'Email is required.' });
+
+
+  const normalizedEmail = normalizeEmail(email);
+
+
+  try {
+    const userRes = await pool.query('SELECT id, email FROM users WHERE email = $1', [normalizedEmail]);
+    const user = userRes.rows[0];
+
+    // Always return the same message to avoid account enumeration.
+    const responsePayload = { message: 'If the email exists, you will receive reset instructions shortly.' };
+
+    if (!user) {
+      return res.json(responsePayload);
+    }
+
+    const resetToken = randomResetToken();
+    const resetTokenHash = await bcrypt.hash(resetToken, 10);
+    const expiresAt = makeResetExpiryMs();
+
+    await pool.query(
+      'INSERT INTO password_reset_tokens (user_id, token_hash, expires_at) VALUES ($1,$2,$3)',
+      [user.id, resetTokenHash, expiresAt]
+    );
+
+    // DEMO: return the token so the frontend can show a local reset UI without email delivery.
+    return res.json({
+      ...responsePayload,
+      resetToken,
+    });
+  } catch (e) {
+    return res.status(500).json({ error: 'Failed to initiate password reset.' });
+  }
+});
+
+app.post('/api/auth/reset-password', async (req, res) => {
+  const { email, token, newPassword } = req.body || {};
+  if (!email || !token || !newPassword) {
+    return res.status(400).json({ error: 'Email, token, and newPassword are required.' });
+  }
+  if (String(newPassword).length < 4) {
+    return res.status(400).json({ error: 'Password must be at least 4 characters long.' });
+  }
+
+  const normalizedEmail = normalizeEmail(email);
+
+  try {
+    const userRes = await pool.query('SELECT id FROM users WHERE email = $1', [normalizedEmail]);
+    const user = userRes.rows[0];
+    if (!user) return res.status(400).json({ error: 'Invalid email or reset token.' });
+
+    // Find candidate tokens for user (most recent first)
+    const candidatesRes = await pool.query(
+      'SELECT id, token_hash, expires_at FROM password_reset_tokens WHERE user_id = $1 ORDER BY created_at DESC LIMIT 5',
+      [user.id]
+    );
+
+    const candidates = candidatesRes.rows || [];
+    let matched = null;
+
+    for (const c of candidates) {
+      if (Number(c.expires_at) <= Date.now()) continue;
+      const ok = await bcrypt.compare(String(token), c.token_hash);
+      if (ok) {
+        matched = c;
+        break;
+      }
+    }
+
+    if (!matched) {
+      return res.status(400).json({ error: 'Invalid or expired reset token.' });
+    }
+
+    const newHash = await bcrypt.hash(String(newPassword), 10);
+    await pool.query('UPDATE users SET password_hash = $1 WHERE id = $2', [newHash, user.id]);
+
+    // Revoke tokens for this user after successful reset
+    await pool.query('DELETE FROM password_reset_tokens WHERE user_id = $1', [user.id]);
+
+    return res.json({ ok: true });
+  } catch (e) {
+    return res.status(500).json({ error: 'Failed to reset password.' });
+  }
+});
+
 module.exports = app;
+
+
 
