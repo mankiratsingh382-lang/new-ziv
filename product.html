@@ -64,36 +64,69 @@
   <script>
     const params = new URLSearchParams(window.location.search);
     const id = Number(params.get('id') || 1);
-    fetch('/api/products').then(r=>r.json()).then(data=>{
-      const product = data.find(item=>item.id===id) || data[0];
-      document.getElementById('productName').textContent = product.name;
-      document.getElementById('productMaterial').textContent = product.material || 'Premium handcrafted finish';
-      document.getElementById('productPrice').textContent = `₹${product.price.toLocaleString('en-IN')}`;
-      document.getElementById('productDescription').textContent = product.description || 'A sculpted statement piece from the ZIVARR collection.';
-      document.getElementById('productCategory').textContent = product.category || 'Jewelry';
-      document.getElementById('productBadge').textContent = product.badge || 'Featured';
-      document.getElementById('previewTitle').textContent = product.name;
-      document.getElementById('previewText').textContent = `${product.category} · ${product.material}`;
+    fetch('/api/products')
+      .then(r => r.json())
+      .then((data) => {
+        const product = data.find((item) => item.id === id) || data[0];
 
-      const heroImg = document.getElementById('productHeroImage');
-      const images = Array.isArray(product.images) ? product.images : [];
-      const first = images[0];
-      if (first && first.image_url) {
-        heroImg.src = first.image_url;
-        heroImg.alt = first.alt_text || product.name;
+        document.getElementById('productName').textContent = product.name;
+        document.getElementById('productMaterial').textContent =
+          product.material || 'Premium handcrafted finish';
+        document.getElementById('productPrice').textContent = `₹${Number(product.price).toLocaleString('en-IN')}`;
+        document.getElementById('productDescription').textContent =
+          product.description ||
+          'A sculpted statement piece from the ZIVARR collection.';
+        document.getElementById('productCategory').textContent = product.category || 'Jewelry';
+        document.getElementById('productBadge').textContent = product.badge || 'Featured';
+
+        // These elements are not present in the current markup; guard to avoid JS breaking.
+        const previewTitleEl = document.getElementById('previewTitle');
+        if (previewTitleEl) previewTitleEl.textContent = product.name;
+        const previewTextEl = document.getElementById('previewText');
+        if (previewTextEl)
+          previewTextEl.textContent = `${product.category} · ${product.material}`;
+
+        const heroImg = document.getElementById('productHeroImage');
+        const images = Array.isArray(product.images) ? product.images : [];
+
+        // Prefer first image_url; fallback to other likely keys.
+        const first = images[0] || {};
+        const imageUrl = first.image_url || first.url || first.src || '';
+        const altText = first.alt_text || product.name;
+
+        // If DB returns nothing, show a safe default.
+        const fallbackUrl = '/images/IMG_6489.JPG';
+
+        if (imageUrl) {
+          heroImg.src = imageUrl;
+          heroImg.alt = altText;
+          heroImg.style.display = '';
+        } else {
+          heroImg.src = fallbackUrl;
+          heroImg.alt = altText;
+          heroImg.style.display = '';
+        }
+      })
+      .catch(() => {
+        document.getElementById('productName').textContent = 'Seraphine Choker';
+        document.getElementById('productMaterial').textContent = 'Sterling Silver · Rhodium';
+        document.getElementById('productPrice').textContent = '₹3,499';
+        document.getElementById('productDescription').textContent =
+          'Signature choker with sculpted sparkle and elegant drape.';
+        document.getElementById('productCategory').textContent = 'Necklaces';
+        document.getElementById('productBadge').textContent = 'New';
+
+        const heroImg = document.getElementById('productHeroImage');
+        heroImg.src = '/images/IMG_6489.JPG';
+        heroImg.alt = 'Seraphine Choker';
         heroImg.style.display = '';
-      }
 
-    }).catch(()=>{
-      document.getElementById('productName').textContent = 'Seraphine Choker';
-      document.getElementById('productMaterial').textContent = 'Sterling Silver · Rhodium';
-      document.getElementById('productPrice').textContent = '₹3,499';
-      document.getElementById('productDescription').textContent = 'Signature choker with sculpted sparkle and elegant drape.';
-      document.getElementById('productCategory').textContent = 'Necklaces';
-      document.getElementById('productBadge').textContent = 'New';
-      document.getElementById('previewTitle').textContent = 'Seraphine Choker';
-      document.getElementById('previewText').textContent = 'Necklaces · Sterling Silver · Rhodium';
-    });
+        const previewTitleEl = document.getElementById('previewTitle');
+        if (previewTitleEl) previewTitleEl.textContent = 'Seraphine Choker';
+        const previewTextEl = document.getElementById('previewText');
+        if (previewTextEl)
+          previewTextEl.textContent = 'Necklaces · Sterling Silver · Rhodium';
+      });
   </script>
   <script src="script.js" defer></script>
 </body>
