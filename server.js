@@ -144,6 +144,19 @@ async function ensureSchema() {
       created_at TIMESTAMPTZ DEFAULT NOW()
     );
 
+    CREATE TABLE IF NOT EXISTS addresses (
+      id SERIAL PRIMARY KEY,
+      user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      name VARCHAR(150) NOT NULL,
+      phone VARCHAR(50) NOT NULL,
+      address TEXT NOT NULL,
+      city VARCHAR(150) NOT NULL,
+      pincode VARCHAR(30) NOT NULL,
+      notes TEXT,
+      created_at TIMESTAMPTZ DEFAULT NOW()
+    );
+
+
     -- Password reset tokens (demo/local flow)
     CREATE TABLE IF NOT EXISTS password_reset_tokens (
       id SERIAL PRIMARY KEY,
@@ -320,6 +333,7 @@ app.post('/api/orders', authMiddleware, async (req, res) => {
   const {
     product_id,
     quantity = 1,
+    address_id,
     shipping_name,
     shipping_phone,
     shipping_address,
@@ -339,6 +353,38 @@ app.post('/api/orders', authMiddleware, async (req, res) => {
     const shippingPrice = 149;
     const totalPrice = product.price * qty + shippingPrice;
 
+    let resolved = {
+      shipping_name: shipping_name || req.user.name,
+      shipping_phone: shipping_phone || '',
+      shipping_address: shipping_address || '',
+      shipping_city: shipping_city || '',
+      shipping_pincode: shipping_pincode || '',
+    };
+
+    // If address_id is provided, prefer it; otherwise fall back to raw shipping_* fields.
+    if (address_id !== undefined && address_id !== null && String(address_id).trim() !== '') {
+      const addressIdNum = Number(address_id);
+      if (Number.isFinite(addressIdNum) && addressIdNum > 0) {
+        const addrRes = await pool.query(
+          `SELECT id, name, phone, address, city, pincode
+           FROM addresses
+           WHERE id = $1 AND user_id = $2`,
+          [addressIdNum, req.user.id]
+        );
+
+        const addr = addrRes.rows[0];
+        if (addr) {
+          resolved = {
+            shipping_name: addr.name,
+            shipping_phone: addr.phone,
+            shipping_address: addr.address,
+            shipping_city: addr.city,
+            shipping_pincode: addr.pincode,
+          };
+        }
+      }
+    }
+
     const result = await pool.query(
       `INSERT INTO orders (
         user_id, product_id, quantity, total_price, shipping_price, status,
@@ -351,11 +397,11 @@ app.post('/api/orders', authMiddleware, async (req, res) => {
         qty,
         totalPrice,
         shippingPrice,
-        shipping_name || req.user.name,
-        shipping_phone || '',
-        shipping_address || '',
-        shipping_city || '',
-        shipping_pincode || '',
+        resolved.shipping_name,
+        resolved.shipping_phone,
+        resolved.shipping_address,
+        resolved.shipping_city,
+        resolved.shipping_pincode,
         notes || '',
       ]
     );
@@ -373,6 +419,7 @@ app.post('/api/orders', authMiddleware, async (req, res) => {
     res.status(500).json({ error: 'Failed to create order.' });
   }
 });
+
 
 app.get('/api/orders', authMiddleware, async (req, res) => {
   try {
@@ -392,6 +439,52 @@ app.get('/api/orders', authMiddleware, async (req, res) => {
     res.status(500).json({ error: 'Failed to load orders.' });
   }
 });
+
+// ── Addresses (per user) ───────────────────────────────────────────────
+app.get('/api/addresses', authMiddleware, async (req, res) => {
+  try {
+    const { rows } = await pool.query(
+      `SELECT id, name, phone, address, city, pincode, notes, created_at
+       FROM addresses
+       WHERE user_id = $1
+       ORDER BY created_at DESC`,
+      [req.user.id]
+    );
+    res.json(rows);
+  } catch (e) {
+    res.status(500).json({ error: 'Failed to load addresses.' });
+  }
+});
+
+app.post('/api/addresses', authMiddleware, async (req, res) => {
+  const { name, phone, address, city, pincode, notes } = req.body || {};
+
+  if (!name || !phone || !address || !city || !pincode) {
+    return res.status(400).json({ error: 'name, phone, address, city, and pincode are required.' });
+  }
+
+  try {
+    const result = await pool.query(
+      `INSERT INTO addresses (user_id, name, phone, address, city, pincode, notes)
+       VALUES ($1,$2,$3,$4,$5,$6,$7)
+       RETURNING id, name, phone, address, city, pincode, notes, created_at`,
+      [
+        req.user.id,
+        String(name).trim(),
+        String(phone).trim(),
+        String(address).trim(),
+        String(city).trim(),
+        String(pincode).trim(),
+        notes ? String(notes).trim() : null,
+      ]
+    );
+
+    res.status(201).json(result.rows[0]);
+  } catch (e) {
+    res.status(500).json({ error: 'Failed to create address.' });
+  }
+});
+
 
 const ADMIN_TOKEN = process.env.ADMIN_TOKEN || 'admin123';
 function adminAuth(req, res, next) {

@@ -87,3 +87,14 @@ ON CONFLICT DO NOTHING;
 
 SELECT 'Database initialized successfully (with product_images).' AS status;
 
+CREATE TABLE IF NOT EXISTS addresses (
+      id SERIAL PRIMARY KEY,
+      user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      name VARCHAR(150) NOT NULL,
+      phone VARCHAR(50) NOT NULL,
+      address TEXT NOT NULL,
+      city VARCHAR(150) NOT NULL,
+      pincode VARCHAR(30) NOT NULL,
+      notes TEXT,
+      created_at TIMESTAMPTZ DEFAULT NOW()
+    );
