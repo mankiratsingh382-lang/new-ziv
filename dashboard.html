@@ -316,7 +316,23 @@
           <!-- Filled by JS -->
         </div>
 
+        <!-- CART SUMMARY (selected items) -->
+        <div class="cart-summary-block" id="selectedCartBlock" style="margin-top:16px;">
+          <div class="summary-row" style="margin-bottom:8px;">
+            <span style="font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--text-muted);">Selected items</span>
+            <span id="selectedCartCount" style="font-size:12px;color:var(--rose-dark);font-weight:700;">0</span>
+          </div>
+          <div id="selectedCartItems" class="cart-items" style="margin-top:8px;">
+            <!-- Filled by JS -->
+          </div>
+          <div class="total-row" style="margin-top:12px;display:flex;justify-content:space-between;gap:12px;">
+            <span>Grand Total</span>
+            <span id="selectedCartGrandTotal">₹0</span>
+          </div>
+        </div>
+
         <form class="order-form" id="orderForm" style="margin-top:16px;">
+
 
           <div class="field-grid" style="grid-template-columns:1fr;">
             <label>
@@ -447,8 +463,9 @@
 
   <script>
 
-    const USER_KEY = 'zivarr-demo-user';
+    const DASH_USER_KEY = 'zivarr-demo-user';
     const AUTH_TOKEN_KEY = 'zivarr-demo-auth-token';
+
     const ORDERS_KEY = 'zivarr-demo-orders';
     const SELECTED_PRODUCT_KEY = 'zivarr-demo-selected-product';
 
@@ -461,7 +478,8 @@
 
     function loadUser(){
       try{
-        const saved = localStorage.getItem(USER_KEY);
+        const saved = localStorage.getItem(DASH_USER_KEY);
+
         return saved ? JSON.parse(saved) : null;
       }catch{
         return null;
@@ -517,7 +535,13 @@
     const orderForm = document.getElementById('orderForm');
     const orderFormStatus = document.getElementById('orderFormStatus');
 
+    // Cart summary for selected products
+    const selectedCartItemsEl = document.getElementById('selectedCartItems');
+    const selectedCartCountEl = document.getElementById('selectedCartCount');
+    const selectedCartGrandTotalEl = document.getElementById('selectedCartGrandTotal');
+
     const addressSelectEl = document.getElementById('addressSelect');
+
 
     const nameEl = document.getElementById('name');
     const phoneEl = document.getElementById('phone');
@@ -548,15 +572,57 @@
 
 
     logoutBtn.addEventListener('click',()=>{
-      localStorage.removeItem(USER_KEY);
+      localStorage.removeItem(DASH_USER_KEY);
       localStorage.removeItem(AUTH_TOKEN_KEY);
       window.location.href = 'login.html';
     });
+
 
     function setFormStatus(msg, isError=false){
       orderFormStatus.style.display = 'block';
       orderFormStatus.textContent = msg;
       orderFormStatus.classList.toggle('success', !isError);
+    }
+
+    function renderSelectedCart(){
+      const count = selectedProducts.length;
+      selectedCartCountEl.textContent = count;
+
+      const grandTotal = selectedProducts.reduce((sum, p)=> sum + (Number(p.price) || 0), 0);
+      selectedCartGrandTotalEl.textContent = `₹${grandTotal.toLocaleString('en-IN')}`;
+
+      if(count === 0){
+        selectedCartItemsEl.innerHTML = `<div class="empty-cart">No items selected yet.</div>`;
+        return;
+      }
+
+      selectedCartItemsEl.innerHTML = selectedProducts.map(p=>{
+        const imgUrl = p?.images?.[0]?.image_url;
+        const safeImg = imgUrl ? imgUrl : '';
+        return `
+          <div class="cart-item-row" style="grid-template-columns:44px 1fr auto; align-items:center;">
+            <div style="width:44px;height:44px;border-radius:10px;overflow:hidden;border:1px solid rgba(212,114,126,.18);background:#fff;">
+              ${safeImg ? `<img src="${safeImg}" alt="" style="width:100%;height:100%;object-fit:cover;display:block;" loading="lazy"/>` : ''}
+            </div>
+            <div>
+              <div class="cart-item-name" style="font-size:16px;line-height:1.1;">${p.name}</div>
+              <div class="cart-item-meta" style="margin-top:6px;">${p.category || ''} · ${formatPrice(p.price)}</div>
+            </div>
+            <button class="remove-item" type="button" data-remove="${p.id}" style="margin-left:8px;">Remove</button>
+          </div>
+        `;
+      }).join('');
+
+      selectedCartItemsEl.querySelectorAll('button[data-remove]').forEach(btn=>{
+        btn.addEventListener('click',()=>{
+          const id = Number(btn.dataset.remove);
+          selectedProducts = selectedProducts.filter(x=>x && x.id !== id);
+          localStorage.setItem(SELECTED_PRODUCT_KEY, JSON.stringify(selectedProducts));
+          setFormStatus('Item removed from selection.', false);
+          renderProducts();
+          renderSelectedCart();
+        });
+      });
     }
 
     function renderProducts(){
@@ -603,12 +669,16 @@
           // Persist as list of ids/products (keep simple)
           localStorage.setItem(SELECTED_PRODUCT_KEY, JSON.stringify(selectedProducts));
           renderProducts();
+          renderSelectedCart();
         });
       });
+
+      renderSelectedCart();
     }
 
 
     async function refreshProducts(){
+
       try{
         availableProducts = await fetchJson('/api/products');
 
