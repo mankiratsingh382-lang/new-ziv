@@ -233,13 +233,31 @@
 <body>
 
 
+  <!-- PROGRESS BAR -->
+  <div id="progress-bar"></div>
+
+  <!-- CURSOR -->
   <div id="cur"></div>
   <div id="cur-r"></div>
 
-
-
+  <!-- NAV -->
+  <nav id="main-nav">
+    <a href="index.html" class="nav-logo" aria-label="ZIVARR">
+      <img class="nav-logo-img" src="images/IMG_6489.JPG" alt="ZIVARR" />
+    </a>
+    <ul class="nav-links">
+      <li><a href="collections.html">Collections</a></li>
+      <li><a href="about.html">Our Story</a></li>
+      <li><a href="collections.html">Craft</a></li>
+      <li><a href="contact.html">Journal</a></li>
+    </ul>
+    <div class="nav-actions">
+      <button class="nav-login" type="button" onclick="window.location.href='login.html'">Account</button>
+    </div>
+  </nav>
 
   <button id="dashHamburger" type="button" aria-label="Open menu" aria-expanded="false">
+
     <span></span><span></span><span></span>
   </button>
 
@@ -361,7 +379,59 @@
     </div>
   </main>
 
+  <!-- FOOTER -->
+  <footer>
+    <div class="footer-top">
+      <div>
+        <div class="footer-brand">ZI<span>V</span>ARR</div>
+        <div class="footer-tagline">Thoughtfully Made · Beautifully Worn</div>
+        <p class="footer-about">Luxury silver and gold jewellery crafted for the modern Indian woman. Rooted in tradition, designed for today. Every piece, a love letter.</p>
+        <div class="footer-badges">
+          <div class="footer-badge">Made in India</div>
+          <div class="footer-badge">Secured Payments</div>
+        </div>
+      </div>
+      <div>
+        <div class="footer-col-title">Help</div>
+        <ul class="footer-col-links">
+          <li>Size Guide</li>
+          <li>Care Instructions</li>
+          <li>Returns & Exchange</li>
+          <li>Track My Order</li>
+          <li>Contact Us</li>
+          <li>FAQs</li>
+        </ul>
+        <a
+          class="btn-primary footer-whatsapp-btn"
+          href="https://wa.me/919999999999?text=Hi%20Zivarr%2C%20I%20have%20a%20query%20about%20my%20order%2Fproduct."
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label="Connect with us on WhatsApp"
+        >
+          Connect with us
+          <svg viewBox="0 0 24 24" style="width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:1.5;margin-left:12px;">
+            <path d="M5 21l1.5-4.5L2 7l8-5 8 5-4.5 9.5L19 21l-7-4-7 4z"/>
+          </svg>
+        </a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <div class="footer-copy">© 2025 Zivarr Jewellery. All rights reserved.</div>
+      <div class="footer-legal">
+        <a href="policies.html">Privacy Policy</a>
+        <a href="policies.html">Terms of Service</a>
+        <a href="policies.html">Shipping Policy</a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- BACK TO TOP -->
+  <button id="btt" onclick="window.scrollTo({top:0,behavior:'smooth'})" aria-label="Back to top">
+    <svg viewBox="0 0 24 24"><polyline points="18 15 12 9 6 15"/></svg>
+  </button>
+
   <script>
+
     const USER_KEY = 'zivarr-demo-user';
     const AUTH_TOKEN_KEY = 'zivarr-demo-auth-token';
     const ORDERS_KEY = 'zivarr-demo-orders';
