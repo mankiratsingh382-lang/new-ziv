@@ -8,7 +8,8 @@
   <style>
     .dash-page{
       min-height:100svh;
-      padding:100px 24px 80px;
+      /* Keep spacing consistent with fixed nav height across devices */
+      padding:clamp(88px, 10vh, 110px) 18px 80px;
       background:linear-gradient(180deg,#FFFDFD 0%, #FFF7F8 100%);
     }
     .dash-wrap{
@@ -18,6 +19,7 @@
       grid-template-columns:1fr .95fr;
       gap:22px;
       align-items:start;
+      min-width:0;
     }
     .dash-panel{
       border:1px solid rgba(212,114,126,.2);
@@ -26,15 +28,17 @@
       border-radius:16px;
       padding:24px;
       box-shadow:0 20px 60px rgba(181,80,92,.06);
+      min-width:0;
     }
     .dash-title{
       font-family:'Cormorant Garamond',serif;
-      font-size:38px;
+      font-size:clamp(28px, 4.2vw, 38px);
       font-weight:300;
       color:var(--rose-dark);
       margin-bottom:8px;
     }
-    .dash-sub{font-size:12.5px;line-height:1.8;color:var(--text-muted);margin-bottom:18px;}
+    .dash-sub{font-size:clamp(11px, 2.2vw, 12.5px);line-height:1.8;color:var(--text-muted);margin-bottom:18px;}
+
 
     /* ── Dashboard hamburger + drawer ───────────────────── */
     #dashHamburger{
@@ -174,8 +178,19 @@
       .dash-page{padding-top:92px;}
     }
 
+    /* Extra-small tweaks */
+    @media(max-width:600px){
+      .field-grid{grid-template-columns:1fr;}
+      .product-tiles{grid-template-columns:1fr;}
+      .tile-thumb img{width:58px;height:58px;}
+      .dash-page{padding-left:14px;padding-right:14px;}
+      .tile-name{font-size:17px;}
+    }
+
+
 
     .btn-row{display:flex;gap:10px;flex-wrap:wrap;margin-top:10px;}
+
     .btn-small{
       padding:12px 18px;border-radius:999px;border:1px solid rgba(212,114,126,.3);
       background:#fff;color:var(--rose-mid);font-size:9px;letter-spacing:2.5px;text-transform:uppercase;font-weight:400;
@@ -366,7 +381,7 @@
 
       <aside class="dash-panel">
         <h3 style="font-family:'Cormorant Garamond',serif;font-size:26px;font-weight:400;color:var(--rose-dark);margin-bottom:10px;">Your Orders</h3>
-        <p class="dash-sub" style="margin-bottom:0;">Track delivery status (demo timeline) per user.</p>
+        <p class="dash-sub" style="margin-bottom:0;">Track delivery status per user.</p>
 
         <div class="orders-list" id="ordersList">
           <!-- Filled by JS -->
@@ -517,7 +532,8 @@
     const ordersList = document.getElementById('ordersList');
     const noOrders = document.getElementById('noOrders');
 
-    let selectedProduct = loadSelectedProduct();
+    // Multi-select support (frontend only): we still place one backend order per product.
+    let selectedProducts = loadSelectedProduct() ? [loadSelectedProduct()] : [];
 
     if(!user){
       window.location.href = 'login.html';
@@ -529,6 +545,7 @@
       : `Signed in as ${user.name}. You are browsing in local demo mode.`;
 
     nameEl.value = user?.isGuest ? '' : (user?.name || '');
+
 
     logoutBtn.addEventListener('click',()=>{
       localStorage.removeItem(USER_KEY);
@@ -544,13 +561,21 @@
 
     function renderProducts(){
       tiles.innerHTML = availableProducts.map((p)=>{
-        const active = selectedProduct && selectedProduct.id === p.id;
+        const active = selectedProducts.some(sp => sp && sp.id === p.id);
+        const imgUrl = p?.images?.[0]?.image_url;
+        const safeImg = imgUrl ? imgUrl : '';
+
         return `
           <div class="tile" style="border-color:${active ? 'rgba(181,80,92,.55)' : 'rgba(212,114,126,.18)'};">
             <div class="tile-top">
-              <div>
-                <div class="tile-name">${p.name}</div>
-                <div class="tile-price">${p.category}</div>
+              <div style="display:flex;gap:12px;align-items:flex-start;">
+                <div class="tile-thumb" aria-hidden="true">
+                  ${safeImg ? `<img src="${safeImg}" alt="" loading="lazy"/>` : ''}
+                </div>
+                <div>
+                  <div class="tile-name">${p.name}</div>
+                  <div class="tile-price">${p.category}</div>
+                </div>
               </div>
               <div class="tile-price" style="font-weight:600;color:var(--rose-dark);">${formatPrice(p.price)}</div>
             </div>
@@ -565,21 +590,32 @@
         btn.addEventListener('click',()=>{
           const p = availableProducts.find(x=>x.id === Number(btn.dataset.select));
           if(!p){ return; }
-          selectedProduct = p;
-          saveSelectedProduct(p);
-          setFormStatus(`Selected: ${p.name} (${formatPrice(p.price)}).`, false);
+
+          const idx = selectedProducts.findIndex(x => x && x.id === p.id);
+          if(idx >= 0){
+            selectedProducts.splice(idx, 1);
+            setFormStatus(`Removed: ${p.name}.`, false);
+          } else {
+            selectedProducts.push(p);
+            setFormStatus(`Added: ${p.name} (${formatPrice(p.price)}).`, false);
+          }
+
+          // Persist as list of ids/products (keep simple)
+          localStorage.setItem(SELECTED_PRODUCT_KEY, JSON.stringify(selectedProducts));
           renderProducts();
         });
       });
     }
 
+
     async function refreshProducts(){
       try{
         availableProducts = await fetchJson('/api/products');
-        if(selectedProduct && !availableProducts.some(product=>product.id === selectedProduct.id)){
-          selectedProduct = availableProducts[0] || null;
-          saveSelectedProduct(selectedProduct);
-        }
+
+        // Prune selections that no longer exist in DB response.
+        selectedProducts = selectedProducts.filter(sp => availableProducts.some(p => p.id === sp.id));
+
+        // If nothing is selected, keep it empty (user can choose multiple). 
         renderProducts();
       } catch(error){
         availableProducts = [
@@ -593,6 +629,7 @@
         renderProducts();
       }
     }
+
 
     function populateNewAddressMode(){
       if(!newAddressModeEl) return;
@@ -710,28 +747,24 @@
     orderForm.addEventListener('submit', async (e)=>{
       e.preventDefault();
 
-      if(!selectedProduct){
-        setFormStatus('Select a product first from above.', true);
+      if(!selectedProducts || selectedProducts.length === 0){
+        setFormStatus('Select at least one product first from above.', true);
         return;
       }
 
       const selectedAddressId = addressSelectEl?.value;
       const useExistingAddress = selectedAddressId && selectedAddressId !== 'new';
 
-      let payload = {
-        product_id: selectedProduct.id,
+      const basePayload = {
         quantity: 1,
-        notes: notesEl.value.trim()
+        notes: notesEl.value.trim(),
       };
 
+      let shippingPayload = {};
       if(useExistingAddress){
-        payload = {
-          ...payload,
-          address_id: selectedAddressId
-        };
+        shippingPayload = { address_id: selectedAddressId };
       } else {
-        payload = {
-          ...payload,
+        shippingPayload = {
           shipping_name: nameEl.value.trim(),
           shipping_phone: phoneEl.value.trim(),
           shipping_address: addressEl.value.trim(),
@@ -740,47 +773,62 @@
         };
       }
 
-
+      // Place one order per selected product (backend supports single-product orders).
       try {
         if(authToken){
-          const response = await fetch('/api/orders', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              Authorization: `Bearer ${authToken}`
-            },
-            body: JSON.stringify(payload)
-          });
+          const placed = [];
+          for (const sp of selectedProducts){
+            const payload = {
+              ...basePayload,
+              ...shippingPayload,
+              product_id: sp.id,
+            };
 
-          const data = await response.json().catch(() => ({}));
+            const response = await fetch('/api/orders', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${authToken}`
+              },
+              body: JSON.stringify(payload)
+            });
 
-          if(!response.ok){
-            setFormStatus(data.error || 'Order failed to place.', true);
-            return;
+            const data = await response.json().catch(() => ({}));
+
+            if(!response.ok){
+              setFormStatus(data.error || `Order failed for ${sp.name}.`, true);
+              return;
+            }
+
+            placed.push(data);
           }
 
-          setFormStatus(`Order placed successfully! #${data.id} is now processing.`, false);
+          setFormStatus(`Orders placed successfully! (${placed.length} item${placed.length===1?'':'s'})`, false);
         } else {
-          const fallbackOrder = {
-            orderId: `ZIV-${Date.now().toString().slice(-6)}`,
-            productName: selectedProduct.name,
-            productPrice: selectedProduct.price,
-            category: selectedProduct.category,
-            customerName: nameEl.value.trim(),
-            customerPhone: phoneEl.value.trim(),
-            address: addressEl.value.trim(),
-            city: cityEl.value.trim(),
-            pincode: pincodeEl.value.trim(),
-            notes: notesEl.value.trim(),
-            speed: speedEl.value,
-            createdAt: new Date().toISOString()
-          };
-
           const currentOrders = loadOrdersByUser(user.email);
-          currentOrders.push(fallbackOrder);
-          saveOrdersByUser(user.email, currentOrders);
+          const created = [];
 
-          setFormStatus(`Order placed! Tracking status will update automatically for this demo. (${fallbackOrder.orderId})`, false);
+          for (const sp of selectedProducts){
+            const fallbackOrder = {
+              orderId: `ZIV-${Date.now().toString().slice(-6)}`,
+              productName: sp.name,
+              productPrice: sp.price,
+              category: sp.category,
+              customerName: nameEl.value.trim(),
+              customerPhone: phoneEl.value.trim(),
+              address: addressEl.value.trim(),
+              city: cityEl.value.trim(),
+              pincode: pincodeEl.value.trim(),
+              notes: notesEl.value.trim(),
+              speed: speedEl.value,
+              createdAt: new Date().toISOString()
+            };
+            currentOrders.push(fallbackOrder);
+            created.push(fallbackOrder);
+          }
+
+          saveOrdersByUser(user.email, currentOrders);
+          setFormStatus(`Orders placed! Tracking status will update automatically for this demo. (${created.length} items)`, false);
         }
       } catch(error){
         setFormStatus('Unable to connect to the backend. Check that the server is running.', true);
@@ -789,8 +837,12 @@
 
       await refreshOrders();
       orderForm.reset();
+      selectedProducts = [];
+      localStorage.setItem(SELECTED_PRODUCT_KEY, JSON.stringify(selectedProducts));
       nameEl.value = user?.isGuest ? '' : (user?.name || '');
+      renderProducts();
     });
+
 
     // ── Drawer navigation ───────────────────────────────
     const dashHamburger = document.getElementById('dashHamburger');

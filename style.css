@@ -141,11 +141,11 @@ nav.scrolled{box-shadow:0 6px 40px rgba(181,80,92,.07);}
 
 .hero-eyebrow{
   font-size:9px;letter-spacing:5px;text-transform:uppercase;
-  color:var(--pink-mid);font-weight:400;margin-bottom:28px;
+  color:var(--rose-dark);font-weight:400;margin-bottom:28px;
   opacity:0;animation:fadeUp .7s 2.3s forwards;
   display:flex;align-items:center;gap:16px;
 }
-.hero-eyebrow::before{content:'';width:32px;height:1px;background:var(--pink-mid);}
+.hero-eyebrow::before{content:'';width:32px;height:1px;background:var(--rose-dark);}
 .hero-h1{
   font-family:'Cormorant Garamond',serif;
   font-size:clamp(56px,6.5vw,96px);
@@ -158,7 +158,7 @@ nav.scrolled{box-shadow:0 6px 40px rgba(181,80,92,.07);}
 .hero-h1 em{font-style:italic;color:var(--pink-mid);}
 .hero-sub{
   font-size:13.5px;letter-spacing:.5px;line-height:1.9;
-  color:var(--text-muted);max-width:400px;
+  color:var(--rose-dark);max-width:400px;
   margin-bottom:52px;
   opacity:0;animation:fadeUp .7s 2.7s forwards;
 }

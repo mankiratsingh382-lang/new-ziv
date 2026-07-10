@@ -676,6 +676,9 @@ app.get('/api/admin/orders', adminAuth, async (req, res) => {
               o.quantity,
               o.total_price,
               o.status,
+              o.shipping_address,
+              o.shipping_city,
+              o.shipping_pincode,
               o.created_at
        FROM orders o
        JOIN users u ON u.id = o.user_id
