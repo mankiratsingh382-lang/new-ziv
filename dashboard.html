@@ -3,7 +3,16 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Zivarr — Dashboard</title>
+  <meta name="robots" content="noindex,nofollow"/>
+  <meta name="description" content="Your private ZIVARR dashboard for viewing orders, saved addresses, and account details."/>
+  <meta name="author" content="ZIVARR"/>
+  <meta property="og:title" content="ZIVARR Dashboard"/>
+  <meta property="og:description" content="Private customer dashboard for account order activity."/>
+  <meta property="og:type" content="website"/>
+  <meta name="theme-color" content="#b0505c"/>
+  <link rel="canonical" href="https://zivarr.vercel.app/dashboard.html"/>
+  <link rel="icon" href="images/IMG_6489.JPG" type="image/jpeg"/>
+  <title>ZIVARR Dashboard</title>
   <link rel="stylesheet" href="style.css"/>
   <style>
     .dash-page{
@@ -286,7 +295,7 @@
         <button class="dash-drawer-link" type="button" data-jump="orders">Track order</button>
         <button class="dash-drawer-link" type="button" data-jump="placeOrder">Order</button>
         <a class="dash-drawer-link" href="collections.html">Shop</a>
-        <a class="dash-drawer-link" href="account.html">Account</a>
+        <a class="dash-drawer-link" href="dashboard.html">Account</a>
       </nav>
     </div>
     <div id="dashDrawerBackdrop" tabindex="-1"></div>
@@ -334,14 +343,14 @@
         <form class="order-form" id="orderForm" style="margin-top:16px;">
 
 
-          <div class="field-grid" style="grid-template-columns:1fr;">
+          <!--<div class="field-grid" style="grid-template-columns:1fr;">
             <label>
               Saved Address
               <select id="addressSelect">
                 <option value="new">Use new address</option>
               </select>
             </label>
-          </div>
+          </div>-->
 
           <div style="display:flex;flex-direction:column;gap:14px;">
             <div id="newAddressMode" style="display:flex;flex-direction:column;gap:14px;">

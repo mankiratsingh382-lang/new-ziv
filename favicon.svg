@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-labelledby="title desc">
+  <title id="title">ZIVARR favicon</title>
+  <desc id="desc">A stylized monogram for the ZIVARR luxury jewellery brand.</desc>
+  <rect width="128" height="128" rx="28" fill="#fff7f8"/>
+  <path d="M26 28h76v10H63v62H53V38H26z" fill="#b0505c"/>
+  <path d="M79 28h23v72H79V28zm10 10v52h3V38z" fill="#d19ba1"/>
+  <circle cx="90" cy="94" r="7" fill="#b0505c"/>
+</svg>

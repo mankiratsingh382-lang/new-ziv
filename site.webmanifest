@@ -1,0 +1,17 @@
+{
+  "name": "ZIVARR Luxury Jewellery",
+  "short_name": "ZIVARR",
+  "description": "Luxury handcrafted jewellery for timeless modern styling.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#fff7f8",
+  "theme_color": "#b0505c",
+  "icons": [
+    {
+      "src": "images/IMG_6489.JPG",
+      "sizes": "any",
+      "type": "image/jpeg",
+      "purpose": "any maskable"
+    }
+  ]
+}
