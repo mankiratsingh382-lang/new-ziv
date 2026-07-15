@@ -6,16 +6,29 @@ const { Pool } = require('pg');
 const path = require('path');
 const fs = require('fs');
 const multer = require('multer');
+const Razorpay = require('razorpay');
 require('dotenv').config();
 
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+const razorpayKeyId = process.env.RAZORPAY_KEY_ID;
+const razorpayKeySecret = process.env.RAZORPAY_KEY_SECRET;
+
+if (!razorpayKeyId || !razorpayKeySecret) {
+  throw new Error('Missing Razorpay credentials. Set RAZORPAY_KEY_ID and RAZORPAY_KEY_SECRET in your .env file.');
+}
+
+const razorpay = new Razorpay({
+  key_id: razorpayKeyId,
+  key_secret: razorpayKeySecret,
+});
+
 app.use((req, res, next) => {
   res.setHeader(
     'Content-Security-Policy',
-    "default-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; object-src 'none'; img-src 'self' data: blob: https:; font-src 'self' https://fonts.gstatic.com data:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; script-src 'self' 'unsafe-inline'; connect-src 'self' https:; upgrade-insecure-requests;"
+    "default-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; object-src 'none'; img-src 'self' data: blob: https:; font-src 'self' https://fonts.gstatic.com data:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; script-src 'self' 'unsafe-inline' https://checkout.razorpay.com; connect-src 'self' https: https://checkout.razorpay.com; frame-src https://*.razorpay.com https://checkout.razorpay.com; upgrade-insecure-requests;"
   );
   res.setHeader('X-Content-Type-Options', 'nosniff');
   res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
@@ -327,6 +340,31 @@ app.post('/api/auth/login', async (req, res) => {
 
 app.get('/api/auth/me', authMiddleware, (req, res) => {
   res.json({ user: req.user });
+});
+
+app.post('/api/razorpay/create-order', authMiddleware, async (req, res) => {
+  const { amount, currency = 'INR', receipt } = req.body || {};
+  const numericAmount = Number(amount);
+
+  if (!Number.isFinite(numericAmount) || numericAmount <= 0) {
+    return res.status(400).json({ error: 'A valid amount is required.' });
+  }
+
+  try {
+    const order = await razorpay.orders.create({
+      amount: Math.round(numericAmount),
+      currency,
+      receipt: receipt || `zivarr_${Date.now()}`,
+      notes: {
+        user_email: req.user.email,
+        user_name: req.user.name,
+      },
+    });
+
+    res.json(order);
+  } catch (error) {
+    res.status(500).json({ error: 'Unable to create Razorpay order.' });
+  }
 });
 
 app.post('/api/orders', authMiddleware, async (req, res) => {

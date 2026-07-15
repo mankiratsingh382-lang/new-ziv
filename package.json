@@ -10,12 +10,12 @@
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",
-
     "cors": "^2.4.0",
     "dotenv": "^17.4.2",
     "express": "^4.21.2",
     "multer": "^2.2.0",
     "pg": "^8.21.0",
+    "razorpay": "^2.9.6",
     "uuid": "^11.0.5"
   }
 }

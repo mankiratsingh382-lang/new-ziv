@@ -414,7 +414,7 @@
           </label>
 
           <div class="btn-row">
-            <button type="submit" class="btn-primary" id="placeOrder">Place Order</button>
+            <button type="submit" class="btn-primary" id="placeOrder">Pay & Place Order</button>
             <button type="button" class="btn-small" id="clearFields">Clear</button>
           </div>
 
@@ -488,9 +488,11 @@
     <svg viewBox="0 0 24 24"><polyline points="18 15 12 9 6 15"/></svg>
   </button>
 
+  <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
   <script>
 
     const DASH_USER_KEY = 'zivarr-demo-user';
+    const RAZORPAY_KEY_ID = 'rzp_test_TDlyipV0bhrYJo';
     const AUTH_TOKEN_KEY = 'zivarr-demo-auth-token';
 
     const ORDERS_KEY = 'zivarr-demo-orders';
@@ -501,6 +503,44 @@
 
     function formatPrice(value){
       return `₹${Number(value).toLocaleString('en-IN')}`;
+    }
+
+    function calculateCheckoutAmount(products) {
+      const productTotal = products.reduce((sum, p) => sum + (Number(p.price) || 0), 0);
+      const shippingTotal = products.length > 0 ? 149 : 0;
+      return Math.round((productTotal + shippingTotal) * 100);
+    }
+
+    function openRazorpayCheckout(amount, metadata, onSuccess, onError) {
+      if (!window.Razorpay) {
+        onError(new Error('Razorpay could not be loaded right now.'));
+        return;
+      }
+
+      const options = {
+        key: RAZORPAY_KEY_ID,
+        amount,
+        currency: 'INR',
+        name: 'ZIVARR',
+        description: `Payment for ${metadata.itemCount} item${metadata.itemCount === 1 ? '' : 's'}`,
+        order_id: metadata.orderId,
+        handler: async (response) => {
+          try {
+            await onSuccess(response);
+          } catch (error) {
+            onError(error);
+          }
+        },
+        prefill: {
+          name: metadata.customerName || user?.name || '',
+          email: user?.email || '',
+          contact: metadata.phone || '',
+        },
+        theme: { color: '#b0505c' },
+      };
+
+      const rzp = new window.Razorpay(options);
+      rzp.open();
     }
 
     function loadUser(){
@@ -870,74 +910,112 @@
         };
       }
 
-      // Place one order per selected product (backend supports single-product orders).
+      const checkoutAmount = calculateCheckoutAmount(selectedProducts);
+      setFormStatus(`Opening Razorpay checkout for ₹${(checkoutAmount / 100).toLocaleString('en-IN')}...`, false);
+
       try {
-        if(authToken){
-          const placed = [];
-          for (const sp of selectedProducts){
-            const payload = {
-              ...basePayload,
-              ...shippingPayload,
-              product_id: sp.id,
-            };
+        const paymentOrderResponse = await fetch('/api/razorpay/create-order', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${authToken}`
+          },
+          body: JSON.stringify({
+            amount: checkoutAmount,
+            currency: 'INR',
+            receipt: `zivarr_${Date.now()}`
+          })
+        });
 
-            const response = await fetch('/api/orders', {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-                Authorization: `Bearer ${authToken}`
-              },
-              body: JSON.stringify(payload)
-            });
-
-            const data = await response.json().catch(() => ({}));
-
-            if(!response.ok){
-              setFormStatus(data.error || `Order failed for ${sp.name}.`, true);
-              return;
-            }
-
-            placed.push(data);
-          }
-
-          setFormStatus(`Orders placed successfully! (${placed.length} item${placed.length===1?'':'s'})`, false);
-        } else {
-          const currentOrders = loadOrdersByUser(user.email);
-          const created = [];
-
-          for (const sp of selectedProducts){
-            const fallbackOrder = {
-              orderId: `ZIV-${Date.now().toString().slice(-6)}`,
-              productName: sp.name,
-              productPrice: sp.price,
-              category: sp.category,
-              customerName: nameEl.value.trim(),
-              customerPhone: phoneEl.value.trim(),
-              address: addressEl.value.trim(),
-              city: cityEl.value.trim(),
-              pincode: pincodeEl.value.trim(),
-              notes: notesEl.value.trim(),
-              speed: speedEl.value,
-              createdAt: new Date().toISOString()
-            };
-            currentOrders.push(fallbackOrder);
-            created.push(fallbackOrder);
-          }
-
-          saveOrdersByUser(user.email, currentOrders);
-          setFormStatus(`Orders placed! Tracking status will update automatically for this demo. (${created.length} items)`, false);
+        const paymentOrderData = await paymentOrderResponse.json().catch(() => ({}));
+        if(!paymentOrderResponse.ok){
+          throw new Error(paymentOrderData.error || 'Unable to start Razorpay checkout.');
         }
-      } catch(error){
-        setFormStatus('Unable to connect to the backend. Check that the server is running.', true);
-        return;
-      }
 
-      await refreshOrders();
-      orderForm.reset();
-      selectedProducts = [];
-      localStorage.setItem(SELECTED_PRODUCT_KEY, JSON.stringify(selectedProducts));
-      nameEl.value = user?.isGuest ? '' : (user?.name || '');
-      renderProducts();
+        openRazorpayCheckout(
+          checkoutAmount,
+          {
+            orderId: paymentOrderData.id,
+            itemCount: selectedProducts.length,
+            customerName: nameEl.value.trim(),
+            phone: phoneEl.value.trim(),
+          },
+          async () => {
+            try {
+              setFormStatus('Payment successful. Placing your order...', false);
+
+              if(authToken){
+                const placed = [];
+                for (const sp of selectedProducts){
+                  const payload = {
+                    ...basePayload,
+                    ...shippingPayload,
+                    product_id: sp.id,
+                  };
+
+                  const response = await fetch('/api/orders', {
+                    method: 'POST',
+                    headers: {
+                      'Content-Type': 'application/json',
+                      Authorization: `Bearer ${authToken}`
+                    },
+                    body: JSON.stringify(payload)
+                  });
+
+                  const data = await response.json().catch(() => ({}));
+
+                  if(!response.ok){
+                    throw new Error(data.error || `Order failed for ${sp.name}.`);
+                  }
+
+                  placed.push(data);
+                }
+
+                setFormStatus(`Payment successful and orders placed! (${placed.length} item${placed.length===1?'':'s'})`, false);
+              } else {
+                const currentOrders = loadOrdersByUser(user.email);
+                const created = [];
+
+                for (const sp of selectedProducts){
+                  const fallbackOrder = {
+                    orderId: `ZIV-${Date.now().toString().slice(-6)}`,
+                    productName: sp.name,
+                    productPrice: sp.price,
+                    category: sp.category,
+                    customerName: nameEl.value.trim(),
+                    customerPhone: phoneEl.value.trim(),
+                    address: addressEl.value.trim(),
+                    city: cityEl.value.trim(),
+                    pincode: pincodeEl.value.trim(),
+                    notes: notesEl.value.trim(),
+                    speed: speedEl.value,
+                    createdAt: new Date().toISOString()
+                  };
+                  currentOrders.push(fallbackOrder);
+                  created.push(fallbackOrder);
+                }
+
+                saveOrdersByUser(user.email, currentOrders);
+                setFormStatus(`Payment successful. Tracking info will update automatically for this demo. (${created.length} items)`, false);
+              }
+
+              await refreshOrders();
+              orderForm.reset();
+              selectedProducts = [];
+              localStorage.setItem(SELECTED_PRODUCT_KEY, JSON.stringify(selectedProducts));
+              nameEl.value = user?.isGuest ? '' : (user?.name || '');
+              renderProducts();
+            } catch (error) {
+              setFormStatus(error.message || 'Unable to place order after payment.', true);
+            }
+          },
+          (error) => {
+            setFormStatus(error.message || 'Payment cancelled or failed.', true);
+          }
+        );
+      } catch (error) {
+        setFormStatus(error.message || 'Unable to connect to the backend. Check that the server is running.', true);
+      }
     });
 
 
