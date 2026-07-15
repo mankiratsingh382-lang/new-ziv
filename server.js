@@ -363,7 +363,7 @@ app.post('/api/razorpay/create-order', authMiddleware, async (req, res) => {
 
     res.json(order);
   } catch (error) {
-    res.status(500).json({ error: 'Unable to create Razorpay order.' });
+  res.status(500).json({ error: 'Unable to create Razorpay order.' });
   }
 });
 

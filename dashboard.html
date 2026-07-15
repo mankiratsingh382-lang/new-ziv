@@ -353,7 +353,7 @@
             <!-- Filled by JS -->
           </div>
           <div class="total-row" style="margin-top:12px;display:flex;justify-content:space-between;gap:12px;">
-            <span>Grand Total</span>
+            <span>Grand Total + Shipping(149)</span>
             <span id="selectedCartGrandTotal">₹0</span>
           </div>
         </div>
@@ -656,7 +656,10 @@
       selectedCartCountEl.textContent = count;
 
       const grandTotal = selectedProducts.reduce((sum, p)=> sum + (Number(p.price) || 0), 0);
-      selectedCartGrandTotalEl.textContent = `₹${grandTotal.toLocaleString('en-IN')}`;
+      // include shipping charges (149) whenever at least one item is selected
+      const shippingTotal = count > 0 ? 149 : 0;
+      const grandTotalWithShipping = grandTotal + shippingTotal;
+      selectedCartGrandTotalEl.textContent = `₹${grandTotalWithShipping.toLocaleString('en-IN')}`;
 
       if(count === 0){
         selectedCartItemsEl.innerHTML = `<div class="empty-cart">No items selected yet.</div>`;
