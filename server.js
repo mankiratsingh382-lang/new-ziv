@@ -60,7 +60,9 @@ const storage = multer.diskStorage({
 
 const upload = multer({
   storage,
-  limits: { fileSize: 5 * 1024 * 1024 },
+  // Allow larger uploads for admin panel image uploads
+  // (was 5MB; some of the existing images exceed that)
+  limits: { fileSize: 15 * 1024 * 1024 },
 });
 
 const connectionString = process.env.DATABASE_URL || process.env.POSTGRES_URL || process.env.POSTGRES_CONNECTION_STRING || process.env.NEON_DATABASE_URL;
