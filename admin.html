@@ -583,15 +583,24 @@
       if(Number.isNaN(pid) || !pid){ showToast('Select a product to delete.','err'); return; }
       if(!confirm(`Delete product ID ${pid}? This cannot be undone.`)) return;
 
+      // Fetch exact error payload/status to debug deletes.
       try{
-        await apiJson(`/api/admin/products/${pid}`, {
+        await fetch(`/api/admin/products/${pid}`, {
           method: 'DELETE',
           headers: authHeaders(),
+        }).then(async (r)=>{
+          const data = await r.json().catch(()=>({}));
+          if(!r.ok){
+            const msg = data && data.error ? data.error : `Request failed: ${r.status}`;
+            throw new Error(msg);
+          }
         });
+
         showToast('Product deleted.');
         await loadProducts();
       }catch(err){
-        showToast(err.message || 'Failed to delete product','err');
+        const msg = err?.message ? String(err.message) : 'Failed to delete product';
+        showToast(msg, 'err');
       }
     });
 
