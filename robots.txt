@@ -1,4 +1,0 @@
-User-agent: *
-Allow: /
-
-Sitemap: https://zivarr.vercel.app/sitemap.xml

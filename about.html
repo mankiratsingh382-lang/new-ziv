@@ -20,20 +20,176 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="style.css" />
-  <style>.page-shell{min-height:100svh;padding:110px 24px 72px;background:linear-gradient(180deg,#fffafc 0%, #fff 45%, #fff7f8 100%);} .page-wrap{max-width:1100px;margin:0 auto;display:grid;gap:24px;} .glass-panel{background:rgba(255,255,255,.82);backdrop-filter:blur(18px);border:1px solid rgba(212,114,126,.18);border-radius:28px;box-shadow:0 18px 50px rgba(61,24,32,.08);padding:24px;} .eyebrow{font-size:10px;letter-spacing:4px;text-transform:uppercase;color:var(--pink-mid);} .title{font-family:'Cormorant Garamond',serif;font-size:clamp(36px,6vw,56px);color:var(--rose-dark);margin-top:8px;} .muted{color:var(--text-muted);font-size:13px;line-height:1.8;}</style>
+<style>.page-shell{min-height:100svh;padding:110px 24px 72px;background:linear-gradient(180deg,#fffafc 0%, #fff 45%, #fff7f8 100%);} .page-wrap{max-width:1100px;margin:0 auto;display:grid;gap:24px;} .glass-panel{background:rgba(255,255,255,.82);backdrop-filter:blur(18px);border:1px solid rgba(212,114,126,.18);border-radius:28px;box-shadow:0 18px 50px rgba(61,24,32,.08);padding:24px;} .eyebrow{font-size:10px;letter-spacing:4px;text-transform:uppercase;color:var(--pink-mid);} .title{font-family:'Cormorant Garamond',serif;font-size:clamp(36px,6vw,56px);color:var(--rose-dark);margin-top:8px;} .muted{color:var(--text-muted);font-size:13px;line-height:1.8;}</style>
 </head>
 <body>
-<div id="preloader"><div class="pre-logo"><img class="pre-logo-img" src="images/IMG_6489.JPG" alt="ZIVARR" /></div><div class="pre-line"></div><div class="pre-tag">Thoughtfully Made · Beautifully Worn</div></div>
-  <div id="cur"></div><div id="cur-r"></div>
+<div id="preloader">
+  <div class="pre-logo"><img class="pre-logo-img" src="images/IMG_6489.JPG" alt="ZIVARR" /></div>
+  <div class="pre-line"></div>
+  <div class="pre-tag">Thoughtfully Made · Beautifully Worn</div>
+</div>
+
+  <div id="cur"></div>
+  <div id="cur-r"></div>
+
   <nav id="main-nav">
     <a class="nav-logo" href="index.html" aria-label="ZIVARR">
       <img class="nav-logo-img" src="images/IMG_6489.JPG" alt="ZIVARR" />
     </a>
 
-    <ul class="nav-links"><li><a href="collections.html">Collections</a></li><li><a href="about.html">About</a></li><li><a href="contact.html">Contact</a></li><li><a href="dashboard.html">Account</a></li></ul>
-    <div class="nav-actions"><a href="login.html" class="btn-ghost">Login</a><button id="cartToggle" aria-label="Cart"><svg viewBox="0 0 24 24"><path d="M3 4h2l2 10h10l2-8H7"/><circle cx="10" cy="19" r="1.5"/><circle cx="17" cy="19" r="1.5"/></svg><span class="cart-dot">0</span></button></div>
+    <ul class="nav-links">
+      <li><a href="collections.html">Collections</a></li>
+      <!-- <li><a href="about.html">About</a></li> -->
+      <li><a href="contact.html">Contact</a></li>
+      <!-- <li><a href="dashboard.html">Account</a></li> -->
+    </ul>
+
+    <div class="nav-actions">
+      <a href="login.html" class="btn-ghost">Login</a>
+      <!-- <button id="cartToggle" aria-label="Cart">
+        <svg viewBox="0 0 24 24">
+          <path d="M3 4h2l2 10h10l2-8H7" />
+          <circle cx="10" cy="19" r="1.5" />
+          <circle cx="17" cy="19" r="1.5" />
+        </svg>
+        <span class="cart-dot">0</span>
+      </button> -->
+    </div>
   </nav>
-  <main class="page-shell"><section class="page-wrap"><article class="glass-panel"><p class="eyebrow">Our Story</p><h1 class="title">A luxury jewelry brand rooted in craftsmanship, culture, and modern femininity.</h1><p class="muted">ZIVARR is built around a clear promise: every piece should feel personal, precious, and timeless. The design language combines warm gold tones, soft blush accents, and sculpted silhouettes to create a modern heirloom experience.</p></article><article class="glass-panel"><p class="eyebrow">Why ZIVARR</p><p class="muted">The storefront is designed for immersive discovery — cinematic visuals, smooth motion, and glassmorphic detail cards. It offers a premium digital environment that feels editorial, calm, and unmistakably high-end.</p></article></section></main>
+  <main class="page-shell">
+    <section class="page-wrap" aria-label="About ZIVARR">
+      <!-- HERO / INTRO -->
+      <article class="glass-panel hero-about" >
+        <p class="eyebrow">About ZIVARR</p>
+        <h1 class="title">Luxury jewellery, crafted to feel personal — and designed to last.</h1>
+        <p class="muted">
+          ZIVARR is a modern luxury brand inspired by Indian craftsmanship and shaped by contemporary femininity.
+          We create sterling silver and gold plated pieces with a focus on comfort, refined shine, and heirloom-level detailing.
+          <br /><br />
+          This is jewellery that moves with you—day to night, celebrations and quiet moments—made to be worn beautifully, again and again.
+        </p>
+        <div class="about-cta-row">
+          <a href="collections.html" class="btn-primary" style="display:inline-flex;">
+            Explore Collections
+            <svg viewBox="0 0 24 24" style="width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:1.5;margin-left:12px;">
+              <line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>
+            </svg>
+          </a>
+          <a href="contact.html" class="btn-ghost">Need Help?</a>
+        </div>
+      </article>
+
+      <!-- PHOTO + VALUES -->
+      <article class="about-photo-card" aria-label="Craft photo">
+        <div class="about-photo-wrap">
+          <img class="about-photo" src="images/IMG_1010.JPEG" alt="Craft photo of ZIVARR jewellery" loading="lazy" />
+          <div class="about-photo-overlay" aria-hidden="true"></div>
+          <div class="about-photo-caption">
+            <div class="about-photo-eyebrow">Made with care</div>
+            <div class="about-photo-title">From artisan hands to your everyday ritual.</div>
+          </div>
+        </div>
+      </article>
+
+      <!-- TEXT SECTIONS -->
+      <div class="about-grid">
+        <article class="glass-panel">
+          <p class="eyebrow">Our Promise</p>
+          <h2 class="about-h2">Every piece should feel like yours.</h2>
+          <p class="muted">
+            We design for the way you actually wear jewellery: layering without bulk, silhouettes that sit comfortably,
+            and finishes that catch the light with effortless elegance.
+          </p>
+          <ul class="about-list">
+            <li><strong>Timeless forms</strong> with modern proportions</li>
+            <li><strong>Comfort-first</strong> detailing for everyday wear</li>
+            <li><strong>Elegant shine</strong> that looks premium, always</li>
+          </ul>
+        </article>
+
+        <article class="glass-panel">
+          <p class="eyebrow">Artisan Craft</p>
+          <h2 class="about-h2">Crafted through generations of skill.</h2>
+          <p class="muted">
+            Our process blends traditional workmanship with contemporary design. Each stage is done with intention—precision setting,
+            careful finishing, and a quality check before your piece is packed.
+          </p>
+          <div class="about-facts">
+            <div class="fact">
+              <div class="fact-num">12</div>
+              <div class="fact-label">Craft steps per piece*</div>
+            </div>
+            <div class="fact">
+              <div class="fact-num">18K</div>
+              <div class="fact-label">Gold-plated elegance</div>
+            </div>
+            <div class="fact">
+              <div class="fact-num">Sterling</div>
+              <div class="fact-label">Silver refinement</div>
+            </div>
+          </div>
+          <p class="muted" style="font-size:11.5px;margin-top:10px;opacity:.9;">*A typical workflow. Exact steps vary by design.</p>
+        </article>
+
+        <article class="glass-panel">
+          <p class="eyebrow">Designed for Moments</p>
+          <h2 class="about-h2">Bridal, gifting, and everyday glow.</h2>
+          <p class="muted">
+            ZIVARR jewellery is created for celebrations and lasting memories. From delicate bridal sets to statement earrings,
+            each design is made to elevate your style without overpowering it.
+          </p>
+          <div class="about-pill-row">
+            <span class="about-pill">Bridal Collections</span>
+            <span class="about-pill">Gift Ready</span>
+            <span class="about-pill">Layerable Styles</span>
+            <span class="about-pill">Lightweight Feel</span>
+          </div>
+        </article>
+
+        <article class="glass-panel">
+          <p class="eyebrow">Care & Longevity</p>
+          <h2 class="about-h2">Keep your shine—effortlessly.</h2>
+          <p class="muted">
+            We believe luxury should be easy to maintain. Follow simple care guidelines to preserve the finish and keep your piece glowing.
+            For help, reach out and we’ll guide you.
+          </p>
+          <a href="contact.html" class="btn-ghost" style="margin-top:10px;display:inline-block;">Contact our team</a>
+        </article>
+      </div>
+    </section>
+  </main>
+
   <script src="script.js" defer></script>
 </body>
 </html>
+<style>
+  /* Local (page-only) styling for About page */
+
+  .hero-about{padding:30px 26px;}
+  .hero-about .title{margin-top:10px;}
+  .about-cta-row{display:flex;gap:16px;align-items:center;flex-wrap:wrap;margin-top:18px;}
+  .about-photo-card{padding:0;}
+  .about-photo-wrap{position:relative;border-radius:28px;overflow:hidden;width:100%;border:1px solid rgba(212,114,126,.18);box-shadow:0 18px 50px rgba(61,24,32,.06);background:#f7ecee;display:flex;align-items:center;justify-content:center;padding:0;}
+  .about-photo{display:block;width:100%;height:auto;max-width:100%;max-height:min(80vh,860px);object-fit:contain;object-position:center;transform:scale(1.08);}
+
+  .about-photo-overlay{position:absolute;inset:0;background:linear-gradient(135deg, rgba(17,17,17,.55) 0%, rgba(17,17,17,.25) 45%, rgba(17,17,17,.55) 100%);}  
+  .about-photo-caption{position:absolute;left:22px;bottom:18px;right:22px;color:#fff;}
+  .about-photo-eyebrow{font-size:10px;letter-spacing:5px;text-transform:uppercase;color:rgba(245,213,218,.95);margin-bottom:10px;}
+  .about-photo-title{font-family:'Cormorant Garamond',serif;font-size:28px;font-weight:300;line-height:1.15;max-width:720px;}
+
+  .about-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px;}
+  .about-h2{font-family:'Cormorant Garamond',serif;font-size:26px;font-weight:300;color:var(--rose-dark);margin-top:10px;margin-bottom:10px;}
+  .about-list{margin-top:14px;display:flex;flex-direction:column;gap:10px;padding-left:18px;color:var(--text-muted);font-size:13px;line-height:1.6;}
+  .about-facts{display:flex;gap:18px;flex-wrap:wrap;margin-top:10px;}
+  .fact{min-width:140px;border:1px solid rgba(212,114,126,.18);background:rgba(245,213,218,.18);border-radius:18px;padding:14px 14px;}
+  .fact-num{font-family:'Cormorant Garamond',serif;font-size:28px;font-weight:300;color:var(--pink-mid);line-height:1;margin-bottom:6px;}
+  .fact-label{font-size:11.5px;letter-spacing:.2px;color:var(--text-muted);line-height:1.4;}
+  .about-pill-row{display:flex;gap:10px;flex-wrap:wrap;margin-top:10px;}
+  .about-pill{padding:10px 14px;border-radius:999px;border:1px solid rgba(212,114,126,.22);background:rgba(255,255,255,.75);color:var(--rose-mid);font-size:10px;letter-spacing:2px;text-transform:uppercase;}
+
+  @media(max-width:900px){
+    .about-grid{grid-template-columns:1fr;}
+    .about-photo{max-height:min(62vh,560px);transform:scale(1.04);}
+    .about-photo-title{font-size:24px;}
+  }
+</style>
