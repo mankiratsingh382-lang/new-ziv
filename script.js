@@ -464,13 +464,19 @@ window.addEventListener('scroll',()=>{
   if(heroGem) heroGem.style.transform=`translate(-50%,calc(-50% + ${y*.18}px))`;
 });
 
-/* ── HERO VIDEO AUTOPLAY SAFEGUARD (mobile / iOS) ── */
+/* ── HERO VIDEO AUTOPLAY (iOS) ── */
 window.addEventListener('DOMContentLoaded',()=>{
   const video=document.querySelector('.hero-video');
   if(!video) return;
 
   video.muted = true;
   video.playsInline = true;
+  video.loop = true;
+  video.setAttribute('webkit-playsinline','');
+  video.setAttribute('x5-video-player-type','inline');
+
+  video.src = 'images/001.mp4';
+  video.load();
 
   let hasPlayed = false;
 
@@ -484,35 +490,16 @@ window.addEventListener('DOMContentLoaded',()=>{
         await p;
         hasPlayed = true;
       }
-    } catch(e){
-      // Autoplay blocked — will rely on user interaction fallback below
-    }
+    } catch(e){}
   };
 
-  // Multiple attempts to cover preloader timing and iOS quirks
+  video.addEventListener('loadeddata', ()=>tryPlay());
+  video.addEventListener('canplay', ()=>tryPlay());
+
   tryPlay();
-  setTimeout(()=>tryPlay(), 500);
-  setTimeout(()=>tryPlay(), 1500);
-  setTimeout(()=>tryPlay(), 3000);
-
-  // iOS fallback: play on first touch/scroll/click
-  const onInteract=()=>{
-    if(hasPlayed) return;
-    tryPlay();
-  };
-  const cleanup=()=>{
-    document.removeEventListener('touchstart', onInteract, {passive:true});
-    document.removeEventListener('touchend', onInteract, {passive:true});
-    document.removeEventListener('scroll', onInteract, {passive:true});
-    document.removeEventListener('click', onInteract, {passive:true});
-  };
-  const onInteractOnce=()=>{
-    onInteract();
-    if(hasPlayed) cleanup();
-  };
-
-  document.addEventListener('touchstart', onInteractOnce, {passive:true});
-  document.addEventListener('touchend', onInteractOnce, {passive:true});
-  document.addEventListener('scroll', onInteractOnce, {passive:true});
-  document.addEventListener('click', onInteractOnce, {passive:true});
+  setTimeout(tryPlay, 200);
+  setTimeout(tryPlay, 500);
+  setTimeout(tryPlay, 1000);
+  setTimeout(tryPlay, 2000);
+  setTimeout(tryPlay, 4000);
 });

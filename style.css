@@ -127,19 +127,22 @@ nav.scrolled{box-shadow:0 6px 40px rgba(181,80,92,.07);}
   height:100%;
   object-fit:cover;
   z-index:0;
+  -webkit-appearance:none;
+  outline:none;
 }
 .hero-video::-webkit-media-controls{
   display:none!important;
-  -webkit-appearance:none;
 }
 .hero-video::-webkit-media-controls-enclosure{
   display:none!important;
-  -webkit-appearance:none;
 }
 .hero-video::-webkit-media-controls-start-playback-button{
   display:none!important;
   opacity:0;
   pointer-events:none;
+}
+.hero-video::-webkit-media-controls-overlay-enclosure{
+  display:none!important;
 }
 
 .hero-video-overlay{
