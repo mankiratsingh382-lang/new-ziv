@@ -255,7 +255,7 @@
     els.logoutBtn.addEventListener('click',()=>{
       localStorage.removeItem(ADMIN_TOKEN_KEY);
       showToast('Logged out. Redirecting...','ok');
-      setTimeout(()=>{ window.location.href = 'adminlogin.html'; }, 500);
+      setTimeout(()=>{ window.location.href = 'zivadminlogin.html'; }, 500);
     });
 
 
@@ -311,7 +311,7 @@
     }
 
     async function loadProducts(){
-      if(!getToken()){ showToast('Admin login required.','err'); window.location.href='adminlogin.html'; return; }
+      if(!getToken()){ showToast('Admin login required.','err'); window.location.href='zivadminlogin.html'; return; }
 
       products = await apiJson('/api/admin/products', { headers: authHeaders() });
 
@@ -428,7 +428,7 @@
     }
 
     async function loadUsers(){
-      if(!getToken()){ showToast('Admin login required.','err'); window.location.href='adminlogin.html'; return; }
+      if(!getToken()){ showToast('Admin login required.','err'); window.location.href='zivadminlogin.html'; return; }
 
       const users = await apiJson('/api/admin/users', { headers: authHeaders() });
 
@@ -443,7 +443,7 @@
     }
 
     async function loadOrders(){
-      if(!getToken()){ showToast('Admin login required.','err'); window.location.href='adminlogin.html'; return; }
+      if(!getToken()){ showToast('Admin login required.','err'); window.location.href='zivadminlogin.html'; return; }
 
       const orders = await apiJson('/api/admin/orders', { headers: authHeaders() });
 
@@ -611,11 +611,11 @@
       loadProducts().catch((err)=>{
         // 401 likely means the token is wrong or backend ADMIN_TOKEN differs.
         showToast(err?.message ? err.message : 'Admin authentication failed.','err');
-        setTimeout(()=>{ window.location.href='adminlogin.html'; }, 800);
+        setTimeout(()=>{ window.location.href='zivadminlogin.html'; }, 800);
       });
     }else{
       // If admin isn't logged in, send them to admin login.
-      window.location.href='adminlogin.html';
+      window.location.href='zivadminlogin.html';
     }
 
 
