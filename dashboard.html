@@ -150,6 +150,12 @@
     }
     .field-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
 
+    /* Mobile: stack phone + pincode */
+    @media(max-width:600px){
+      .field-grid{grid-template-columns:1fr;}
+    }
+
+
     .product-tiles{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;}
     .tile{
       border:1px solid rgba(212,114,126,.18);
