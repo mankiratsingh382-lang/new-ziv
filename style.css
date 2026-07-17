@@ -930,15 +930,29 @@ footer{
 
 @media(max-width:420px){
   .cat-block-grid{grid-template-columns:1fr;}
+  .hero-left{padding:100px 20px 40px;}
+  .hero-h1{font-size:32px;}
+  .hero-sub{font-size:11px;margin-bottom:32px;}
+  .hero-stats{gap:20px;margin-top:32px;}
+  .stat-num{font-size:24px;}
+  .hero-btns .btn-primary{padding:14px 24px;font-size:9px;}
 }
 
 @media(max-width:900px){
   nav{padding:0 28px;}
   .nav-links{display:none;}
   .hero{display:block;}
+  .hero-video{position:absolute;width:100%;height:100%;object-fit:cover;}
   .hero-right{min-height:400px;height:100%;}
   .hero-left{padding:120px 32px 60px;max-width:none;}
   .hero-scroll{bottom:24px;}
+  .hero-stats{gap:32px;margin-top:48px;}
+  .stat-num{font-size:28px;}
+  .stat-label{font-size:8px;}
+  .hero-h1{font-size:clamp(36px,8vw,56px);}
+  .hero-sub{font-size:12px;max-width:100%;}
+  .hero-btns{flex-direction:column;align-items:stretch;width:100%;}
+  .btn-primary{width:100%;justify-content:center;}
 
   /* Story image on mobile */
   .story-photo{
