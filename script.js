@@ -469,43 +469,50 @@ window.addEventListener('DOMContentLoaded',()=>{
   const video=document.querySelector('.hero-video');
   if(!video) return;
 
-  video.playsInline = true;
   video.muted = true;
-  video.setAttribute('webkit-playsinline','');
+  video.playsInline = true;
 
   let hasPlayed = false;
 
   const tryPlay=async()=>{
     if(hasPlayed) return;
     try{
-      const p=video.play();
+      video.muted = true;
+      video.playsInline = true;
+      const p = video.play();
       if(p && typeof p.then === 'function'){
         await p;
         hasPlayed = true;
       }
     } catch(e){
-      // Autoplay blocked — wait for user interaction
+      // Autoplay blocked — will rely on user interaction fallback below
     }
   };
 
-  // Try immediately
+  // Multiple attempts to cover preloader timing and iOS quirks
   tryPlay();
+  setTimeout(()=>tryPlay(), 500);
+  setTimeout(()=>tryPlay(), 1500);
+  setTimeout(()=>tryPlay(), 3000);
 
-  // Retry after preloader fades (iOS sometimes blocks before paint)
-  setTimeout(()=>tryPlay(), 800);
-  setTimeout(()=>tryPlay(), 2000);
+  // iOS fallback: play on first touch/scroll/click
+  const onInteract=()=>{
+    if(hasPlayed) return;
+    tryPlay();
+  };
+  const cleanup=()=>{
+    document.removeEventListener('touchstart', onInteract, {passive:true});
+    document.removeEventListener('touchend', onInteract, {passive:true});
+    document.removeEventListener('scroll', onInteract, {passive:true});
+    document.removeEventListener('click', onInteract, {passive:true});
+  };
+  const onInteractOnce=()=>{
+    onInteract();
+    if(hasPlayed) cleanup();
+  };
 
-  // iOS fallback: play on first touch / scroll anywhere
-  if(!hasPlayed){
-    const onInteract=()=>{
-      if(hasPlayed) return;
-      tryPlay();
-      document.removeEventListener('touchstart', onInteract, {passive:true});
-      document.removeEventListener('scroll', onInteract, {passive:true});
-      document.removeEventListener('click', onInteract, {passive:true});
-    };
-    document.addEventListener('touchstart', onInteract, {passive:true});
-    document.addEventListener('scroll', onInteract, {passive:true});
-    document.addEventListener('click', onInteract, {passive:true});
-  }
+  document.addEventListener('touchstart', onInteractOnce, {passive:true});
+  document.addEventListener('touchend', onInteractOnce, {passive:true});
+  document.addEventListener('scroll', onInteractOnce, {passive:true});
+  document.addEventListener('click', onInteractOnce, {passive:true});
 });
