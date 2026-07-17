@@ -526,7 +526,7 @@ app.post('/api/addresses', authMiddleware, async (req, res) => {
 });
 
 
-const ADMIN_TOKEN = process.env.ADMIN_TOKEN || 'admin123';
+const ADMIN_TOKEN = process.env.ADMIN_TOKEN || 'Zivarradmin@123';
 function adminAuth(req, res, next) {
   const authHeader = req.headers.authorization || '';
   const token = authHeader.startsWith('Bearer ') ? authHeader.slice(7).trim() : '';
