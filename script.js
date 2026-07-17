@@ -463,3 +463,28 @@ window.addEventListener('scroll',()=>{
   const heroGem=document.querySelector('.hero-gem');
   if(heroGem) heroGem.style.transform=`translate(-50%,calc(-50% + ${y*.18}px))`;
 });
+
+/* ── HERO VIDEO AUTOPLAY SAFEGUARD (mobile) ── */
+window.addEventListener('DOMContentLoaded',()=>{
+  const video=document.querySelector('.hero-video');
+  if(!video) return;
+
+  // Some mobile browsers may ignore autoplay attributes until JS explicitly calls play().
+  // Keep muted so autoplay is allowed.
+  const tryPlay=async()=>{
+    try{
+      // Re-assign playsInline behavior in case of any DOM parsing differences.
+      video.playsInline = true;
+      video.muted = true;
+
+      const p=video.play();
+      if(p && typeof p.catch === 'function') await p.catch(()=>{});
+    } catch(e){
+      // Ignore autoplay blocking errors.
+    }
+  };
+
+  // Try immediately and again after a short delay (helps after preloader removal).
+  tryPlay();
+  setTimeout(()=>tryPlay(), 600);
+});
