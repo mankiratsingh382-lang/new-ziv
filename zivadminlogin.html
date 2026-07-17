@@ -50,7 +50,9 @@
 
     .auth-form label{display:flex;flex-direction:column;gap:8px;font-size:9px;letter-spacing:2.5px;text-transform:uppercase;color:var(--text-muted);}
     .auth-form input{border:1px solid rgba(212,114,126,.25);border-radius:10px;background:#fff;color:var(--rose-dark);padding:13px 14px;font-family:'Jost',sans-serif;font-size:12.5px;outline:none;}
-.auth-form .btn-primary,.auth-form .btn-ghost{cursor:none;} .auth-page, .auth-card{cursor:none;}
+
+    .auth-form .btn-primary,.auth-form .btn-ghost{cursor:none;} .auth-page, .auth-card{cursor:none;}
+
 
     .hint{font-size:12.5px;color:var(--text-muted);margin-top:10px;line-height:1.6;}
   </style>
@@ -84,13 +86,40 @@
       </form>
 
       <div class="hint">
-        Uses the same backend admin authentication as `admin.html`.
+Uses the same backend admin authentication as `zivadmin.html`.
         The token is stored locally in your browser after login.
       </div>
     </div>
   </div>
 
   <script>
+    const cur = document.getElementById('cur');
+    const curR = document.getElementById('cur-r');
+    let mx = 0, my = 0, rx = 0, ry = 0;
+
+    if (cur && curR) {
+      document.addEventListener('mousemove', (e) => {
+        mx = e.clientX;
+        my = e.clientY;
+        cur.style.left = mx + 'px';
+        cur.style.top = my + 'px';
+      });
+
+      function animRing() {
+        rx += (mx - rx) * 0.12;
+        ry += (my - ry) * 0.12;
+        curR.style.left = rx + 'px';
+        curR.style.top = ry + 'px';
+        requestAnimationFrame(animRing);
+      }
+      animRing();
+    }
+
+    document.querySelectorAll('a,button,input,select,textarea,.btn-primary,.btn-ghost').forEach((el) => {
+      el.addEventListener('mouseenter', () => document.body.classList.add('link-hover'));
+      el.addEventListener('mouseleave', () => document.body.classList.remove('link-hover'));
+    });
+
     const ADMIN_TOKEN_KEY = 'zivarr-admin-token';
     const form = document.getElementById('adminLoginForm');
     const tokenEl = document.getElementById('adminToken');
@@ -111,7 +140,7 @@
       // Store token locally and redirect.
       localStorage.setItem(ADMIN_TOKEN_KEY, token);
       setStatus('Logged in. Redirecting...', 'ok');
-      window.location.href = 'admin.html';
+      window.location.href = 'zivadmin.html';
     });
 
     clearBtn.addEventListener('click',()=>{
