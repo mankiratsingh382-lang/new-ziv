@@ -464,27 +464,48 @@ window.addEventListener('scroll',()=>{
   if(heroGem) heroGem.style.transform=`translate(-50%,calc(-50% + ${y*.18}px))`;
 });
 
-/* ── HERO VIDEO AUTOPLAY SAFEGUARD (mobile) ── */
+/* ── HERO VIDEO AUTOPLAY SAFEGUARD (mobile / iOS) ── */
 window.addEventListener('DOMContentLoaded',()=>{
   const video=document.querySelector('.hero-video');
   if(!video) return;
 
-  // Some mobile browsers may ignore autoplay attributes until JS explicitly calls play().
-  // Keep muted so autoplay is allowed.
-  const tryPlay=async()=>{
-    try{
-      // Re-assign playsInline behavior in case of any DOM parsing differences.
-      video.playsInline = true;
-      video.muted = true;
+  video.playsInline = true;
+  video.muted = true;
+  video.setAttribute('webkit-playsinline','');
 
+  let hasPlayed = false;
+
+  const tryPlay=async()=>{
+    if(hasPlayed) return;
+    try{
       const p=video.play();
-      if(p && typeof p.catch === 'function') await p.catch(()=>{});
+      if(p && typeof p.then === 'function'){
+        await p;
+        hasPlayed = true;
+      }
     } catch(e){
-      // Ignore autoplay blocking errors.
+      // Autoplay blocked — wait for user interaction
     }
   };
 
-  // Try immediately and again after a short delay (helps after preloader removal).
+  // Try immediately
   tryPlay();
-  setTimeout(()=>tryPlay(), 600);
+
+  // Retry after preloader fades (iOS sometimes blocks before paint)
+  setTimeout(()=>tryPlay(), 800);
+  setTimeout(()=>tryPlay(), 2000);
+
+  // iOS fallback: play on first touch / scroll anywhere
+  if(!hasPlayed){
+    const onInteract=()=>{
+      if(hasPlayed) return;
+      tryPlay();
+      document.removeEventListener('touchstart', onInteract, {passive:true});
+      document.removeEventListener('scroll', onInteract, {passive:true});
+      document.removeEventListener('click', onInteract, {passive:true});
+    };
+    document.addEventListener('touchstart', onInteract, {passive:true});
+    document.addEventListener('scroll', onInteract, {passive:true});
+    document.addEventListener('click', onInteract, {passive:true});
+  }
 });

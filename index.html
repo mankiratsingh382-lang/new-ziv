@@ -89,9 +89,8 @@
 
 <!-- HERO -->
 <section class="hero" id="home">
-<video class="hero-video" autoplay muted loop playsinline preload="auto" poster="images/IMG_001.JPG" aria-label="ZIVARR hero video" onerror="this.style.display='none'" playsinline="true" muted="true" webkit-playsinline="true">
+<video class="hero-video" muted loop playsinline webkit-playsinline preload="metadata" poster="images/IMG_001.JPG" aria-label="ZIVARR hero video" x5-video-player-type="inline" x5-video-player-fullscreen="false" x5-video-orientation="portraint">
 <source src="images/001.mp4" type="video/mp4" />
-    <span style="position:absolute;left:-9999px;">Hero video not available</span>
   </video>
   <div class="hero-video-overlay" aria-hidden="true"></div>
   <div class="hero-left">
@@ -561,16 +560,6 @@
   <svg viewBox="0 0 24 24"><polyline points="18 15 12 9 6 15"/></svg>
 </button>
 
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-  const heroVideo = document.querySelector('.hero-video');
-  if (!heroVideo) return;
-
-  heroVideo.play().catch(function() {
-    heroVideo.style.display = 'none';
-  });
-});
-</script>
 <script src="script.js" defer></script>
 
 </body>
