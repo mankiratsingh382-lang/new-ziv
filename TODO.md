@@ -1,12 +1,8 @@
 # TODO
 
-## Cat block side slider (mobile)
-- [x] Inspect existing category block markup in `index.html`.
-  - Found `.cat-blocks > .cat-block-grid > a.cat-block` (5 items) in the Featured section.
-- [x] Add mobile-only slider layout for `.cat-block-grid` (horizontal scroll / side slider).
-- [x] Hide scrollbar and rely on native touch scroll.
-- [x] Ensure swipe/drag works on touch and links remain clickable.
-- [x] Update CSS in `style.css` with mobile media queries.
-- [ ] Test visually by opening `index.html` in mobile viewport.
-
+- [ ] Add coupon UI + Apply button to `dashboard.html`.
+- [ ] Implement frontend coupon logic for code `Zivarr10` = 10% off grand total (items total).
+- [ ] Update displayed total (Grand Total + Shipping(149)) after applying coupon.
+- [ ] Update Razorpay amount on order submit to reflect coupon discount.
+- [ ] Ensure totals re-render correctly when products are added/removed and when coupon is applied/cleared.
 

@@ -356,7 +356,28 @@
             <span>Grand Total + Shipping(149)</span>
             <span id="selectedCartGrandTotal">₹0</span>
           </div>
+
+          <!-- COUPON (frontend-only) -->
+          <div style="margin-top:14px;padding-top:12px;border-top:1px solid rgba(212,114,126,.12);display:flex;flex-direction:column;gap:10px;">
+            <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;">
+              <label style="font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--text-muted);">Coupon</label>
+              <span id="couponHint" style="font-size:11px;color:var(--rose-mid);">Use code <strong>Zivarr10</strong> for 10% off</span>
+            </div>
+
+            <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
+              <input id="couponInput" type="text" placeholder="Enter coupon code" style="flex:1;min-width:180px;" />
+              <button id="applyCouponBtn" type="button" class="btn-small" style="cursor:none;" >Apply</button>
+              <button id="clearCouponBtn" type="button" class="btn-small" style="cursor:none;display:none;" >Remove</button>
+            </div>
+
+            <div id="couponStatus" style="font-size:12.5px;color:var(--text-muted);min-height:18px;"></div>
+            <div style="display:flex;justify-content:space-between;gap:12px;">
+              <span style="font-size:12.5px;color:var(--text-muted);">Discount</span>
+              <span id="selectedCartDiscount" style="font-size:12.5px;color:var(--rose-mid);font-weight:700;">₹0</span>
+            </div>
+          </div>
         </div>
+
 
         <form class="order-form" id="orderForm" style="margin-top:16px;">
 
@@ -651,20 +672,61 @@
       orderFormStatus.classList.toggle('success', !isError);
     }
 
-    function renderSelectedCart(){
-      const count = selectedProducts.length;
-      selectedCartCountEl.textContent = count;
+    const couponInputEl = document.getElementById('couponInput');
+    const applyCouponBtn = document.getElementById('applyCouponBtn');
+    const clearCouponBtn = document.getElementById('clearCouponBtn');
+    const couponStatusEl = document.getElementById('couponStatus');
+    const selectedCartDiscountEl = document.getElementById('selectedCartDiscount');
 
-      const grandTotal = selectedProducts.reduce((sum, p)=> sum + (Number(p.price) || 0), 0);
-      // include shipping charges (149) whenever at least one item is selected
+    const COUPON_CODE = 'Zivarr10';
+    let appliedCoupon = null; // { code, percent }
+
+    function getTotals(){
+      const count = selectedProducts.length;
+      const itemsTotal = selectedProducts.reduce((sum, p)=> sum + (Number(p.price) || 0), 0);
       const shippingTotal = count > 0 ? 149 : 0;
-      const grandTotalWithShipping = grandTotal + shippingTotal;
+
+      // “10% discount on grand total” => apply discount on itemsTotal (grand total before shipping)
+      const discountPercent = appliedCoupon?.percent || 0;
+      const discountAmount = Math.round(itemsTotal * (discountPercent / 100));
+
+      // Display/charge total after discount, plus shipping.
+      const grandTotalWithDiscount = itemsTotal - discountAmount;
+      const grandTotalWithShipping = grandTotalWithDiscount + shippingTotal;
+
+      return { count, itemsTotal, shippingTotal, discountPercent, discountAmount, grandTotalWithShipping };
+    }
+
+    function renderSelectedCart(){
+      const { count, itemsTotal, shippingTotal, discountAmount, grandTotalWithShipping } = getTotals();
+
+      selectedCartCountEl.textContent = count;
       selectedCartGrandTotalEl.textContent = `₹${grandTotalWithShipping.toLocaleString('en-IN')}`;
+      // if cart is empty, discount is already cleared above
+      selectedCartDiscountEl.textContent = discountAmount > 0 ? `-₹${discountAmount.toLocaleString('en-IN')}` : '₹0';
+
+
+      // Keep coupon UI consistent
+
+      if(appliedCoupon){
+        applyCouponBtn.style.display = 'none';
+        clearCouponBtn.style.display = 'inline-flex';
+        couponStatusEl.textContent = `Applied ${appliedCoupon.code} · ${appliedCoupon.percent}% off`;
+      } else {
+        applyCouponBtn.style.display = 'inline-flex';
+        clearCouponBtn.style.display = 'none';
+        couponStatusEl.textContent = '';
+      }
 
       if(count === 0){
         selectedCartItemsEl.innerHTML = `<div class="empty-cart">No items selected yet.</div>`;
+        // No discount if cart is empty
+        if(appliedCoupon){
+          appliedCoupon = null;
+        }
         return;
       }
+
 
       selectedCartItemsEl.innerHTML = selectedProducts.map(p=>{
         const imgUrl = p?.images?.[0]?.image_url;
@@ -884,8 +946,42 @@
       setFormStatus('Fields cleared. Select a product to continue.', false);
     });
 
+    applyCouponBtn?.addEventListener('click', ()=>{
+      const code = (couponInputEl?.value || '').trim();
+      if(!code){
+        setFormStatus('Enter a coupon code.', true);
+        return;
+      }
+      if(code.toLowerCase() === COUPON_CODE.toLowerCase()){
+        appliedCoupon = { code: COUPON_CODE, percent: 10 };
+        couponInputEl.value = COUPON_CODE;
+        setFormStatus('Coupon applied. 10% discount added.', false);
+      } else {
+        appliedCoupon = null;
+        setFormStatus('Invalid coupon code.', true);
+      }
+      renderProducts();
+      renderSelectedCart();
+    });
+
+    clearCouponBtn?.addEventListener('click', ()=>{
+      appliedCoupon = null;
+      if(couponInputEl) couponInputEl.value = '';
+      setFormStatus('Coupon removed.', false);
+      renderProducts();
+      renderSelectedCart();
+    });
+
+    couponInputEl?.addEventListener('keydown', (e)=>{
+      if(e.key === 'Enter'){
+        e.preventDefault();
+        applyCouponBtn?.click();
+      }
+    });
+
     orderForm.addEventListener('submit', async (e)=>{
       e.preventDefault();
+
 
       if(!selectedProducts || selectedProducts.length === 0){
         setFormStatus('Select at least one product first from above.', true);
@@ -913,8 +1009,10 @@
         };
       }
 
-      const checkoutAmount = calculateCheckoutAmount(selectedProducts);
-      setFormStatus(`Opening Razorpay checkout for ₹${(checkoutAmount / 100).toLocaleString('en-IN')}...`, false);
+      const { grandTotalWithShipping } = getTotals();
+      const checkoutAmount = Math.round(grandTotalWithShipping * 100);
+      setFormStatus(`Opening Razorpay checkout for ₹${grandTotalWithShipping.toLocaleString('en-IN')}...`, false);
+
 
       try {
         const paymentOrderResponse = await fetch('/api/razorpay/create-order', {
@@ -1005,6 +1103,8 @@
               await refreshOrders();
               orderForm.reset();
               selectedProducts = [];
+              appliedCoupon = null;
+
               localStorage.setItem(SELECTED_PRODUCT_KEY, JSON.stringify(selectedProducts));
               nameEl.value = user?.isGuest ? '' : (user?.name || '');
               renderProducts();
