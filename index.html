@@ -88,7 +88,13 @@
 </nav>
 
 <!-- HERO -->
-<section class="hero" id="home" style="background: url('images/IMG_6800.JPEG') center/cover no-repeat; background-color:#111;">
+<section class="hero" id="home">
+  <video class="hero-video" autoplay muted loop playsinline preload="metadata" aria-label="ZIVARR hero video" onerror="this.style.display='none'">
+    <source src="images/IMG_6920.MP4" type="video/mp4" />
+    <!-- Fallback text shown only when the video cannot be played -->
+    <span style="position:absolute;left:-9999px;">Hero video not available</span>
+  </video>
+  <div class="hero-video-overlay" aria-hidden="true"></div>
   <div class="hero-left">
     <div class="hero-eyebrow">New Collection 2025</div>
     <h1 class="hero-h1">Where Metal<br>Meets <em>Poetry</em></h1>
@@ -115,7 +121,7 @@
       </div>
     </div>
   </div>
- <div class="hero-right">
+  <div class="hero-right">
     <div class="hero-img-wrap">
       <!-- <div class="hero-ornament"></div>
       <div class="hero-gem"></div>
@@ -241,19 +247,54 @@
       <div class="section-tag reveal">New Arrivals</div>
       <h2 class="section-title reveal reveal-delay-1">Handpicked <em>Favourites</em></h2>
     </div>
-   <!-- <div class="feat-filters reveal reveal-delay-2">
-      <button class="feat-filter active" data-filter="All">All</button>
-      <button class="feat-filter" data-filter="Necklaces">Necklaces</button>
-      <button class="feat-filter" data-filter="Earrings">Earrings</button>
-      <button class="feat-filter" data-filter="Bracelets">Bracelets</button>
-      <button class="feat-filter" data-filter="Rings">Rings</button>
-    </div>
-  </div>-->
-  <div class="products-grid" id="handpickedProducts" aria-live="polite">
+  </div>
+  <!-- <div class="products-grid" id="handpickedProducts" aria-live="polite">
     <div class="prod-card loading-card" id="handpickedLoading" style="grid-column: 1 / -1; justify-content: center; text-align: center; min-height: 180px;">
       <div class="prod-material"></div>
     </div>
+  </div> -->
+
+  <div class="cat-blocks reveal" aria-label="Browse categories">
+    <div class="section-tag">Browse by category</div>
+    <div class="cat-block-grid">
+      <a class="cat-block" href="collections.html?category=Necklaces">
+        <img src="images/IMG_6489.JPG" alt="Necklaces" loading="lazy" />
+        <span class="cat-block-content">
+          <span class="cat-block-title">Necklaces</span>
+          <span class="cat-block-sub">Layered elegance</span>
+        </span>
+      </a>
+      <a class="cat-block" href="collections.html?category=Chains">
+        <img src="images/IMG_6800.JPEG" alt="Chains" loading="lazy" />
+        <span class="cat-block-content">
+          <span class="cat-block-title">Chains</span>
+          <span class="cat-block-sub">Soft sculptural shine</span>
+        </span>
+      </a>
+      <a class="cat-block" href="collections.html?category=Bracelets">
+        <img src="images/IMG_6489.JPG" alt="Bracelets" loading="lazy" />
+        <span class="cat-block-content">
+          <span class="cat-block-title">Bracelets</span>
+          <span class="cat-block-sub">Everyday glow</span>
+        </span>
+      </a>
+      <a class="cat-block" href="collections.html?category=Earrings">
+        <img src="images/IMG_6800.JPEG" alt="Earrings" loading="lazy" />
+        <span class="cat-block-content">
+          <span class="cat-block-title">Earrings</span>
+          <span class="cat-block-sub">Statement details</span>
+        </span>
+      </a>
+      <a class="cat-block" href="collections.html?category=Rings">
+        <img src="images/IMG_6489.JPG" alt="Rings" loading="lazy" />
+        <span class="cat-block-content">
+          <span class="cat-block-title">Rings</span>
+          <span class="cat-block-sub">Timeless minimalism</span>
+        </span>
+      </a>
+    </div>
   </div>
+
   <div class="view-all-wrap reveal">
     <a href="collections.html" class="btn-primary view-all-btn">
       View All Products
@@ -261,6 +302,7 @@
     </a>
   </div>
 </section>
+
 
 
 <!-- STORY -->
@@ -305,9 +347,9 @@
         <div class="pillar-desc">Est. 2019</div>
       </div>
       <div class="pillar">
-        <div class="pillar-num">100%</div>
-        <div class="pillar-title">Hallmarked</div>
-        <div class="pillar-desc">BIS Certified</div>
+        <div class="pillar-num">500+</div>
+        <div class="pillar-title">Satisfied</div>
+        <div class="pillar-desc">Customers</div>
       </div>
     </div>
   </div>
@@ -434,24 +476,25 @@
     <p class="nl-note">We respect your privacy. No spam, ever. Unsubscribe anytime.</p>
     <div class="nl-social-title">Follow us on</div>
     <div class="nl-socials">
-      <center>
-        <div class="social-icon" aria-label="Instagram">
-          <svg viewBox="0 0 24 24" aria-hidden="true" role="img">
-            <path d="M7 2h10a5 5 0 0 1 5 5v10a5 5 0 0 1-5 5H7a5 5 0 0 1-5-5V7a5 5 0 0 1 5-5z" fill="none"/>
-            <path d="M12 17a5 5 0 1 0 0-10 5 5 0 0 0 0 10z" fill="none"/>
-            <path d="M17.5 6.5h.01" fill="none"/>
-          </svg>
-      </div>
-      </center>
-      <div class="social-icon" aria-label="Facebook">
+      <a class="social-icon" aria-label="Instagram" href="https://www.instagram.com/zivarrofficial?igsh=ZDZkOGp4YjU1bmho" target="_blank" rel="noopener noreferrer">
+        <svg viewBox="0 0 24 24" aria-hidden="true" role="img">
+          <path d="M7 2h10a5 5 0 0 1 5 5v10a5 5 0 0 1-5 5H7a5 5 0 0 1-5-5V7a5 5 0 0 1 5-5z" fill="none"/>
+          <path d="M12 17a5 5 0 1 0 0-10 5 5 0 0 0 0 10z" fill="none"/>
+          <path d="M17.5 6.5h.01" fill="none"/>
+        </svg>
+      </a>
+
+      <a class="social-icon" aria-label="Facebook" href="https://www.facebook.com/61588899765861/" target="_blank" rel="noopener noreferrer">
         <svg viewBox="0 0 24 24" aria-hidden="true" role="img">
           <path d="M14 9h3V6h-3c-1.66 0-3 1.34-3 3v3H8v3h3v6h3v-6h3l1-3h-4V9c0-.55.45-1 1-1z" fill="none"/>
         </svg>
-      </div>
+      </a>
+
       <!-- <div class="social-icon">yt</div> -->
       <!-- <div class="social-icon">in</div> -->
       <!-- <div class="social-icon">pt</div> -->
     </div>
+
   </div>
 </section>
 
@@ -483,7 +526,7 @@
       </ul>
       <a
         class="btn-primary footer-whatsapp-btn"
-        href="https://wa.me/919999999999?text=Hi%20Zivarr%2C%20I%20have%20a%20query%20about%20my%20order%2Fproduct."
+        href="https://wa.me/917986989960?text=Hi%20Zivarr%2C%20I%20have%20a%20query%20about%20my%20order%2Fproduct."
         target="_blank"
         rel="noopener noreferrer"
         aria-label="Connect with us on WhatsApp"
