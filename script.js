@@ -40,9 +40,9 @@ const bar=document.getElementById('progress-bar');
 window.addEventListener('scroll',()=>{
   const st=window.scrollY;
   const dh=document.documentElement.scrollHeight-window.innerHeight;
-  bar.style.width=(st/dh*100)+'%';
-  nav.classList.toggle('scrolled',st>20);
-  btt.classList.toggle('visible',st>400);
+  if(bar) bar.style.width=(st/dh*100)+'%';
+  if(nav) nav.classList.toggle('scrolled',st>20);
+  if(btt) btt.classList.toggle('visible',st>400);
 });
 
 /* ── INTERSECTION OBSERVER REVEALS ── */
