@@ -675,7 +675,7 @@ app.get('/api/admin/products/:id/images', adminAuth, async (req, res) => {
       [id]
     );
 
-    res.json(rows);
+    res.json(rows.map((img) => ({ ...img, image_url: resolveImageUrl(img.image_url) })));
   } catch (e) {
     res.status(500).json({ error: 'Failed to load product images.' });
   }
