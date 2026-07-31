@@ -53,8 +53,26 @@ try { if (!fs.existsSync(uploadsDir)) fs.mkdirSync(uploadsDir, { recursive: true
 
 app.use('/uploads', express.static(uploadsDir, { fallthrough: true }));
 
-// Serve a real image instead of a 404 for any missing upload file
-app.use('/uploads', (req, res) => {
+// Serve uploaded images from the database when the file is not on disk (Vercel /tmp is ephemeral)
+app.get('/uploads/:filename', async (req, res) => {
+  const filename = path.basename(req.params.filename || '');
+  if (!filename) return res.sendFile(path.join(projectRoot, 'images', 'IMG_6489.JPG'));
+
+  try {
+    const { rows } = await pool.query(
+      'SELECT image_data, mime_type FROM product_images WHERE image_url = $1 AND image_data IS NOT NULL LIMIT 1',
+      [`/uploads/${filename}`]
+    );
+    if (rows.length && rows[0].image_data) {
+      const data = Buffer.isBuffer(rows[0].image_data) ? rows[0].image_data : Buffer.from(rows[0].image_data);
+      res.setHeader('Content-Type', rows[0].mime_type || 'image/png');
+      res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
+      return res.end(data);
+    }
+  } catch (e) {
+    // fall through to placeholder
+  }
+
   res.sendFile(path.join(projectRoot, 'images', 'IMG_6489.JPG'));
 });
 
@@ -125,7 +143,10 @@ function resolveImageUrl(imageUrl) {
   if (typeof imageUrl === 'string' && imageUrl.startsWith('/uploads/')) {
     const filename = path.basename(imageUrl);
     const filePath = path.join(uploadsDir, filename);
-    if (!fs.existsSync(filePath)) return FALLBACK_IMAGE;
+    if (fs.existsSync(filePath)) return imageUrl;
+    // File not on disk (e.g. Vercel /tmp wiped). Keep the URL — the
+    // /uploads/:filename route serves it from the DB or the placeholder.
+    return imageUrl;
   }
   return imageUrl;
 }
@@ -168,6 +189,8 @@ async function ensureSchema() {
       id SERIAL PRIMARY KEY,
       product_id INTEGER NOT NULL REFERENCES products(id) ON DELETE CASCADE,
       image_url TEXT NOT NULL,
+      image_data BYTEA,
+      mime_type VARCHAR(50),
       alt_text VARCHAR(255),
       sort_order INTEGER DEFAULT 0,
       created_at TIMESTAMPTZ DEFAULT NOW()
@@ -218,6 +241,14 @@ async function ensureSchema() {
     CREATE INDEX IF NOT EXISTS password_reset_tokens_user_id_idx
       ON password_reset_tokens(user_id);
   `);
+
+  // Migrations for existing tables (won't run on fresh CREATE TABLE)
+  try {
+    await pool.query(`ALTER TABLE product_images ADD COLUMN IF NOT EXISTS image_data BYTEA`);
+    await pool.query(`ALTER TABLE product_images ADD COLUMN IF NOT EXISTS mime_type VARCHAR(50)`);
+  } catch (e) {
+    // ignore if the table doesn't exist yet
+  }
 
   await pool.query(`
     INSERT INTO products (id, name, category, price, material, description, badge, sort_order)
@@ -703,11 +734,13 @@ app.post('/api/admin/products/:id/images', adminAuth, upload.single('image'), as
 
     // Save URL (server is serving __dirname statically, so uploads are publicly accessible)
     const image_url = `/uploads/${req.file.filename}`;
+    const mimeType = req.file.mimetype || 'image/png';
+    const imageData = fs.readFileSync(req.file.path);
 
     await pool.query(
-      `INSERT INTO product_images (product_id, image_url, alt_text, sort_order)
-       VALUES ($1,$2,$3,$4)`,
-      [id, image_url, alt_text, Number.isFinite(sort_order) ? sort_order : 0]
+      `INSERT INTO product_images (product_id, image_url, image_data, mime_type, alt_text, sort_order)
+       VALUES ($1,$2,$3,$4,$5,$6)`,
+      [id, image_url, imageData, mimeType, alt_text, Number.isFinite(sort_order) ? sort_order : 0]
     );
 
     res.json({ ok: true });
