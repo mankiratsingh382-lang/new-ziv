@@ -16,14 +16,14 @@ const PORT = process.env.PORT || 3000;
 const razorpayKeyId = process.env.RAZORPAY_KEY_ID;
 const razorpayKeySecret = process.env.RAZORPAY_KEY_SECRET;
 
-if (!razorpayKeyId || !razorpayKeySecret) {
-  throw new Error('Missing Razorpay credentials. Set RAZORPAY_KEY_ID and RAZORPAY_KEY_SECRET in your .env file.');
+let razorpay = null;
+try {
+  razorpay = razorpayKeyId && razorpayKeySecret
+    ? new Razorpay({ key_id: razorpayKeyId, key_secret: razorpayKeySecret })
+    : null;
+} catch (e) {
+  razorpay = null;
 }
-
-const razorpay = new Razorpay({
-  key_id: razorpayKeyId,
-  key_secret: razorpayKeySecret,
-});
 
 app.use((req, res, next) => {
   res.setHeader(
@@ -43,8 +43,10 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 app.use('/images', express.static(path.join(__dirname, 'images')));
 
 // Uploads for product images (admin uses file upload)
-const uploadsDir = path.join(__dirname, 'uploads');
-if (!fs.existsSync(uploadsDir)) fs.mkdirSync(uploadsDir, { recursive: true });
+const uploadsDir = process.env.VERCEL
+  ? path.join('/tmp', 'uploads')
+  : path.join(__dirname, 'uploads');
+try { if (!fs.existsSync(uploadsDir)) fs.mkdirSync(uploadsDir, { recursive: true }); } catch (e) {}
 
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
@@ -73,7 +75,7 @@ function buildPool(connectionStringOverride) {
     ? { rejectUnauthorized: false }
     : false;
 
-  return new Pool(
+  const pool = new Pool(
     resolvedConnectionString
       ? {
           connectionString: resolvedConnectionString,
@@ -92,6 +94,9 @@ function buildPool(connectionStringOverride) {
           connectionTimeoutMillis: 3000,
         }
   );
+
+  pool.on('error', () => {});
+  return pool;
 }
 
 const pool = buildPool();
@@ -347,6 +352,10 @@ app.get('/api/auth/me', authMiddleware, (req, res) => {
 app.post('/api/razorpay/create-order', authMiddleware, async (req, res) => {
   const { amount, currency = 'INR', receipt } = req.body || {};
   const numericAmount = Number(amount);
+
+  if (!razorpay) {
+    return res.status(503).json({ error: 'Razorpay is not configured.' });
+  }
 
   if (!Number.isFinite(numericAmount) || numericAmount <= 0) {
     return res.status(400).json({ error: 'A valid amount is required.' });
