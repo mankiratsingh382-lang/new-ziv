@@ -749,7 +749,7 @@
         return `
           <div class="cart-item-row" style="grid-template-columns:44px 1fr auto; align-items:center;">
             <div style="width:44px;height:44px;border-radius:10px;overflow:hidden;border:1px solid rgba(212,114,126,.18);background:#fff;">
-              ${safeImg ? `<img src="${safeImg}" alt="" style="width:100%;height:100%;object-fit:cover;display:block;" loading="lazy"/>` : ''}
+              ${safeImg ? `<img src="${safeImg}" alt="" onerror="this.onerror=null;this.src='images/IMG_6489.JPG';" style="width:100%;height:100%;object-fit:cover;display:block;" loading="lazy"/>` : ''}
             </div>
             <div>
               <div class="cart-item-name" style="font-size:16px;line-height:1.1;">${p.name}</div>
@@ -783,7 +783,7 @@
             <div class="tile-top">
               <div style="display:flex;gap:12px;align-items:flex-start;">
                 <div class="tile-thumb" aria-hidden="true">
-                  ${safeImg ? `<img src="${safeImg}" alt="" loading="lazy"/>` : ''}
+                  ${safeImg ? `<img src="${safeImg}" alt="" onerror="this.onerror=null;this.src='images/IMG_6489.JPG';" loading="lazy"/>` : ''}
                 </div>
                 <div>
                   <div class="tile-name">${p.name}</div>

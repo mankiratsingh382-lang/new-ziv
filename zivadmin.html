@@ -420,7 +420,7 @@
 
         const listHtml = Array.isArray(images) && images.length ? images.map(img=>`
           <div style="display:flex;align-items:center;gap:10px;margin:8px 0;padding:10px 12px;border:1px solid rgba(212,114,126,.18);border-radius:12px;background:rgba(255,255,255,.6);">
-            <img src="${img.image_url}" alt="" style="width:70px;height:50px;object-fit:cover;border-radius:10px;border:1px solid rgba(212,114,126,.18);"/>
+            <img src="${img.image_url}" onerror="this.onerror=null;this.src='images/IMG_6489.JPG';" alt="" style="width:70px;height:50px;object-fit:cover;border-radius:10px;border:1px solid rgba(212,114,126,.18);"/>
             <div style="flex:1;min-width:120px;">
               <div style="font-size:12px;color:var(--rose-mid);">Image #${img.id}</div>
               <div style="font-size:11px;color:var(--text-muted);margin-top:2px;">sort: ${img.sort_order ?? 0}</div>

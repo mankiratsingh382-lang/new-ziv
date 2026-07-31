@@ -111,6 +111,18 @@ function buildPool(connectionStringOverride) {
 
 const pool = buildPool();
 
+const FALLBACK_IMAGE = '/images/IMG_6489.JPG';
+
+function resolveImageUrl(imageUrl) {
+  if (!imageUrl) return FALLBACK_IMAGE;
+  if (typeof imageUrl === 'string' && imageUrl.startsWith('/uploads/')) {
+    const filename = path.basename(imageUrl);
+    const filePath = path.join(uploadsDir, filename);
+    if (!fs.existsSync(filePath)) return FALLBACK_IMAGE;
+  }
+  return imageUrl;
+}
+
 function normalizeEmail(email) {
   return String(email || '').trim().toLowerCase();
 }
@@ -291,7 +303,10 @@ app.get('/api/products', async (req, res) => {
         description: r.description,
         badge: r.badge,
         sort_order: r.sort_order,
-        images: Array.isArray(r.images) ? r.images : JSON.parse(r.images || '[]'),
+        images: (Array.isArray(r.images) ? r.images : JSON.parse(r.images || '[]')).map((img) => ({
+          ...img,
+          image_url: resolveImageUrl(img.image_url),
+        })),
       }))
     );
   } catch (e) {
