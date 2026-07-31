@@ -45,7 +45,19 @@ const projectRoot = fs.existsSync(path.join(__dirname, 'index.html'))
   : process.cwd();
 
 app.use(express.static(projectRoot));
-app.use('/uploads', express.static(path.join(projectRoot, 'uploads')));
+// Uploads for product images (admin uses file upload)
+const uploadsDir = process.env.VERCEL
+  ? path.join('/tmp', 'uploads')
+  : path.join(projectRoot, 'uploads');
+try { if (!fs.existsSync(uploadsDir)) fs.mkdirSync(uploadsDir, { recursive: true }); } catch (e) {}
+
+app.use('/uploads', express.static(uploadsDir, { fallthrough: true }));
+
+// Serve a real image instead of a 404 for any missing upload file
+app.use('/uploads', (req, res) => {
+  res.sendFile(path.join(projectRoot, 'images', 'IMG_6489.JPG'));
+});
+
 app.use('/images', express.static(path.join(projectRoot, 'images')));
 
 app.get('/', (req, res) => {
@@ -53,11 +65,6 @@ app.get('/', (req, res) => {
 });
 
 // Uploads for product images (admin uses file upload)
-const uploadsDir = process.env.VERCEL
-  ? path.join('/tmp', 'uploads')
-  : path.join(__dirname, 'uploads');
-try { if (!fs.existsSync(uploadsDir)) fs.mkdirSync(uploadsDir, { recursive: true }); } catch (e) {}
-
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
     cb(null, uploadsDir);
