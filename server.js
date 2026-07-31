@@ -38,9 +38,19 @@ app.use((req, res, next) => {
 
 app.use(cors());
 app.use(express.json());
-app.use(express.static(__dirname));
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
-app.use('/images', express.static(path.join(__dirname, 'images')));
+
+// Resolve the project root reliably (Vercel bundles into /var/task)
+const projectRoot = fs.existsSync(path.join(__dirname, 'index.html'))
+  ? __dirname
+  : process.cwd();
+
+app.use(express.static(projectRoot));
+app.use('/uploads', express.static(path.join(projectRoot, 'uploads')));
+app.use('/images', express.static(path.join(projectRoot, 'images')));
+
+app.get('/', (req, res) => {
+  res.sendFile(path.join(projectRoot, 'index.html'));
+});
 
 // Uploads for product images (admin uses file upload)
 const uploadsDir = process.env.VERCEL
