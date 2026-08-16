@@ -593,7 +593,7 @@
       var cartToggle = document.getElementById('cartToggle');
       if(cartToggle){
         try {
-          var cart = JSON.parse(localStorage.getItem('zivarr-cart') || '[]');
+          var cart = JSON.parse(localStorage.getItem('zivarr-demo-cart') || '[]');
           var count = Array.isArray(cart) ? cart.reduce(function(s,i){ return s + (i.quantity||1); }, 0) : 0;
           var dot = cartToggle.querySelector('.cart-dot');
           if(dot){ dot.textContent = count; dot.style.display = count > 0 ? 'flex' : 'none'; }
