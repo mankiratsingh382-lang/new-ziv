@@ -118,6 +118,21 @@
       <article class="co-panel">
         <div class="co-section-title">Order Summary</div>
         <div id="coSummary"></div>
+
+        <!-- Coupon -->
+        <div style="margin-top:14px;padding:12px;border:1px solid rgba(212,114,126,.18);border-radius:14px;background:rgba(255,255,255,.7);">
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;">
+            <label style="font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--text-muted);margin:0;">Coupon</label>
+            <span id="couponHint" style="font-size:11px;color:var(--rose-mid);"></span>
+          </div>
+          <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:10px;">
+            <input id="couponInput" type="text" placeholder="Enter code" autocomplete="off" spellcheck="false" maxlength="20" style="flex:1;min-width:140px;border:1px solid rgba(212,114,126,.25);border-radius:10px;background:#fff;color:var(--rose-dark);padding:10px 14px;font-family:'Jost',sans-serif;font-size:12px;outline:none;" />
+            <button id="applyCouponBtn" type="button" style="padding:10px 16px;border-radius:999px;border:1px solid rgba(212,114,126,.3);background:#fff;color:var(--rose-mid);font-size:9px;letter-spacing:2.5px;text-transform:uppercase;cursor:pointer;white-space:nowrap;">Apply</button>
+            <button id="clearCouponBtn" type="button" style="padding:10px 16px;border-radius:999px;border:1px solid rgba(212,114,126,.3);background:#fff;color:var(--rose-mid);font-size:9px;letter-spacing:2.5px;text-transform:uppercase;cursor:pointer;display:none;white-space:nowrap;">Remove</button>
+          </div>
+          <div id="couponStatus" style="font-size:12px;color:var(--text-muted);min-height:18px;margin-top:8px;"></div>
+        </div>
+
         <div id="coStatus" class="co-status"></div>
         <div style="margin-top:16px;display:flex;flex-direction:column;gap:10px;">
           <button type="button" id="payBtn" class="btn-primary" style="width:100%;padding:16px;border-radius:999px;font-size:11px;letter-spacing:3px;text-transform:uppercase;">Pay & Place Order</button>
@@ -141,6 +156,8 @@
     let savedAddresses = [];
     let selectedAddress = null;
     let isNewAddress = false;
+    const COUPON_CODE = 'Zivarr10';
+    let appliedCoupon = null;
 
     function formatPrice(v){ return '₹' + Number(v).toLocaleString('en-IN'); }
 
@@ -259,18 +276,26 @@
       const itemsTotal = cart.reduce((s, item) => s + (item.price || 0) * (item.quantity || 1), 0);
       const count = cart.reduce((s, item) => s + (item.quantity || 1), 0);
       const shipping = count > 0 ? 149 : 0;
-      const grand = itemsTotal + shipping;
-      return { itemsTotal, shipping, grand, count };
+      const discountPercent = appliedCoupon ? appliedCoupon.percent : 0;
+      const discountAmount = Math.round(itemsTotal * (discountPercent / 100));
+      const grand = itemsTotal - discountAmount + shipping;
+      return { itemsTotal, shipping, discountPercent, discountAmount, grand, count };
     }
 
     function renderSummary(){
-      const { itemsTotal, shipping, grand } = getTotals();
+      const { itemsTotal, shipping, discountAmount, grand } = getTotals();
       const container = document.getElementById('coSummary');
-      container.innerHTML = `
+      let html = `
         <div class="co-summary-row"><span>Subtotal (${cart.length} item${cart.length === 1 ? '' : 's'})</span><span>${formatPrice(itemsTotal)}</span></div>
+      `;
+      if(discountAmount > 0){
+        html += `<div class="co-summary-row" style="color:#3a7d44;"><span>Discount (${appliedCoupon.percent}%)</span><span>-${formatPrice(discountAmount)}</span></div>`;
+      }
+      html += `
         <div class="co-summary-row"><span>Shipping</span><span>${formatPrice(shipping)}</span></div>
         <div class="co-summary-row total"><span>Grand Total</span><span>${formatPrice(grand)}</span></div>
       `;
+      container.innerHTML = html;
     }
 
     function setStatus(msg, isError){
@@ -455,6 +480,54 @@
       });
 
       document.getElementById('payBtn').addEventListener('click', placeOrder);
+
+      // Coupon
+      const couponInput = document.getElementById('couponInput');
+      const applyCouponBtn = document.getElementById('applyCouponBtn');
+      const clearCouponBtn = document.getElementById('clearCouponBtn');
+      const couponStatus = document.getElementById('couponStatus');
+      const couponHint = document.getElementById('couponHint');
+
+      function updateCouponUI(){
+        if(appliedCoupon){
+          applyCouponBtn.style.display = 'none';
+          clearCouponBtn.style.display = 'inline-flex';
+          couponStatus.textContent = 'Applied ' + appliedCoupon.code + ' · ' + appliedCoupon.percent + '% off';
+          couponStatus.style.color = '#3a7d44';
+          couponHint.textContent = appliedCoupon.code + ' active';
+        } else {
+          applyCouponBtn.style.display = 'inline-flex';
+          clearCouponBtn.style.display = 'none';
+          couponStatus.textContent = '';
+          couponHint.textContent = '';
+        }
+        renderSummary();
+      }
+
+      applyCouponBtn.addEventListener('click', () => {
+        const code = (couponInput.value || '').trim();
+        if(!code){ couponStatus.textContent = 'Enter a coupon code.'; couponStatus.style.color = 'var(--rose-mid)'; return; }
+        if(code.toLowerCase() === COUPON_CODE.toLowerCase()){
+          appliedCoupon = { code: COUPON_CODE, percent: 10 };
+          couponInput.value = COUPON_CODE;
+          updateCouponUI();
+        } else {
+          appliedCoupon = null;
+          couponStatus.textContent = 'Invalid coupon code.';
+          couponStatus.style.color = 'var(--rose-mid)';
+          updateCouponUI();
+        }
+      });
+
+      clearCouponBtn.addEventListener('click', () => {
+        appliedCoupon = null;
+        couponInput.value = '';
+        updateCouponUI();
+      });
+
+      couponInput.addEventListener('keydown', (e) => {
+        if(e.key === 'Enter'){ e.preventDefault(); applyCouponBtn.click(); }
+      });
     })();
   </script>
 
