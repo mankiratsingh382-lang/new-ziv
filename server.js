@@ -275,51 +275,17 @@ async function ensureSchema() {
   `);
 
   // Seed placeholder image URLs.
-  // Assign a unique image to each product and store as BYTEA so they survive deploys.
-  const seedImages = [
-    { productId: 1, file: 'IMG_06.JPEG',   alt: 'Seraphine Choker - Image 1' },
-    { productId: 2, file: 'IMG_05.JPEG',   alt: 'Luna Drop Earrings - Image 1' },
-    { productId: 3, file: 'IMG_02.JPEG',   alt: 'Aurore Tennis Bracelet - Image 1' },
-    { productId: 4, file: 'IMG_04.JPEG',   alt: 'Celeste Solitaire Ring - Image 1' },
-    { productId: 5, file: 'IMG_6800.JPEG', alt: 'Bloom Stud Earrings - Image 1' },
-    { productId: 6, file: 'IMG_1010.JPEG', alt: 'Crescent Pendant Necklace - Image 1' },
-  ];
-
-  for (const img of seedImages) {
-    try {
-      const { rows } = await pool.query('SELECT id, image_data FROM product_images WHERE product_id = $1 LIMIT 1', [img.productId]);
-      const filePath = path.join(projectRoot, 'images', img.file);
-      let imageData = null;
-      let mimeType = 'image/jpeg';
-      if (fs.existsSync(filePath)) {
-        imageData = fs.readFileSync(filePath);
-        const ext = path.extname(img.file).toLowerCase();
-        if (ext === '.png') mimeType = 'image/png';
-        else if (ext === '.webp') mimeType = 'image/webp';
-        else if (ext === '.gif') mimeType = 'image/gif';
-      }
-
-      const imageUrl = `/images/${img.file}`;
-
-      if (rows.length && !rows[0].image_data) {
-        // Record exists but has no BYTEA data — update it with the real image
-        await pool.query(
-          `UPDATE product_images SET image_url=$1, image_data=$2, mime_type=$3, alt_text=$4 WHERE id=$5`,
-          [imageUrl, imageData, mimeType, img.alt, rows[0].id]
-        );
-      } else if (!rows.length) {
-        // No record at all — insert
-        await pool.query(
-          `INSERT INTO product_images (product_id, image_url, image_data, mime_type, alt_text, sort_order)
-           VALUES ($1,$2,$3,$4,$5,$6)`,
-          [img.productId, imageUrl, imageData, mimeType, img.alt, 1]
-        );
-      }
-      // else: record exists with image_data — skip
-    } catch (e) {
-      // Skip this image if anything fails — placeholder URL still works
-    }
-  }
+  await pool.query(`
+    INSERT INTO product_images (product_id, image_url, alt_text, sort_order)
+    VALUES
+      (1, '/images/IMG_6489.JPG', 'Seraphine Choker - Image 1', 1),
+      (2, '/images/IMG_6489.JPG', 'Luna Drop Earrings - Image 1', 1),
+      (3, '/images/IMG_6489.JPG', 'Aurore Tennis Bracelet - Image 1', 1),
+      (4, '/images/IMG_6489.JPG', 'Celeste Solitaire Ring - Image 1', 1),
+      (5, '/images/IMG_6489.JPG', 'Bloom Stud Earrings - Image 1', 1),
+      (6, '/images/IMG_6489.JPG', 'Crescent Pendant Necklace - Image 1', 1)
+    ON CONFLICT DO NOTHING;
+  `);
 }
 
 async function authMiddleware(req, res, next) {
