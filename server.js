@@ -262,6 +262,11 @@ async function ensureSchema() {
     // ignore if the table doesn't exist yet
   }
 
+  // Allow guest orders (user_id nullable)
+  try {
+    await pool.query(`ALTER TABLE orders ALTER COLUMN user_id DROP NOT NULL`);
+  } catch (e) { /* already nullable */ }
+
   await pool.query(`
     INSERT INTO products (id, name, category, price, material, description, badge, sort_order)
     VALUES
@@ -312,6 +317,28 @@ async function authMiddleware(req, res, next) {
   } catch (e) {
     return res.status(500).json({ error: 'Auth lookup failed.' });
   }
+}
+
+// Optional auth — sets req.user if token is valid, continues without it if not.
+async function optionalAuth(req, res, next) {
+  const authHeader = req.headers.authorization || '';
+  const token = authHeader.startsWith('Bearer ') ? authHeader.slice(7).trim() : '';
+  if (!token) return next();
+
+  try {
+    const { rows } = await pool.query(
+      `SELECT s.user_id, s.session_token, s.expires_at, u.email, u.name
+       FROM sessions s
+       JOIN users u ON u.id = s.user_id
+       WHERE s.session_token = $1`,
+      [token]
+    );
+    const session = rows[0];
+    if (session && Number(session.expires_at) > Date.now()) {
+      req.user = { id: session.user_id, email: session.email, name: session.name, token };
+    }
+  } catch (e) { /* ignore */ }
+  next();
 }
 
 app.get('/api/health', async (req, res) => {
@@ -425,7 +452,7 @@ app.get('/api/auth/me', authMiddleware, (req, res) => {
   res.json({ user: req.user });
 });
 
-app.post('/api/razorpay/create-order', authMiddleware, async (req, res) => {
+app.post('/api/razorpay/create-order', optionalAuth, async (req, res) => {
   const { amount, currency = 'INR', receipt } = req.body || {};
   const numericAmount = Number(amount);
 
@@ -443,8 +470,8 @@ app.post('/api/razorpay/create-order', authMiddleware, async (req, res) => {
       currency,
       receipt: receipt || `zivarr_${Date.now()}`,
       notes: {
-        user_email: req.user.email,
-        user_name: req.user.name,
+        user_email: req.user?.email || 'guest',
+        user_name: req.user?.name || 'Guest',
       },
     });
 
@@ -454,7 +481,7 @@ app.post('/api/razorpay/create-order', authMiddleware, async (req, res) => {
   }
 });
 
-app.post('/api/orders', authMiddleware, async (req, res) => {
+app.post('/api/orders', optionalAuth, async (req, res) => {
   const {
     product_id,
     quantity = 1,
@@ -479,7 +506,7 @@ app.post('/api/orders', authMiddleware, async (req, res) => {
     const totalPrice = product.price * qty + shippingPrice;
 
     let resolved = {
-      shipping_name: shipping_name || req.user.name,
+      shipping_name: shipping_name || req.user?.name || '',
       shipping_phone: shipping_phone || '',
       shipping_address: shipping_address || '',
       shipping_city: shipping_city || '',
@@ -487,7 +514,7 @@ app.post('/api/orders', authMiddleware, async (req, res) => {
     };
 
     // If address_id is provided, prefer it; otherwise fall back to raw shipping_* fields.
-    if (address_id !== undefined && address_id !== null && String(address_id).trim() !== '') {
+    if (address_id !== undefined && address_id !== null && String(address_id).trim() !== '' && req.user?.id) {
       const addressIdNum = Number(address_id);
       if (Number.isFinite(addressIdNum) && addressIdNum > 0) {
         const addrRes = await pool.query(
@@ -517,7 +544,7 @@ app.post('/api/orders', authMiddleware, async (req, res) => {
       ) VALUES ($1,$2,$3,$4,$5,'pending',$6,$7,$8,$9,$10,$11)
       RETURNING id`,
       [
-        req.user.id,
+        req.user?.id || null,
         product.id,
         qty,
         totalPrice,

@@ -172,7 +172,7 @@ function saveUser(){
 function updateCartUI(){
   const totalItems=cart.reduce((sum,item)=>sum + item.quantity,0);
   const subtotal=cart.reduce((sum,item)=>sum + item.price*item.quantity,0);
-  const shipping=subtotal >= 2000 ? 0 : 149;
+  const shipping=totalItems > 0 ? (subtotal >= 2000 ? 0 : 149) : 0;
   const total=subtotal + shipping;
 
   document.querySelectorAll('.cart-dot').forEach(dot=>dot.textContent=totalItems);
@@ -418,7 +418,8 @@ function handleCheckoutSubmit(event){
 
   const orderId=`ZIV-${Date.now().toString().slice(-6)}`;
   const subtotal=cart.reduce((sum,item)=>sum + item.price*item.quantity,0);
-  const shipping=subtotal >= 2000 ? 0 : 149;
+  const totalItems=cart.reduce((sum,item)=>sum + item.quantity,0);
+  const shipping=totalItems > 0 ? (subtotal >= 2000 ? 0 : 149) : 0;
   const total=subtotal + shipping;
 
   orderStatusBox.classList.add('success');
