@@ -301,6 +301,7 @@
     </ul>
     <div class="nav-actions">
       <button class="nav-login" type="button" onclick="window.location.href='contact.html'">Contact</button>
+      <button id="cartToggle" aria-label="Cart"><svg viewBox="0 0 24 24"><path d="M3 4h2l2 10h10l2-8H7"/><circle cx="10" cy="19" r="1.5"/><circle cx="17" cy="19" r="1.5"/></svg><span class="cart-dot">0</span></button>
     </div>
   </nav>
 
@@ -1195,6 +1196,20 @@
     refreshOrders();
 
     setInterval(refreshOrders, 5000);
+
+    // Cart badge sync from localStorage
+    (function(){
+      var cartToggle = document.getElementById('cartToggle');
+      if(cartToggle){
+        try {
+          var cart = JSON.parse(localStorage.getItem('zivarr-cart') || '[]');
+          var count = Array.isArray(cart) ? cart.reduce(function(s,i){ return s + (i.quantity||1); }, 0) : 0;
+          var dot = cartToggle.querySelector('.cart-dot');
+          if(dot){ dot.textContent = count; dot.style.display = count > 0 ? 'flex' : 'none'; }
+        } catch(e){}
+        cartToggle.addEventListener('click', function(){ window.location.href = 'cart.html'; });
+      }
+    })();
   </script>
 
 
