@@ -610,6 +610,22 @@ app.post('/api/addresses', authMiddleware, async (req, res) => {
   }
 });
 
+app.delete('/api/addresses/:id', authMiddleware, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const result = await pool.query(
+      'DELETE FROM addresses WHERE id = $1 AND user_id = $2 RETURNING id',
+      [id, req.user.id]
+    );
+    if (!result.rows.length) {
+      return res.status(404).json({ error: 'Address not found.' });
+    }
+    res.json({ ok: true });
+  } catch (e) {
+    res.status(500).json({ error: 'Failed to delete address.' });
+  }
+});
+
 
 const ADMIN_TOKEN = process.env.ADMIN_TOKEN || 'Zivarradmin@123';
 function adminAuth(req, res, next) {

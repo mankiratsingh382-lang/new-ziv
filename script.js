@@ -233,8 +233,9 @@ function renderProductCards(products){
   if(!productsGrid || !Array.isArray(products) || products.length === 0) return;
 
   // Reset grid (homepage only) and render cards from DB.
+  const imgUrl = (product.images && product.images[0] && product.images[0].image_url) || 'images/IMG_6489.JPG';
   productsGrid.innerHTML = products.map((product, index) => `
-    <article class="prod-card reveal ${index % 4 === 0 ? '' : index % 4 === 1 ? 'reveal-delay-1' : index % 4 === 2 ? 'reveal-delay-2' : 'reveal-delay-3'}" data-name="${product.name}" data-price="${product.price}" data-category="${product.category || 'Jewelry'}">
+    <article class="prod-card reveal ${index % 4 === 0 ? '' : index % 4 === 1 ? 'reveal-delay-1' : index % 4 === 2 ? 'reveal-delay-2' : 'reveal-delay-3'}" data-id="${product.id}" data-name="${product.name}" data-price="${product.price}" data-category="${product.category || 'Jewelry'}" data-image="${imgUrl}">
       <div class="prod-img-wrap" style="background:linear-gradient(145deg,#FDF0F2,#FAE8EB);">
         <div class="prod-img-art">✦</div>
         <div class="prod-badge ${product.badge === 'New' ? 'new' : ''}">${product.badge || 'Featured'}</div>
@@ -307,12 +308,14 @@ function addToCart(card){
   const name=card.dataset.name;
   const price=parseInt(card.dataset.price,10);
   const category=card.dataset.category;
+  const id=card.dataset.id ? parseInt(card.dataset.id,10) : undefined;
+  const image=card.dataset.image || undefined;
   const existing=cart.find(item=>item.name===name);
 
   if(existing){
     existing.quantity += 1;
   } else {
-    cart.push({name,price,category,quantity:1});
+    cart.push({name,price,category,id,image,quantity:1});
   }
 
   saveCart();
@@ -472,12 +475,12 @@ if(hasCheckoutUI){
   });
 }
 
-function addToCartByName(name, price, category, btn){
+function addToCartByName(name, price, category, btn, id, image){
   const existing=cart.find(item=>item.name===name);
   if(existing){
     existing.quantity += 1;
   } else {
-    cart.push({name,price:parseInt(price,10),category,quantity:1});
+    cart.push({name,price:parseInt(price,10),category,id,image,quantity:1});
   }
   saveCart();
   updateCartUI();

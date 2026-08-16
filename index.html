@@ -590,7 +590,7 @@ document.addEventListener('DOMContentLoaded', function(){
         var img = (product.images && product.images.length) ? product.images[0] : null;
         var imgUrl = img && img.image_url ? img.image_url : 'images/IMG_6489.JPG';
         var alt = (img && img.alt_text) ? img.alt_text : product.name;
-        return '<article class="bestseller-card" data-name="'+product.name+'" data-price="'+product.price+'" data-category="'+(product.category || 'Jewelry')+'">' +
+        return '<article class="bestseller-card" data-id="'+product.id+'" data-name="'+product.name+'" data-price="'+product.price+'" data-category="'+(product.category || 'Jewelry')+'" data-image="'+imgUrl+'">' +
           '<div class="bestseller-img-wrap">' +
             '<img src="'+imgUrl+'" alt="'+alt+'" loading="lazy" onerror="this.onerror=null;this.src=\'images/IMG_6489.JPG\';" />' +
             '<div class="bestseller-badge">★ Best Seller</div>' +
@@ -613,7 +613,7 @@ document.addEventListener('DOMContentLoaded', function(){
         if(addBtn){
           addBtn.addEventListener('click', function(){
             if(typeof addToCartByName === 'function'){
-              addToCartByName(card.dataset.name, card.dataset.price, card.dataset.category, addBtn);
+              addToCartByName(card.dataset.name, card.dataset.price, card.dataset.category, addBtn, parseInt(card.dataset.id,10), card.dataset.image);
             }
           });
         }

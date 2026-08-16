@@ -4,33 +4,460 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="description" content="Complete your ZIVARR order through a polished checkout flow with premium, customer-first delivery details." />
-  <meta name="robots" content="index,follow" />
+  <meta name="robots" content="noindex,nofollow" />
   <meta name="author" content="ZIVARR" />
-  <meta property="og:title" content="ZIVARR Checkout | Secure Order Flow" />
-  <meta property="og:description" content="Finish your ZIVARR purchase with a smooth, premium checkout experience." />
-  <meta property="og:type" content="website" />
-  <meta property="og:url" content="https://zivarr.vercel.app/checkout.html" />
-  <meta property="og:image" content="https://zivarr.vercel.app/images/IMG_6489.JPG" />
-  <meta name="twitter:card" content="summary_large_image" />
   <meta name="theme-color" content="#b0505c" />
-  <link rel="canonical" href="https://zivarr.vercel.app/checkout.html" />
-  <link rel="icon" href="favicon.svg" type="image/svg+xml" />
-  <title>ZIVARR Checkout | Secure Order Flow</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <title>ZIVARR Checkout</title>
   <link rel="stylesheet" href="style.css" />
-  <style>.page-shell{min-height:100svh;padding:110px 24px 72px;background:linear-gradient(180deg,#fffafc 0%, #fff 45%, #fff7f8 100%);} .page-wrap{max-width:1100px;margin:0 auto;display:grid;grid-template-columns:1fr .95fr;gap:24px;} .glass-panel{background:rgba(255,255,255,.82);backdrop-filter:blur(18px);border:1px solid rgba(212,114,126,.18);border-radius:28px;box-shadow:0 18px 50px rgba(61,24,32,.08);padding:24px;} .eyebrow{font-size:10px;letter-spacing:4px;text-transform:uppercase;color:var(--pink-mid);} .title{font-family:'Cormorant Garamond',serif;font-size:clamp(36px,6vw,56px);color:var(--rose-dark);margin-top:8px;} .muted{color:var(--text-muted);font-size:13px;line-height:1.8;} label{display:grid;gap:6px;font-size:10px;letter-spacing:2.5px;text-transform:uppercase;color:var(--text-muted);margin-bottom:10px;} input{border:1px solid rgba(212,114,126,.18);border-radius:14px;padding:12px 14px;background:rgba(255,255,255,.88);color:var(--rose-dark);} .step-card{border:1px solid rgba(212,114,126,.18);border-radius:18px;padding:14px;background:rgba(255,255,255,.92);margin-bottom:10px;} .step-card h3{font-family:'Cormorant Garamond',serif;font-size:22px;color:var(--rose-dark);} @media (max-width:980px){.page-wrap{grid-template-columns:1fr;}}</style>
+  <style>
+    .co-page{min-height:100svh;padding:clamp(88px,10vh,110px) 18px 80px;background:linear-gradient(180deg,#fffafc 0%,#fff 45%,#fff7f8 100%);}
+    .co-wrap{max-width:1100px;margin:0 auto;display:grid;grid-template-columns:1fr .95fr;gap:24px;}
+    .co-panel{
+      background:rgba(255,255,255,.82);backdrop-filter:blur(18px);
+      border:1px solid rgba(212,114,126,.18);border-radius:20px;
+      box-shadow:0 18px 50px rgba(61,24,32,.08);padding:24px;
+    }
+    .co-title{font-family:'Cormorant Garamond',serif;font-size:clamp(28px,4vw,36px);font-weight:300;color:var(--rose-dark);margin-bottom:16px;}
+    .co-sub{font-size:12px;color:var(--text-muted);line-height:1.8;margin-bottom:14px;}
+    .co-section-title{font-family:'Cormorant Garamond',serif;font-size:22px;color:var(--rose-dark);margin:18px 0 10px;}
+    .co-label{display:flex;flex-direction:column;gap:6px;font-size:9px;letter-spacing:2.5px;text-transform:uppercase;color:var(--text-muted);}
+    .co-label input,.co-label textarea,.co-label select{
+      border:1px solid rgba(212,114,126,.25);border-radius:10px;background:#fff;color:var(--rose-dark);
+      padding:12px 14px;font-family:'Jost',sans-serif;font-size:12.5px;outline:none;
+    }
+    .co-label input:focus,.co-label textarea:focus{border-color:var(--rose-mid);}
+    .co-field-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+    @media(max-width:600px){.co-field-grid{grid-template-columns:1fr;}}
+    .co-item{display:flex;gap:12px;align-items:center;padding:12px;border:1px solid rgba(212,114,126,.15);border-radius:14px;background:#fff;margin-bottom:10px;}
+    .co-item-img{width:56px;height:56px;border-radius:12px;overflow:hidden;border:1px solid rgba(212,114,126,.15);flex-shrink:0;}
+    .co-item-img img{width:100%;height:100%;object-fit:cover;display:block;}
+    .co-item-name{font-family:'Cormorant Garamond',serif;font-size:18px;color:var(--rose-dark);}
+    .co-item-meta{font-size:11px;color:var(--text-muted);margin-top:2px;}
+    .co-item-price{font-size:13px;color:var(--rose-mid);font-weight:600;margin-left:auto;white-space:nowrap;}
+    .co-qty{display:flex;align-items:center;gap:8px;margin-top:6px;}
+    .co-qty button{
+      width:26px;height:26px;border-radius:50%;border:1px solid rgba(212,114,126,.25);
+      background:#fff;color:var(--rose-dark);font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;
+    }
+    .co-qty span{font-size:13px;color:var(--rose-dark);min-width:18px;text-align:center;}
+    .co-addr-card{
+      border:1px solid rgba(212,114,126,.18);border-radius:14px;padding:14px;
+      background:#fff;cursor:pointer;display:flex;gap:12px;align-items:flex-start;
+      transition:border-color .2s;
+    }
+    .co-addr-card.selected{border-color:var(--rose-mid);background:rgba(232,160,170,.06);}
+    .co-addr-card input[type="radio"]{margin-top:3px;accent-color:var(--rose-mid);}
+    .co-addr-name{font-family:'Cormorant Garamond',serif;font-size:18px;color:var(--rose-dark);}
+    .co-addr-detail{font-size:12px;color:var(--text-muted);line-height:1.6;}
+    .co-summary-row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;font-size:13px;color:var(--text-muted);}
+    .co-summary-row.total{border-top:1px solid rgba(212,114,126,.15);margin-top:8px;padding-top:12px;font-size:16px;color:var(--rose-dark);font-weight:600;}
+    .co-empty{text-align:center;padding:40px 20px;color:var(--text-muted);font-size:13px;}
+    .co-empty a{color:var(--rose-mid);text-decoration:underline;}
+    .co-status{font-size:12px;min-height:18px;margin-top:8px;}
+    .co-status.error{color:var(--rose-mid);}
+    .co-status.success{color:#3a7d44;}
+    @media(max-width:768px){.co-wrap{grid-template-columns:1fr;}}
+  </style>
 </head>
 <body>
 
   <div id="cur"></div><div id="cur-r"></div>
   <nav id="main-nav">
-    <a class="nav-logo" href="index.html">ZIVARR<span>.</span></a>
-    <ul class="nav-links"><li><a href="collections.html">Collections</a></li><li><a href="about.html">About</a></li><li><a href="contact.html">Contact</a></li><li><a href="dashboard.html">Account</a></li></ul>
-    <div class="nav-actions"><a href="login.html" class="btn-ghost">Login</a><button id="cartToggle" aria-label="Cart"><svg viewBox="0 0 24 24"><path d="M3 4h2l2 10h10l2-8H7"/><circle cx="10" cy="19" r="1.5"/><circle cx="17" cy="19" r="1.5"/></svg><span class="cart-dot">0</span></button></div>
+    <a class="nav-logo" href="index.html" aria-label="ZIVARR">
+      <img class="nav-logo-img" src="images/IMG_6489.JPG" alt="ZIVARR" />
+    </a>
+    <ul class="nav-links">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="collections.html">Collections</a></li>
+    </ul>
+    <div class="nav-actions">
+      <button id="cartToggle" aria-label="Cart"><svg viewBox="0 0 24 24"><path d="M3 4h2l2 10h10l2-8H7"/><circle cx="10" cy="19" r="1.5"/><circle cx="17" cy="19" r="1.5"/></svg><span class="cart-dot">0</span></button>
+    </div>
   </nav>
-  <main class="page-shell"><section class="page-wrap"><article class="glass-panel"><p class="eyebrow">Checkout</p><h1 class="title">A secure checkout flow with payment gateway placeholders.</h1><p class="muted">This page hosts the multi-step checkout experience the ZIVARR brand needs. The current build keeps it elegant and ready for React stepper components and gateway integration.</p><div class="step-card"><h3>Step 1 · Delivery</h3><label>Full Name<input type="text" placeholder="Ava Sharma" /></label><label>Address<input type="text" placeholder="14, Blossom Lane" /></label><label>City<input type="text" placeholder="Jaipur" /></label></div><div class="step-card"><h3>Step 2 · Payment</h3><p class="muted">Visa, Mastercard, and UPI placeholders can be connected here via a payment provider.</p></div><div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:12px;"><a class="btn-primary" href="dashboard.html">Confirm Order</a><a class="btn-ghost" href="cart.html">Back to Cart</a></div></article><article class="glass-panel"><p class="eyebrow">Checkout Notes</p><p class="muted">The checkout page is built for a secure, premium handoff with clear trust signals, payment placeholders, and status panels. It is ready to evolve into a full multi-step form once a gateway is enabled.</p></article></section></main>
+
+  <main class="co-page">
+    <div class="co-wrap">
+
+      <!-- LEFT: Address + Items -->
+      <article class="co-panel">
+        <div class="co-title">Checkout</div>
+
+        <!-- Delivery Address -->
+        <div class="co-section-title">Delivery Address</div>
+        <p class="co-sub" style="margin-bottom:0;">Select a saved address or enter a new one.</p>
+
+        <div id="savedAddresses" style="display:flex;flex-direction:column;gap:10px;margin-top:12px;"></div>
+
+        <div id="noAddrMsg" class="co-sub" style="margin-top:10px;display:none;">
+          No addresses found. <a href="dashboard.html" style="color:var(--rose-mid);text-decoration:underline;">Add one in your dashboard</a> or fill below.
+        </div>
+
+        <div id="newAddrToggle" style="margin-top:14px;">
+          <button type="button" id="toggleNewAddr" style="border:none;background:transparent;color:var(--rose-mid);font-size:9px;letter-spacing:2.5px;text-transform:uppercase;cursor:pointer;">+ Enter new address</button>
+        </div>
+
+        <form id="newAddrForm" style="display:none;margin-top:14px;display:none;flex-direction:column;gap:12px;">
+          <div class="co-field-grid">
+            <label class="co-label">Full Name<input type="text" id="coName" required placeholder="Full name" /></label>
+            <label class="co-label">Phone<input type="tel" id="coPhone" required placeholder="98765 43210" /></label>
+          </div>
+          <label class="co-label">Address<input type="text" id="coAddress" required placeholder="Street, building, landmark" /></label>
+          <div class="co-field-grid">
+            <label class="co-label">City<input type="text" id="coCity" required placeholder="City" /></label>
+            <label class="co-label">Pincode<input type="text" id="coPincode" required placeholder="400001" /></label>
+          </div>
+          <label class="co-label">Delivery Notes (optional)<textarea id="coNotes" rows="2" placeholder="Near landmark, gate code, etc."></textarea></label>
+        </form>
+
+        <!-- Cart Items -->
+        <div class="co-section-title">Your Items</div>
+        <div id="coItems"></div>
+      </article>
+
+      <!-- RIGHT: Summary + Pay -->
+      <article class="co-panel">
+        <div class="co-section-title">Order Summary</div>
+        <div id="coSummary"></div>
+        <div id="coStatus" class="co-status"></div>
+        <div style="margin-top:16px;display:flex;flex-direction:column;gap:10px;">
+          <button type="button" id="payBtn" class="btn-primary" style="width:100%;padding:16px;border-radius:999px;font-size:11px;letter-spacing:3px;text-transform:uppercase;">Pay & Place Order</button>
+          <a href="cart.html" style="text-align:center;color:var(--rose-mid);font-size:9px;letter-spacing:2.5px;text-transform:uppercase;">← Back to Cart</a>
+        </div>
+      </article>
+
+    </div>
+  </main>
+
+  <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+  <script>
+    const CART_KEY = 'zivarr-cart';
+    const ADDR_KEY = 'zivarr-demo-addresses';
+    const AUTH_TOKEN_KEY = 'zivarr-demo-auth-token';
+    const DASH_USER_KEY = 'zivarr-demo-user';
+    const ORDERS_KEY = 'zivarr-demo-orders';
+    const RAZORPAY_KEY_ID = 'rzp_live_TECFLncXvE6ZZe';
+
+    let cart = [];
+    let savedAddresses = [];
+    let selectedAddress = null;
+    let isNewAddress = false;
+
+    function formatPrice(v){ return '₹' + Number(v).toLocaleString('en-IN'); }
+
+    function loadCart(){
+      try{ return JSON.parse(localStorage.getItem(CART_KEY) || '[]'); }catch{ return []; }
+    }
+    function saveCart(c){ localStorage.setItem(CART_KEY, JSON.stringify(c)); }
+
+    function loadLocalAddresses(){
+      try{ return JSON.parse(localStorage.getItem(ADDR_KEY) || '[]'); }catch{ return []; }
+    }
+    function saveLocalAddresses(list){ localStorage.setItem(ADDR_KEY, JSON.stringify(list)); }
+
+    function getToken(){ return localStorage.getItem(AUTH_TOKEN_KEY); }
+
+    async function fetchJson(url, opts={}){
+      const r = await fetch(url, opts);
+      const d = await r.json().catch(()=>({}));
+      if(!r.ok) throw new Error(d.error || 'Request failed');
+      return d;
+    }
+
+    async function loadAddresses(){
+      const token = getToken();
+      if(token){
+        try{
+          savedAddresses = await fetchJson('/api/addresses', {
+            headers:{ Authorization: 'Bearer ' + token }
+          });
+          return;
+        }catch(e){}
+      }
+      savedAddresses = loadLocalAddresses();
+    }
+
+    function renderAddresses(){
+      const container = document.getElementById('savedAddresses');
+      const noMsg = document.getElementById('noAddrMsg');
+      container.innerHTML = '';
+
+      if(!savedAddresses.length){
+        noMsg.style.display = 'block';
+        document.getElementById('newAddrForm').style.display = 'flex';
+        document.getElementById('newAddrToggle').style.display = 'none';
+        isNewAddress = true;
+        return;
+      }
+      noMsg.style.display = 'none';
+      document.getElementById('newAddrToggle').style.display = 'block';
+
+      savedAddresses.forEach((a, i) => {
+        const card = document.createElement('div');
+        card.className = 'co-addr-card' + (selectedAddress && selectedAddress.id === a.id ? ' selected' : '');
+        card.innerHTML = `
+          <input type="radio" name="addr" value="${a.id}" ${selectedAddress && selectedAddress.id === a.id ? 'checked' : ''} />
+          <div>
+            <div class="co-addr-name">${a.name}</div>
+            <div class="co-addr-detail">${a.phone} · ${a.pincode}</div>
+            <div class="co-addr-detail">${a.address}, ${a.city}</div>
+            ${a.notes ? '<div class="co-addr-detail">Notes: ' + a.notes + '</div>' : ''}
+          </div>
+        `;
+        card.addEventListener('click', () => {
+          selectedAddress = a;
+          isNewAddress = false;
+          document.getElementById('newAddrForm').style.display = 'none';
+          renderAddresses();
+        });
+        container.appendChild(card);
+      });
+    }
+
+    function renderItems(){
+      const container = document.getElementById('coItems');
+      if(!cart.length){
+        container.innerHTML = '<div class="co-empty">Your cart is empty. <a href="collections.html">Go shopping</a></div>';
+        return;
+      }
+
+      container.innerHTML = cart.map((item, i) => {
+        const img = item.image || 'images/IMG_6489.JPG';
+        return `
+          <div class="co-item">
+            <div class="co-item-img"><img src="${img}" alt="${item.name}" onerror="this.onerror=null;this.src='images/IMG_6489.JPG';" /></div>
+            <div style="flex:1;min-width:0;">
+              <div class="co-item-name">${item.name}</div>
+              <div class="co-item-meta">${item.category || ''}</div>
+              <div class="co-qty">
+                <button type="button" data-qty-minus="${i}">−</button>
+                <span>${item.quantity || 1}</span>
+                <button type="button" data-qty-plus="${i}">+</button>
+              </div>
+            </div>
+            <div class="co-item-price">${formatPrice((item.price || 0) * (item.quantity || 1))}</div>
+          </div>
+        `;
+      }).join('');
+
+      container.querySelectorAll('[data-qty-minus]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const idx = Number(btn.dataset.qtyMinus);
+          if(cart[idx].quantity > 1){ cart[idx].quantity--; } else { cart.splice(idx, 1); }
+          saveCart(cart); renderItems(); renderSummary();
+        });
+      });
+      container.querySelectorAll('[data-qty-plus]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const idx = Number(btn.dataset.qtyPlus);
+          cart[idx].quantity = (cart[idx].quantity || 1) + 1;
+          saveCart(cart); renderItems(); renderSummary();
+        });
+      });
+    }
+
+    function getTotals(){
+      const itemsTotal = cart.reduce((s, item) => s + (item.price || 0) * (item.quantity || 1), 0);
+      const count = cart.reduce((s, item) => s + (item.quantity || 1), 0);
+      const shipping = count > 0 ? 149 : 0;
+      const grand = itemsTotal + shipping;
+      return { itemsTotal, shipping, grand, count };
+    }
+
+    function renderSummary(){
+      const { itemsTotal, shipping, grand } = getTotals();
+      const container = document.getElementById('coSummary');
+      container.innerHTML = `
+        <div class="co-summary-row"><span>Subtotal (${cart.length} item${cart.length === 1 ? '' : 's'})</span><span>${formatPrice(itemsTotal)}</span></div>
+        <div class="co-summary-row"><span>Shipping</span><span>${formatPrice(shipping)}</span></div>
+        <div class="co-summary-row total"><span>Grand Total</span><span>${formatPrice(grand)}</span></div>
+      `;
+    }
+
+    function setStatus(msg, isError){
+      const el = document.getElementById('coStatus');
+      el.textContent = msg;
+      el.className = 'co-status ' + (isError ? 'error' : 'success');
+    }
+
+    function getSelectedAddress(){
+      if(isNewAddress){
+        const name = document.getElementById('coName')?.value?.trim();
+        const phone = document.getElementById('coPhone')?.value?.trim();
+        const address = document.getElementById('coAddress')?.value?.trim();
+        const city = document.getElementById('coCity')?.value?.trim();
+        const pincode = document.getElementById('coPincode')?.value?.trim();
+        const notes = document.getElementById('coNotes')?.value?.trim();
+        if(!name || !phone || !address || !city || !pincode){
+          setStatus('Please fill in all address fields.', true);
+          return null;
+        }
+        return { name, phone, address, city, pincode, notes };
+      }
+      if(selectedAddress) return selectedAddress;
+      setStatus('Please select a delivery address.', true);
+      return null;
+    }
+
+    async function saveNewAddressIfNew(){
+      if(!isNewAddress) return;
+      const token = getToken();
+      const payload = {
+        name: document.getElementById('coName').value.trim(),
+        phone: document.getElementById('coPhone').value.trim(),
+        address: document.getElementById('coAddress').value.trim(),
+        city: document.getElementById('coCity').value.trim(),
+        pincode: document.getElementById('coPincode').value.trim(),
+        notes: document.getElementById('coNotes').value.trim(),
+      };
+      if(token){
+        try{
+          const created = await fetchJson('/api/addresses', {
+            method: 'POST',
+            headers:{ 'Content-Type':'application/json', Authorization: 'Bearer ' + token },
+            body: JSON.stringify(payload)
+          });
+          selectedAddress = created;
+          return;
+        }catch(e){}
+      }
+      const local = loadLocalAddresses();
+      const newAddr = { id: Date.now(), ...payload, created_at: new Date().toISOString() };
+      local.push(newAddr);
+      saveLocalAddresses(local);
+      selectedAddress = newAddr;
+    }
+
+    async function placeOrder(){
+      const addr = getSelectedAddress();
+      if(!addr) return;
+      if(!cart.length){ setStatus('Your cart is empty.', true); return; }
+
+      const { grand } = getTotals();
+      const amountPaise = Math.round(grand * 100);
+      setStatus('Opening Razorpay checkout...', false);
+
+      try{
+        const token = getToken();
+        const paymentOrderRes = await fetch('/api/razorpay/create-order', {
+          method: 'POST',
+          headers:{ 'Content-Type':'application/json', ...(token ? { Authorization: 'Bearer ' + token } : {}) },
+          body: JSON.stringify({ amount: amountPaise, currency: 'INR', receipt: 'zivarr_' + Date.now() })
+        });
+        const paymentOrderData = await paymentOrderRes.json().catch(()=>({}));
+        if(!paymentOrderRes.ok) throw new Error(paymentOrderData.error || 'Unable to start payment.');
+
+        if(!window.Razorpay){ throw new Error('Payment gateway could not be loaded.'); }
+
+        const user = JSON.parse(localStorage.getItem(DASH_USER_KEY) || 'null');
+
+        const rzp = new window.Razorpay({
+          key: RAZORPAY_KEY_ID,
+          amount: amountPaise,
+          currency: 'INR',
+          name: 'ZIVARR',
+          description: 'Payment for ' + cart.length + ' item' + (cart.length === 1 ? '' : 's'),
+          order_id: paymentOrderData.id,
+          handler: async (response) => {
+            try{
+              setStatus('Payment successful. Placing order...', false);
+              await saveNewAddressIfNew();
+
+              if(token){
+                for(const item of cart){
+                  const payload = {
+                    quantity: item.quantity || 1,
+                    shipping_name: addr.name,
+                    shipping_phone: addr.phone,
+                    shipping_address: addr.address,
+                    shipping_city: addr.city,
+                    shipping_pincode: addr.pincode,
+                    notes: addr.notes || ''
+                  };
+                  if(item.id) payload.product_id = item.id;
+                  await fetchJson('/api/orders', {
+                    method: 'POST',
+                    headers:{ 'Content-Type':'application/json', Authorization: 'Bearer ' + token },
+                    body: JSON.stringify(payload)
+                  });
+                }
+              } else {
+                const email = user?.email || 'guest';
+                const saved = JSON.parse(localStorage.getItem(ORDERS_KEY) || '{}');
+                const list = saved[email] || [];
+                cart.forEach(item => {
+                  list.push({
+                    id: Date.now() + Math.random(),
+                    productName: item.name,
+                    productPrice: item.price,
+                    category: item.category,
+                    quantity: item.quantity || 1,
+                    shipping_address: addr.address,
+                    shipping_city: addr.city,
+                    shipping_pincode: addr.pincode,
+                    status: 'pending',
+                    createdAt: new Date().toISOString()
+                  });
+                });
+                saved[email] = list;
+                localStorage.setItem(ORDERS_KEY, JSON.stringify(saved));
+              }
+
+              saveCart([]);
+              setStatus('Order placed successfully! Redirecting...', false);
+              setTimeout(()=>{ window.location.href = 'dashboard.html'; }, 1500);
+            }catch(e){
+              setStatus(e.message || 'Payment succeeded but order failed.', true);
+            }
+          },
+          prefill: { name: addr.name, contact: addr.phone },
+          theme: { color: '#b0505c' }
+        });
+        rzp.open();
+      }catch(e){
+        setStatus(e.message || 'Unable to start payment.', true);
+      }
+    }
+
+    // Cart badge
+    function updateCartBadge(){
+      try{
+        const c = JSON.parse(localStorage.getItem(CART_KEY) || '[]');
+        const count = Array.isArray(c) ? c.reduce((s,i)=> s + (i.quantity||1), 0) : 0;
+        const dot = document.querySelector('#cartToggle .cart-dot');
+        if(dot){ dot.textContent = count; dot.style.display = count > 0 ? 'flex' : 'none'; }
+      }catch(e){}
+    }
+
+    // Init
+    (async function(){
+      cart = loadCart();
+      await loadAddresses();
+
+      if(savedAddresses.length){
+        selectedAddress = savedAddresses[0];
+      }
+
+      renderAddresses();
+      renderItems();
+      renderSummary();
+      updateCartBadge();
+
+      document.getElementById('toggleNewAddr').addEventListener('click', () => {
+        const form = document.getElementById('newAddrForm');
+        const showing = form.style.display === 'flex';
+        form.style.display = showing ? 'none' : 'flex';
+        isNewAddress = !showing;
+        if(!showing){
+          selectedAddress = null;
+          document.querySelectorAll('[name="addr"]').forEach(r => r.checked = false);
+          document.querySelectorAll('.co-addr-card').forEach(c => c.classList.remove('selected'));
+        }
+      });
+
+      document.getElementById('payBtn').addEventListener('click', placeOrder);
+    })();
+  </script>
+
   <script src="script.js" defer></script>
 </body>
 </html>

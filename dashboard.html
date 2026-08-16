@@ -157,6 +157,33 @@
     @media(max-width:600px){
       .dash-page{padding-left:14px;padding-right:14px;}
     }
+
+    .addr-field-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+    @media(max-width:600px){.addr-field-grid{grid-template-columns:1fr;}}
+    .addr-label{
+      display:flex;flex-direction:column;gap:6px;
+      font-size:9px;letter-spacing:2.5px;text-transform:uppercase;color:var(--text-muted);
+    }
+    .addr-label input,.addr-label textarea{
+      border:1px solid rgba(212,114,126,.25);
+      border-radius:10px;background:#fff;color:var(--rose-dark);
+      padding:12px 14px;font-family:'Jost',sans-serif;font-size:12.5px;outline:none;
+    }
+    .addr-label input:focus,.addr-label textarea:focus{border-color:var(--rose-mid);}
+    .addr-card{
+      border:1px solid rgba(212,114,126,.18);
+      background:#fff;border-radius:14px;padding:14px;
+      display:flex;justify-content:space-between;align-items:flex-start;gap:12px;
+    }
+    .addr-card-name{font-family:'Cormorant Garamond',serif;font-size:18px;color:var(--rose-dark);font-weight:400;}
+    .addr-card-detail{font-size:12.5px;color:var(--text-muted);line-height:1.7;margin-top:4px;}
+    .addr-card-delete{
+      border:none;background:transparent;color:var(--rose-mid);font-size:18px;
+      cursor:none;padding:4px 8px;border-radius:8px;flex-shrink:0;
+    }
+    .addr-card-delete:hover{background:rgba(232,160,170,.16);}
+    .addr-success{color:#3a7d44;}
+    .addr-error{color:var(--rose-mid);}
   </style>
 </head>
 <body>
@@ -211,6 +238,51 @@
             <svg viewBox="0 0 24 24" style="width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:1.5;"><path d="M3 4h2l2 10h10l2-8H7"/><circle cx="10" cy="19" r="1.5"/><circle cx="17" cy="19" r="1.5"/></svg>
             View Cart
           </a>
+        </div>
+      </section>
+
+      <section class="dash-panel">
+        <h3 style="font-family:'Cormorant Garamond',serif;font-size:26px;font-weight:400;color:var(--rose-dark);margin-bottom:10px;">Addresses</h3>
+        <p class="dash-sub" style="margin-bottom:0;">Add a delivery address before placing an order.</p>
+
+        <form id="addressForm" style="margin-top:14px;display:flex;flex-direction:column;gap:12px;">
+          <div class="addr-field-grid">
+            <label class="addr-label">
+              Full Name
+              <input type="text" id="addrName" required placeholder="John Doe" />
+            </label>
+            <label class="addr-label">
+              Phone
+              <input type="tel" id="addrPhone" required placeholder="98765 43210" />
+            </label>
+          </div>
+          <label class="addr-label">
+            Address
+            <input type="text" id="addrAddress" required placeholder="Street, building, landmark" />
+          </label>
+          <div class="addr-field-grid">
+            <label class="addr-label">
+              City
+              <input type="text" id="addrCity" required placeholder="Mumbai" />
+            </label>
+            <label class="addr-label">
+              Pincode
+              <input type="text" id="addrPincode" required placeholder="400001" />
+            </label>
+          </div>
+          <label class="addr-label">
+            Delivery Notes (optional)
+            <textarea id="addrNotes" rows="2" placeholder="Near landmark, gate code, etc."></textarea>
+          </label>
+          <div id="addrFormStatus" style="font-size:12px;min-height:18px;"></div>
+          <div class="btn-row">
+            <button type="submit" class="btn-small">Save Address</button>
+          </div>
+        </form>
+
+        <div id="addressList" style="margin-top:16px;display:flex;flex-direction:column;gap:10px;"></div>
+        <div id="noAddresses" style="margin-top:14px;display:none;">
+          <span class="empty-cart">No addresses saved yet.</span>
         </div>
       </section>
 
@@ -391,6 +463,130 @@
 
     refreshOrders();
     setInterval(refreshOrders, 5000);
+
+    // ── Addresses ───────────────────────────────────────
+    const ADDR_KEY = 'zivarr-demo-addresses';
+    const addressForm = document.getElementById('addressForm');
+    const addrName = document.getElementById('addrName');
+    const addrPhone = document.getElementById('addrPhone');
+    const addrAddress = document.getElementById('addrAddress');
+    const addrCity = document.getElementById('addrCity');
+    const addrPincode = document.getElementById('addrPincode');
+    const addrNotes = document.getElementById('addrNotes');
+    const addrFormStatus = document.getElementById('addrFormStatus');
+    const addressList = document.getElementById('addressList');
+    const noAddresses = document.getElementById('noAddresses');
+
+    function loadLocalAddresses(){
+      try{
+        return JSON.parse(localStorage.getItem(ADDR_KEY) || '[]');
+      }catch{ return []; }
+    }
+    function saveLocalAddresses(list){
+      localStorage.setItem(ADDR_KEY, JSON.stringify(list));
+    }
+
+    async function fetchAddresses(){
+      if(authToken){
+        try{
+          return await fetchJson('/api/addresses', {
+            headers: { Authorization: `Bearer ${authToken}` }
+          });
+        }catch{ return loadLocalAddresses(); }
+      }
+      return loadLocalAddresses();
+    }
+
+    function renderAddresses(addresses){
+      addressList.innerHTML = '';
+      if(!addresses.length){
+        noAddresses.style.display = 'block';
+        return;
+      }
+      noAddresses.style.display = 'none';
+
+      addresses.forEach(a => {
+        const card = document.createElement('div');
+        card.className = 'addr-card';
+        card.innerHTML = `
+          <div>
+            <div class="addr-card-name">${a.name}</div>
+            <div class="addr-card-detail">${a.phone} · ${a.pincode}</div>
+            <div class="addr-card-detail">${a.address}, ${a.city}</div>
+            ${a.notes ? '<div class="addr-card-detail">Notes: ' + a.notes + '</div>' : ''}
+          </div>
+          <button class="addr-card-delete" type="button" data-delete-addr="${a.id}" title="Delete address">✕</button>
+        `;
+        addressList.appendChild(card);
+      });
+
+      addressList.querySelectorAll('[data-delete-addr]').forEach(btn => {
+        btn.addEventListener('click', async () => {
+          const id = btn.dataset.deleteAddr;
+          if(authToken){
+            try{
+              await fetchJson('/api/addresses/' + id, {
+                method: 'DELETE',
+                headers: { Authorization: `Bearer ${authToken}` }
+              });
+            }catch(e){}
+          }
+          const local = loadLocalAddresses().filter(x => String(x.id) !== String(id));
+          saveLocalAddresses(local);
+          refreshAddressList();
+        });
+      });
+    }
+
+    async function refreshAddressList(){
+      const list = await fetchAddresses();
+      renderAddresses(list);
+    }
+
+    addressForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const payload = {
+        name: addrName.value.trim(),
+        phone: addrPhone.value.trim(),
+        address: addrAddress.value.trim(),
+        city: addrCity.value.trim(),
+        pincode: addrPincode.value.trim(),
+        notes: addrNotes.value.trim(),
+      };
+
+      if(authToken){
+        try{
+          const created = await fetchJson('/api/addresses', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${authToken}`
+            },
+            body: JSON.stringify(payload)
+          });
+          addrFormStatus.textContent = 'Address saved!';
+          addrFormStatus.className = 'addr-success';
+          addressForm.reset();
+          refreshAddressList();
+          return;
+        }catch(e){
+          addrFormStatus.textContent = e.message || 'Failed to save address.';
+          addrFormStatus.className = 'addr-error';
+          return;
+        }
+      }
+
+      // Guest: save to localStorage
+      const local = loadLocalAddresses();
+      local.push({ id: Date.now(), ...payload, created_at: new Date().toISOString() });
+      saveLocalAddresses(local);
+      addrFormStatus.textContent = 'Address saved locally!';
+      addrFormStatus.className = 'addr-success';
+      addressForm.reset();
+      refreshAddressList();
+    });
+
+    refreshAddressList();
 
     // Cart badge sync from localStorage
     (function(){

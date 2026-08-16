@@ -76,7 +76,7 @@
     if(addToCartBtn){
       addToCartBtn.addEventListener('click',()=>{
         if(currentProduct && typeof addToCartByName === 'function'){
-          addToCartByName(currentProduct.name, currentProduct.price, currentProduct.category || 'Jewelry', addToCartBtn);
+          addToCartByName(currentProduct.name, currentProduct.price, currentProduct.category || 'Jewelry', addToCartBtn, currentProduct.id, currentProduct.images && currentProduct.images[0] ? currentProduct.images[0].image_url : undefined);
         }
       });
     }
