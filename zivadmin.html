@@ -122,6 +122,12 @@
             <input id="pSortOrder" type="number" placeholder="Sort order"/>
           </div>
           <div class="field-row">
+            <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:12px;color:var(--rose-dark);min-width:240px;">
+              <input id="pBestseller" type="checkbox" style="width:18px;height:18px;accent-color:var(--pink-deep);"/>
+              Show on Best Sellers (homepage)
+            </label>
+          </div>
+          <div class="field-row">
             <div style="flex:1;min-width:240px;">
               <label style="display:block;font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--text-muted);margin-bottom:8px;">Description</label>
               <textarea id="pDescription" placeholder="Description"></textarea>
@@ -142,6 +148,7 @@
               <th>Category</th>
               <th style="width:120px;">Price</th>
               <th>Badge</th>
+              <th style="width:80px;">Best</th>
               <th style="width:150px;">Sort</th>
               <th style="width:160px;">Actions</th>
             </tr>
@@ -239,6 +246,7 @@
       pMaterial: document.getElementById('pMaterial'),
       pBadge: document.getElementById('pBadge'),
       pSortOrder: document.getElementById('pSortOrder'),
+      pBestseller: document.getElementById('pBestseller'),
       pDescription: document.getElementById('pDescription'),
       productImageFile: document.getElementById('productImageFile'),
       addProductImageBtn: document.getElementById('addProductImageBtn'),
@@ -300,6 +308,7 @@
       els.pMaterial.value = p.material || '';
       els.pBadge.value = p.badge || '';
       els.pSortOrder.value = p.sort_order ?? '';
+      els.pBestseller.checked = !!p.is_bestseller;
       els.pDescription.value = p.description || '';
     }
 
@@ -317,6 +326,7 @@
       els.pMaterial.value = '';
       els.pBadge.value = '';
       els.pSortOrder.value = '';
+      els.pBestseller.checked = false;
       els.pDescription.value = '';
     }
 
@@ -349,6 +359,7 @@
           <td>${escapeHtml(p.category)}</td>
           <td>₹${Number(p.price).toLocaleString('en-IN')}</td>
           <td>${escapeHtml(p.badge||'')}</td>
+          <td>${p.is_bestseller ? '⭐' : '—'}</td>
           <td>${p.sort_order ?? ''}</td>
           <td>
             <div class="cell-actions">
@@ -582,6 +593,7 @@
         description: els.pDescription.value.trim() || null,
         badge: els.pBadge.value.trim() || null,
         sort_order: els.pSortOrder.value.trim() === '' ? null : Number(els.pSortOrder.value),
+        is_bestseller: els.pBestseller.checked,
       };
 
       try{

@@ -1,12 +1,16 @@
 /* ── PRELOADER ── */
-window.addEventListener('load',()=>{
-  setTimeout(()=>{
-    const preloaderEl = document.getElementById('preloader');
-    if (preloaderEl) preloaderEl.classList.add('gone');
-    document.body.style.overflow='';
-  },2000);
-});
-document.body.style.overflow='hidden';
+(function(){
+  const preloaderEl = document.getElementById('preloader');
+  if (preloaderEl) {
+    document.body.style.overflow='hidden';
+    window.addEventListener('load',()=>{
+      setTimeout(()=>{
+        preloaderEl.classList.add('gone');
+        document.body.style.overflow='';
+      },2000);
+    });
+  }
+})();
 
 /* ── CURSOR ── */
 const cur=document.getElementById('cur');
@@ -172,46 +176,50 @@ function updateCartUI(){
   const total=subtotal + shipping;
 
   document.querySelectorAll('.cart-dot').forEach(dot=>dot.textContent=totalItems);
-  cartCountBadge.textContent=`${totalItems} item${totalItems===1?'':'s'}`;
-  subtotalAmount.textContent=formatPrice(subtotal);
-  shippingAmount.textContent=shipping===0 ? 'FREE' : formatPrice(shipping);
-  totalAmount.textContent=formatPrice(total);
-  giftWrapAmount.textContent='₹0';
+  if(cartCountBadge) cartCountBadge.textContent=`${totalItems} item${totalItems===1?'':'s'}`;
+  if(subtotalAmount) subtotalAmount.textContent=formatPrice(subtotal);
+  if(shippingAmount) shippingAmount.textContent=shipping===0 ? 'FREE' : formatPrice(shipping);
+  if(totalAmount) totalAmount.textContent=formatPrice(total);
+  if(giftWrapAmount) giftWrapAmount.textContent='₹0';
 
-  shippingNote.textContent = subtotal >= 2000 ? 'Free doorstep delivery unlocked for this order.' : 'Add items worth ₹2,000+ to unlock free doorstep delivery.';
+  if(shippingNote) shippingNote.textContent = subtotal >= 2000 ? 'Free doorstep delivery unlocked for this order.' : 'Add items worth ₹2,000+ to unlock free doorstep delivery.';
 
-  if(cart.length===0){
-    cartItems.innerHTML='<div class="empty-cart">Your cart is empty. Add a few standout pieces to begin.</div>';
-  } else {
-    cartItems.innerHTML = cart.map(item=>`
-      <article class="cart-item-row">
-        <div class="cart-item-details">
-          <div class="cart-item-name">${item.name}</div>
-          <div class="cart-item-meta">${item.category} · ${formatPrice(item.price)} each</div>
-        </div>
-        <div class="cart-item-controls">
-          <button type="button" class="qty-button" data-action="decrease" data-name="${item.name}">−</button>
-          <span class="qty-value">${item.quantity}</span>
-          <button type="button" class="qty-button" data-action="increase" data-name="${item.name}">+</button>
-        </div>
-        <div class="cart-item-total">${formatPrice(item.price*item.quantity)}</div>
-        <button type="button" class="remove-item" data-name="${item.name}">Remove</button>
-      </article>
-    `).join('');
+  if(cartItems){
+    if(cart.length===0){
+      cartItems.innerHTML='<div class="empty-cart">Your cart is empty. Add a few standout pieces to begin.</div>';
+    } else {
+      cartItems.innerHTML = cart.map(item=>`
+        <article class="cart-item-row">
+          <div class="cart-item-details">
+            <div class="cart-item-name">${item.name}</div>
+            <div class="cart-item-meta">${item.category} · ${formatPrice(item.price)} each</div>
+          </div>
+          <div class="cart-item-controls">
+            <button type="button" class="qty-button" data-action="decrease" data-name="${item.name}">−</button>
+            <span class="qty-value">${item.quantity}</span>
+            <button type="button" class="qty-button" data-action="increase" data-name="${item.name}">+</button>
+          </div>
+          <div class="cart-item-total">${formatPrice(item.price*item.quantity)}</div>
+          <button type="button" class="remove-item" data-name="${item.name}">Remove</button>
+        </article>
+      `).join('');
+    }
+
+    cartItems.querySelectorAll('.qty-button').forEach(button=>{
+      button.addEventListener('click',()=>{
+        adjustQuantity(button.dataset.name, button.dataset.action === 'increase' ? 1 : -1);
+      });
+    });
+
+    cartItems.querySelectorAll('.remove-item').forEach(button=>{
+      button.addEventListener('click',()=>removeItem(button.dataset.name));
+    });
   }
 
-  placeOrderBtn.disabled=cart.length===0;
-  placeOrderBtn.textContent = cart.length===0 ? 'Add items to checkout' : 'Place Order';
-
-  cartItems.querySelectorAll('.qty-button').forEach(button=>{
-    button.addEventListener('click',()=>{
-      adjustQuantity(button.dataset.name, button.dataset.action === 'increase' ? 1 : -1);
-    });
-  });
-
-  cartItems.querySelectorAll('.remove-item').forEach(button=>{
-    button.addEventListener('click',()=>removeItem(button.dataset.name));
-  });
+  if(placeOrderBtn){
+    placeOrderBtn.disabled=cart.length===0;
+    placeOrderBtn.textContent = cart.length===0 ? 'Add items to checkout' : 'Place Order';
+  }
 }
 
 function applyFilter(filter){
@@ -434,6 +442,16 @@ function resetCheckoutForm(){
 cart=loadCart();
 currentUser=loadUser();
 
+// Always update cart badge on pages that have a cart toggle
+if(cartToggle){
+  document.querySelectorAll('.cart-dot').forEach(dot=>dot.textContent=cart.reduce((sum,item)=>sum+item.quantity,0));
+}
+
+// If page has a cart items container, render the cart on load
+if(cartItems && !hasCheckoutUI){
+  updateCartUI();
+}
+
 if(hasCheckoutUI){
   updateCartUI();
   updateLoginStatus();
@@ -448,6 +466,27 @@ if(hasCheckoutUI){
     document.getElementById('customerLogin').scrollIntoView({behavior:'smooth'});
     document.getElementById('customerEmail').focus();
   });
+} else if(cartToggle){
+  cartToggle.addEventListener('click',()=>{
+    window.location.href='cart.html';
+  });
+}
+
+function addToCartByName(name, price, category, btn){
+  const existing=cart.find(item=>item.name===name);
+  if(existing){
+    existing.quantity += 1;
+  } else {
+    cart.push({name,price:parseInt(price,10),category,quantity:1});
+  }
+  saveCart();
+  updateCartUI();
+  if(btn){
+    const orig=btn.textContent;
+    btn.textContent='Added ✓';
+    btn.disabled=true;
+    setTimeout(()=>{btn.textContent=orig;btn.disabled=false;},1500);
+  }
 }
 
 if(hasHomepageCommerce){

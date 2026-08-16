@@ -51,13 +51,29 @@ const uploadsDir = process.env.VERCEL
   : path.join(projectRoot, 'uploads');
 try { if (!fs.existsSync(uploadsDir)) fs.mkdirSync(uploadsDir, { recursive: true }); } catch (e) {}
 
-app.use('/uploads', express.static(uploadsDir, { fallthrough: true }));
+// On Vercel /tmp is ephemeral — always serve from DB first.
+// Locally, try disk first then DB fallback.
+const isVercel = !!process.env.VERCEL;
 
-// Serve uploaded images from the database when the file is not on disk (Vercel /tmp is ephemeral)
+if (!isVercel) {
+  // Local: serve from disk first, DB fallback via route below
+  app.use('/uploads', express.static(uploadsDir, { fallthrough: true }));
+}
+
+// Serve uploaded images from the database — this is the primary persistent storage.
 app.get('/uploads/:filename', async (req, res) => {
   const filename = path.basename(req.params.filename || '');
   if (!filename) return res.sendFile(path.join(projectRoot, 'images', 'IMG_6489.JPG'));
 
+  // 1) Try disk first (works locally, may work on Vercel if file was bundled)
+  if (!isVercel) {
+    const diskPath = path.join(uploadsDir, filename);
+    if (fs.existsSync(diskPath)) {
+      return res.sendFile(diskPath);
+    }
+  }
+
+  // 2) Try database ( BYTEA image_data ) — this survives deploys and cold starts
   try {
     const { rows } = await pool.query(
       'SELECT image_data, mime_type FROM product_images WHERE image_url = $1 AND image_data IS NOT NULL LIMIT 1',
@@ -70,9 +86,10 @@ app.get('/uploads/:filename', async (req, res) => {
       return res.end(data);
     }
   } catch (e) {
-    // fall through to placeholder
+    // DB query failed — fall through to placeholder
   }
 
+  // 3) Fallback: placeholder image
   res.sendFile(path.join(projectRoot, 'images', 'IMG_6489.JPG'));
 });
 
@@ -140,14 +157,7 @@ const FALLBACK_IMAGE = '/images/IMG_6489.JPG';
 
 function resolveImageUrl(imageUrl) {
   if (!imageUrl) return FALLBACK_IMAGE;
-  if (typeof imageUrl === 'string' && imageUrl.startsWith('/uploads/')) {
-    const filename = path.basename(imageUrl);
-    const filePath = path.join(uploadsDir, filename);
-    if (fs.existsSync(filePath)) return imageUrl;
-    // File not on disk (e.g. Vercel /tmp wiped). Keep the URL — the
-    // /uploads/:filename route serves it from the DB or the placeholder.
-    return imageUrl;
-  }
+  // Always return the URL — the /uploads/:filename route serves from DB or disk.
   return imageUrl;
 }
 
@@ -182,6 +192,7 @@ async function ensureSchema() {
       description TEXT,
       badge VARCHAR(100),
       sort_order INTEGER DEFAULT 0,
+      is_bestseller BOOLEAN DEFAULT false,
       created_at TIMESTAMPTZ DEFAULT NOW()
     );
 
@@ -246,6 +257,7 @@ async function ensureSchema() {
   try {
     await pool.query(`ALTER TABLE product_images ADD COLUMN IF NOT EXISTS image_data BYTEA`);
     await pool.query(`ALTER TABLE product_images ADD COLUMN IF NOT EXISTS mime_type VARCHAR(50)`);
+    await pool.query(`ALTER TABLE products ADD COLUMN IF NOT EXISTS is_bestseller BOOLEAN DEFAULT false`);
   } catch (e) {
     // ignore if the table doesn't exist yet
   }
@@ -313,7 +325,7 @@ app.get('/api/products', async (req, res) => {
   try {
     const { rows } = await requestPool.query(
       `SELECT 
-         p.id, p.name, p.category, p.price, p.material, p.description, p.badge, p.sort_order,
+         p.id, p.name, p.category, p.price, p.material, p.description, p.badge, p.sort_order, p.is_bestseller,
          COALESCE(
            json_agg(
              json_build_object(
@@ -341,6 +353,7 @@ app.get('/api/products', async (req, res) => {
         description: r.description,
         badge: r.badge,
         sort_order: r.sort_order,
+        is_bestseller: r.is_bestseller,
         images: (Array.isArray(r.images) ? r.images : JSON.parse(r.images || '[]')).map((img) => ({
           ...img,
           image_url: resolveImageUrl(img.image_url),
@@ -609,7 +622,7 @@ function adminAuth(req, res, next) {
 app.get('/api/admin/products', adminAuth, async (req, res) => {
   try {
     const { rows } = await pool.query(
-      `SELECT id, name, category, price, material, description, badge, sort_order, created_at
+      `SELECT id, name, category, price, material, description, badge, sort_order, is_bestseller, created_at
        FROM products
        ORDER BY sort_order, name`
     );
@@ -621,7 +634,7 @@ app.get('/api/admin/products', adminAuth, async (req, res) => {
 
 app.post('/api/admin/products', adminAuth, async (req, res) => {
   const body = req.body || {};
-  const { id, name, category, price, material, description, badge, sort_order } = body;
+  const { id, name, category, price, material, description, badge, sort_order, is_bestseller } = body;
 
   if (!name || !category || price === undefined || price === null || Number(price) <= 0) {
     return res.status(400).json({ error: 'name, category, and valid price are required.' });
@@ -629,6 +642,7 @@ app.post('/api/admin/products', adminAuth, async (req, res) => {
 
   const pid = id !== undefined && id !== null && String(id).trim() !== '' ? Number(id) : null;
   const sortOrderValue = sort_order !== undefined && sort_order !== null && String(sort_order).trim() !== '' ? Number(sort_order) : 0;
+  const bestsellerValue = is_bestseller === true || is_bestseller === 'true' || is_bestseller === 1;
 
   try {
     if (pid) {
@@ -637,8 +651,8 @@ app.post('/api/admin/products', adminAuth, async (req, res) => {
 
       await pool.query(
         `UPDATE products
-         SET name=$1, category=$2, price=$3, material=$4, description=$5, badge=$6, sort_order=$7
-         WHERE id=$8`,
+         SET name=$1, category=$2, price=$3, material=$4, description=$5, badge=$6, sort_order=$7, is_bestseller=$8
+         WHERE id=$9`,
         [
           String(name).trim(),
           String(category).trim(),
@@ -647,13 +661,14 @@ app.post('/api/admin/products', adminAuth, async (req, res) => {
           description ?? null,
           badge ?? null,
           sortOrderValue,
+          bestsellerValue,
           pid,
         ]
       );
     } else {
       await pool.query(
-        `INSERT INTO products (name, category, price, material, description, badge, sort_order)
-         VALUES ($1,$2,$3,$4,$5,$6,$7)`,
+        `INSERT INTO products (name, category, price, material, description, badge, sort_order, is_bestseller)
+         VALUES ($1,$2,$3,$4,$5,$6,$7,$8)`,
         [
           String(name).trim(),
           String(category).trim(),
@@ -662,13 +677,14 @@ app.post('/api/admin/products', adminAuth, async (req, res) => {
           description ?? null,
           badge ?? null,
           sortOrderValue,
+          bestsellerValue,
         ]
       );
     }
 
     const targetId = pid || null;
     const rows = await pool.query(
-      `SELECT id, name, category, price, material, description, badge, sort_order, created_at
+      `SELECT id, name, category, price, material, description, badge, sort_order, is_bestseller, created_at
        FROM products
        ORDER BY sort_order, name`
     );
@@ -732,10 +748,18 @@ app.post('/api/admin/products/:id/images', adminAuth, upload.single('image'), as
     const existing = await pool.query('SELECT id FROM products WHERE id = $1', [id]);
     if (!existing.rows.length) return res.status(404).json({ error: 'Product not found.' });
 
-    // Save URL (server is serving __dirname statically, so uploads are publicly accessible)
     const image_url = `/uploads/${req.file.filename}`;
     const mimeType = req.file.mimetype || 'image/png';
-    const imageData = fs.readFileSync(req.file.path);
+
+    // Always read the file and save to DB — this is the primary persistent storage.
+    // Disk files are ephemeral on Vercel (/tmp/uploads) and lost on cold starts.
+    let imageData = null;
+    try {
+      imageData = fs.readFileSync(req.file.path);
+    } catch (readErr) {
+      // If we can't read the file from disk, still try to save the URL to DB
+      // (the image won't be serveable, but the record exists)
+    }
 
     await pool.query(
       `INSERT INTO product_images (product_id, image_url, image_data, mime_type, alt_text, sort_order)
@@ -743,7 +767,7 @@ app.post('/api/admin/products/:id/images', adminAuth, upload.single('image'), as
       [id, image_url, imageData, mimeType, alt_text, Number.isFinite(sort_order) ? sort_order : 0]
     );
 
-    res.json({ ok: true });
+    res.json({ ok: true, image_url });
   } catch (e) {
     res.status(500).json({ error: 'Failed to save product image.' });
   }

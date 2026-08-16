@@ -13,8 +13,7 @@
           "*.ico",
           "*.svg",
           "images/**/*",
-          "assets/**/*",
-          "uploads/**/*"
+          "assets/**/*"
         ]
       }
     }

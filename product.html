@@ -57,29 +57,35 @@
   </style>
 </head>
 <body>
-  <div id="preloader">
-    <div class="pre-logo">
-      <img class="pre-logo-img" src="images/IMG_6489.JPG" alt="ZIVARR" />
-    </div>
-    <div class="pre-line"></div>
-    <div class="pre-tag">Thoughtfully Made · Beautifully Worn</div>
-  </div>
+
   <div id="cur"></div><div id="cur-r"></div>
   <nav id="main-nav">
     <a class="nav-logo" href="index.html" aria-label="ZIVARR">
       <img class="nav-logo-img" src="images/IMG_6489.JPG" alt="ZIVARR" />
     </a>
     <ul class="nav-links"><li><a href="collections.html">Collections</a></li><li><a href="about.html">About</a></li><li><a href="contact.html">Contact</a></li><li><a href="dashboard.html">Account</a></li></ul>
-    <div class="nav-actions"><a href="login.html" class="btn-ghost">Login</a></div>
+    <div class="nav-actions"><a href="login.html" class="btn-ghost">Login</a><button id="cartToggle" aria-label="Cart"><svg viewBox="0 0 24 24"><path d="M3 4h2l2 10h10l2-8H7"/><circle cx="10" cy="19" r="1.5"/><circle cx="17" cy="19" r="1.5"/></svg><span class="cart-dot">0</span></button></div>
   </nav>
-  <main class="detail-shell"><section class="detail-grid"><article class="glass-panel"><p class="eyebrow">Product Detail</p><div id="productName" class="title"></div><p id="productMaterial" class="muted"></p><div id="productPrice" class="price"></div><p id="productDescription" class="muted"></p><div class="spec-grid"><div class="pill"><strong>Category</strong><span id="productCategory"></span></div><div class="pill"><strong>Badge</strong><span id="productBadge"></span></div><div class="pill"><strong>Care</strong><span>Store in a soft pouch and avoid moisture.</span></div><div class="pill"><strong>Warranty</strong><span>6-Months craftsmanship coverage on all pieces.</span></div></div><div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:16px;"><a class="btn-primary" href="login.html">Login to Buy</a></div></article><article class="glass-panel"><div class="hero-preview"><img id="productHeroImage" class="hero-img" src="" alt="Product image" loading="lazy" onerror="this.onerror=null;this.src='/images/IMG_6489.JPG';"/></div></article></section><section class="detail-grid" style="margin-top:24px;"><article class="glass-panel"><details open><summary>Material & Finish</summary><p>Crafted in premium sterling silver and gold vermeil, with refined plating and artisan polish. Every piece is designed to glow softly in natural light and feel luxurious every day.</p></details><details><summary>Sizing & Fit</summary><p>Standard sizes are listed for each piece. We recommend visiting a local jeweler for custom sizing and bridal adjustments, especially for rings and bangles.</p></details></article><article class="glass-panel"><p class="eyebrow">Why it feels premium</p><p class="muted">The ZIVARR detail page is built to support the full luxury journey: 3D gallery hooks, product specs, add-to-cart, and buy-now CTAs. It is ready to evolve into a React-based product page with dynamic image swatches and variant selection.</p></article></section></main>
+  <main class="detail-shell"><section class="detail-grid"><article class="glass-panel"><p class="eyebrow">Product Detail</p><div id="productName" class="title"></div><p id="productMaterial" class="muted"></p><div id="productPrice" class="price"></div><p id="productDescription" class="muted"></p><div class="spec-grid"><div class="pill"><strong>Category</strong><span id="productCategory"></span></div><div class="pill"><strong>Badge</strong><span id="productBadge"></span></div><div class="pill"><strong>Care</strong><span>Store in a soft pouch and avoid moisture.</span></div><div class="pill"><strong>Warranty</strong><span>6-Months craftsmanship coverage on all pieces.</span></div></div><div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:16px;"><button class="btn-primary" id="addToCartBtn">Add to Cart</button><a class="btn-ghost" href="login.html">Login to Buy</a></div></article><article class="glass-panel"><div class="hero-preview"><img id="productHeroImage" class="hero-img" src="" alt="Product image" loading="lazy" onerror="this.onerror=null;this.src='/images/IMG_6489.JPG';"/></div></article></section><section class="detail-grid" style="margin-top:24px;"><article class="glass-panel"><details open><summary>Material & Finish</summary><p>Crafted in premium sterling silver and gold vermeil, with refined plating and artisan polish. Every piece is designed to glow softly in natural light and feel luxurious every day.</p></details><details><summary>Sizing & Fit</summary><p>Standard sizes are listed for each piece. We recommend visiting a local jeweler for custom sizing and bridal adjustments, especially for rings and bangles.</p></details></article><article class="glass-panel"><p class="eyebrow">Why it feels premium</p><p class="muted">The ZIVARR detail page is built to support the full luxury journey: 3D gallery hooks, product specs, add-to-cart, and buy-now CTAs. It is ready to evolve into a React-based product page with dynamic image swatches and variant selection.</p></article></section></main>
   <script>
     const params = new URLSearchParams(window.location.search);
     const id = Number(params.get('id') || 1);
+    const addToCartBtn = document.getElementById('addToCartBtn');
+    let currentProduct = null;
+
+    if(addToCartBtn){
+      addToCartBtn.addEventListener('click',()=>{
+        if(currentProduct && typeof addToCartByName === 'function'){
+          addToCartByName(currentProduct.name, currentProduct.price, currentProduct.category || 'Jewelry', addToCartBtn);
+        }
+      });
+    }
+
     fetch('/api/products')
       .then(r => r.json())
       .then((data) => {
         const product = data.find((item) => item.id === id) || data[0];
+        currentProduct = product;
 
         document.getElementById('productName').textContent = product.name;
         document.getElementById('productMaterial').textContent =
@@ -91,7 +97,6 @@
         document.getElementById('productCategory').textContent = product.category || 'Jewelry';
         document.getElementById('productBadge').textContent = product.badge || 'Featured';
 
-        // These elements are not present in the current markup; guard to avoid JS breaking.
         const previewTitleEl = document.getElementById('previewTitle');
         if (previewTitleEl) previewTitleEl.textContent = product.name;
         const previewTextEl = document.getElementById('previewText');
@@ -101,12 +106,10 @@
         const heroImg = document.getElementById('productHeroImage');
         const images = Array.isArray(product.images) ? product.images : [];
 
-        // Prefer first image_url; fallback to other likely keys.
         const first = images[0] || {};
         const imageUrl = first.image_url || first.url || first.src || '';
         const altText = first.alt_text || product.name;
 
-        // If DB returns nothing, show a safe default.
         const fallbackUrl = '/images/IMG_6489.JPG';
 
         if (imageUrl) {
@@ -120,6 +123,7 @@
         }
       })
       .catch(() => {
+        currentProduct = {name:'Seraphine Choker',price:3499,category:'Necklaces'};
         document.getElementById('productName').textContent = 'Seraphine Choker';
         document.getElementById('productMaterial').textContent = 'Sterling Silver · Rhodium';
         document.getElementById('productPrice').textContent = '₹3,499';

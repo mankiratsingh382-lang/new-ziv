@@ -82,6 +82,7 @@
   <div class="nav-actions">
     
     <button class="nav-login" id="registerToggle" type="button" onclick="window.location.href='registeruser.html'">Register</button>
+    <button id="cartToggle" aria-label="Cart"><svg viewBox="0 0 24 24"><path d="M3 4h2l2 10h10l2-8H7"/><circle cx="10" cy="19" r="1.5"/><circle cx="17" cy="19" r="1.5"/></svg><span class="cart-dot">0</span></button>
 
     
   </div>
@@ -291,6 +292,14 @@
         </span>  
       </a>
     </div>
+  </div>
+
+  <!-- BEST SELLERS -->
+  <div class="bestseller-section reveal" id="bestsellerSection" style="display:none;">
+    <div class="section-tag">Best Sellers</div>
+    <h2 class="section-title reveal reveal-delay-1">Customer <em>Favourites</em></h2>
+    <p class="section-sub reveal reveal-delay-2" style="max-width:480px;margin:0 auto 24px;">The pieces our customers can't stop wearing — tried, loved, and recommended.</p>
+    <div class="bestseller-grid" id="bestsellerGrid"></div>
   </div>
 
   <div class="view-all-wrap reveal">
@@ -561,6 +570,59 @@
 </button>
 
 <script src="script.js" defer></script>
+<script>
+document.addEventListener('DOMContentLoaded', function(){
+  var grid = document.getElementById('bestsellerGrid');
+  var section = document.getElementById('bestsellerSection');
+  if(!grid || !section) return;
+
+  fetch('/api/products')
+    .then(function(r){ return r.json(); })
+    .then(function(products){
+      var bestsellers = products.filter(function(p){ return p.is_bestseller === true; });
+      if(!bestsellers.length){
+        section.style.display = 'none';
+        return;
+      }
+      section.style.display = '';
+      grid.innerHTML = bestsellers.map(function(product){
+        var img = (product.images && product.images.length) ? product.images[0] : null;
+        var imgUrl = img && img.image_url ? img.image_url : 'images/IMG_6489.JPG';
+        var alt = (img && img.alt_text) ? img.alt_text : product.name;
+        return '<article class="bestseller-card" data-name="'+product.name+'" data-price="'+product.price+'" data-category="'+(product.category || 'Jewelry')+'">' +
+          '<div class="bestseller-img-wrap">' +
+            '<img src="'+imgUrl+'" alt="'+alt+'" loading="lazy" onerror="this.onerror=null;this.src=\'images/IMG_6489.JPG\';" />' +
+            '<div class="bestseller-badge">★ Best Seller</div>' +
+          '</div>' +
+          '<div class="bestseller-info">' +
+            '<div class="bestseller-cat">'+product.category+'</div>' +
+            '<h3 class="bestseller-name">'+product.name+'</h3>' +
+            '<p class="bestseller-material">'+(product.material || '')+'</p>' +
+            '<div class="bestseller-price">₹'+Number(product.price).toLocaleString('en-IN')+'</div>' +
+            '<div class="bestseller-actions">' +
+              '<button class="btn-primary bestseller-add">Add to Bag</button>' +
+              '<a class="btn-ghost" href="product.html?id='+product.id+'">Details</a>' +
+            '</div>' +
+          '</div>' +
+        '</article>';
+      }).join('');
+
+      grid.querySelectorAll('.bestseller-card').forEach(function(card){
+        var addBtn = card.querySelector('.bestseller-add');
+        if(addBtn){
+          addBtn.addEventListener('click', function(){
+            if(typeof addToCartByName === 'function'){
+              addToCartByName(card.dataset.name, card.dataset.price, card.dataset.category, addBtn);
+            }
+          });
+        }
+      });
+    })
+    .catch(function(){
+      section.style.display = 'none';
+    });
+});
+</script>
 
 </body>
 </html>

@@ -479,6 +479,58 @@ nav.scrolled{box-shadow:0 6px 40px rgba(181,80,92,.07);}
 .prod-stars{display:flex;gap:2px;margin-top:6px;}
 .prod-stars span{color:var(--pink-mid);font-size:11px;}
 
+/* ─── BEST SELLERS ──────────────────────────────────── */
+.bestseller-section{padding:0 0 40px;text-align:center;}
+.bestseller-section .section-tag{margin-bottom:8px;}
+.bestseller-section .section-title{margin-bottom:8px;}
+.bestseller-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(260px,1fr));
+  gap:24px;
+  max-width:1200px;
+  margin:0 auto;
+}
+.bestseller-card{
+  background:linear-gradient(145deg,rgba(255,255,255,.92),rgba(248,235,238,.85));
+  border:1px solid rgba(212,114,126,.18);
+  border-radius:24px;
+  overflow:hidden;
+  transition:transform .35s,box-shadow .35s;
+}
+.bestseller-card:hover{transform:translateY(-6px);box-shadow:0 20px 44px rgba(181,80,92,.14);}
+.bestseller-img-wrap{
+  position:relative;
+  width:100%;height:280px;
+  overflow:hidden;
+  background:linear-gradient(145deg,#FDF0F2,#FAE8EB);
+}
+.bestseller-img-wrap img{width:100%;height:100%;object-fit:cover;}
+.bestseller-badge{
+  position:absolute;top:14px;left:14px;
+  padding:6px 12px;border-radius:999px;
+  background:var(--rose-dark);color:#fff;
+  font-size:9px;letter-spacing:2px;text-transform:uppercase;
+}
+.bestseller-info{padding:18px 20px 20px;text-align:left;}
+.bestseller-cat{font-size:9px;letter-spacing:3px;text-transform:uppercase;color:var(--pink-mid);margin-bottom:6px;}
+.bestseller-name{font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:400;color:var(--rose-dark);margin-bottom:4px;}
+.bestseller-material{font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:var(--text-muted);margin-bottom:8px;}
+.bestseller-price{font-family:'Cormorant Garamond',serif;font-size:22px;color:var(--rose-dark);margin-bottom:14px;}
+.bestseller-actions{display:flex;gap:10px;}
+.bestseller-actions .btn-primary{flex:1;justify-content:center;padding:10px 16px;font-size:11px;}
+.bestseller-actions .btn-ghost{flex:0;justify-content:center;padding:10px 16px;font-size:11px;}
+
+@media(max-width:680px){
+  .bestseller-grid{grid-template-columns:1fr 1fr;gap:16px;}
+  .bestseller-img-wrap{height:200px;}
+  .bestseller-info{padding:14px 16px 16px;}
+  .bestseller-name{font-size:18px;}
+  .bestseller-actions{flex-direction:column;}
+}
+@media(max-width:480px){
+  .bestseller-grid{grid-template-columns:1fr;gap:18px;}
+}
+
 /* ─── ABOUT / STORY ──────────────────────────────────── */
 .story{
   display:grid;grid-template-columns:1fr 1fr;
