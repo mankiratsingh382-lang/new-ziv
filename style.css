@@ -480,7 +480,12 @@ nav.scrolled{box-shadow:0 6px 40px rgba(181,80,92,.07);}
 .prod-stars span{color:var(--pink-mid);font-size:11px;}
 
 /* ─── BEST SELLERS ──────────────────────────────────── */
-.bestseller-section{padding:0 0 40px;text-align:center;}
+.bestseller-section{
+  padding:80px 80px;
+  text-align:center;
+  background:var(--white);
+  position:relative;
+}
 .bestseller-section .section-tag{margin-bottom:8px;}
 .bestseller-section .section-title{margin-bottom:8px;}
 .bestseller-grid{
@@ -1038,6 +1043,7 @@ footer{
   .collections-grid{grid-template-columns:1fr 1fr;}
   .coll-card.tall{grid-row:span 1;}
   .featured{padding:80px 28px;}
+  .bestseller-section{padding:60px 28px;}
   .products-grid{grid-template-columns:1fr 1fr;}
   .story{grid-template-columns:1fr;}
   .story-visual{min-height:300px;}

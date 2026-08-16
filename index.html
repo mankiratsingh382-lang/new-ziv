@@ -294,20 +294,20 @@
     </div>
   </div>
 
-  <!-- BEST SELLERS -->
-  <div class="bestseller-section reveal" id="bestsellerSection" style="display:none;">
-    <div class="section-tag">Best Sellers</div>
-    <h2 class="section-title reveal reveal-delay-1">Customer <em>Favourites</em></h2>
-    <p class="section-sub reveal reveal-delay-2" style="max-width:480px;margin:0 auto 24px;">The pieces our customers can't stop wearing — tried, loved, and recommended.</p>
-    <div class="bestseller-grid" id="bestsellerGrid"></div>
-  </div>
-
   <div class="view-all-wrap reveal">
     <a href="collections.html" class="btn-primary view-all-btn">
       View All Products
       <svg viewBox="0 0 24 24" style="width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:1.5;margin-left:12px;"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
     </a>
   </div>
+</section>
+
+<!-- BEST SELLERS -->
+<section class="bestseller-section" id="bestsellerSection">
+  <div class="section-tag reveal">Best Sellers</div>
+  <h2 class="section-title reveal reveal-delay-1">Customer <em>Favourites</em></h2>
+  <p class="section-sub reveal reveal-delay-2" style="max-width:480px;margin:0 auto 24px;">The pieces our customers can't stop wearing — tried, loved, and recommended.</p>
+  <div class="bestseller-grid" id="bestsellerGrid"></div>
 </section>
 
 
@@ -576,12 +576,13 @@ document.addEventListener('DOMContentLoaded', function(){
   var section = document.getElementById('bestsellerSection');
   if(!grid || !section) return;
 
+  section.style.display = 'none';
+
   fetch('/api/products')
     .then(function(r){ return r.json(); })
     .then(function(products){
       var bestsellers = products.filter(function(p){ return p.is_bestseller === true; });
       if(!bestsellers.length){
-        section.style.display = 'none';
         return;
       }
       section.style.display = '';
