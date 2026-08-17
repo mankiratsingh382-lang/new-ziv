@@ -28,11 +28,11 @@ try {
 app.use((req, res, next) => {
   res.setHeader(
     'Content-Security-Policy',
-    "default-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; object-src 'none'; img-src 'self' data: blob: https:; media-src 'self' https:; manifest-src 'self' https:; font-src 'self' https://fonts.gstatic.com data:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; script-src 'self' 'unsafe-inline' https://checkout.razorpay.com https://cdn.razorpay.com; connect-src 'self' https: https://checkout.razorpay.com https://cdn.razorpay.com; frame-src https://*.razorpay.com https://checkout.razorpay.com; upgrade-insecure-requests;"
+    "default-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; object-src 'none'; img-src 'self' data: blob: https: https://*.stripe.com https://*.stripe.io; media-src 'self' https:; manifest-src 'self' https:; font-src 'self' https://fonts.gstatic.com data:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://*.stripe.com; script-src 'self' 'unsafe-inline' https://checkout.razorpay.com https://cdn.razorpay.com https://*.stripe.com; connect-src 'self' https: https://checkout.razorpay.com https://cdn.razorpay.com https://*.stripe.com; frame-src https://*.razorpay.com https://checkout.razorpay.com https://*.stripe.com https://*.stripe.io; upgrade-insecure-requests;"
   );
   res.setHeader('X-Content-Type-Options', 'nosniff');
   res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
-  res.setHeader('Permissions-Policy', 'geolocation=(), microphone=(), camera=(), accelerometer=(), gyroscope=(), magnetometer=()');
+  res.setHeader('Permissions-Policy', 'geolocation=(), microphone=(), camera=()');
   next();
 });
 
