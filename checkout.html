@@ -164,7 +164,8 @@
     let isNewAddress = false;
     const COUPONS = {
       'zivarr10': { code: 'Zivarr10', type: 'percent', value: 10 },
-      'ziv1':     { code: 'ziv1',     type: 'flat',    value: 1 }
+      'ziv1':     { code: 'ziv1',     type: 'flat',    value: 1 },
+      'freeship': { code: 'freeship', type: 'shipping', value: 0 }
     };
     let appliedCoupon = null;
 
@@ -284,13 +285,15 @@
     function getTotals(){
       const itemsTotal = cart.reduce((s, item) => s + (item.price || 0) * (item.quantity || 1), 0);
       const count = cart.reduce((s, item) => s + (item.quantity || 1), 0);
-      const shipping = count > 0 ? 149 : 0;
+      let shipping = count > 0 ? 149 : 0;
       let discountAmount = 0;
       if(appliedCoupon){
         if(appliedCoupon.type === 'percent'){
           discountAmount = Math.round(itemsTotal * (appliedCoupon.value / 100));
         } else if(appliedCoupon.type === 'flat'){
           discountAmount = Math.max(0, itemsTotal - appliedCoupon.value);
+        } else if(appliedCoupon.type === 'shipping'){
+          shipping = 0;
         }
       }
       const grand = itemsTotal - discountAmount + shipping;
@@ -304,7 +307,7 @@
         <div class="co-summary-row"><span>Subtotal (${cart.length} item${cart.length === 1 ? '' : 's'})</span><span>${formatPrice(itemsTotal)}</span></div>
       `;
       if(discountAmount > 0){
-        const label = appliedCoupon.type === 'percent' ? appliedCoupon.value + '%' : 'Flat';
+        const label = appliedCoupon.type === 'percent' ? appliedCoupon.value + '%' : appliedCoupon.type === 'shipping' ? 'Free Shipping' : 'Flat';
         html += `<div class="co-summary-row" style="color:#3a7d44;"><span>Discount (${label})</span><span>-${formatPrice(discountAmount)}</span></div>`;
       }
       html += `
@@ -509,7 +512,7 @@
         if(appliedCoupon){
           applyCouponBtn.style.display = 'none';
           clearCouponBtn.style.display = 'inline-flex';
-          const desc = appliedCoupon.type === 'percent' ? appliedCoupon.value + '% off' : 'Total set to ₹' + appliedCoupon.value;
+          const desc = appliedCoupon.type === 'percent' ? appliedCoupon.value + '% off' : appliedCoupon.type === 'shipping' ? 'Free shipping' : 'Total set to ₹' + appliedCoupon.value;
           couponStatus.textContent = 'Applied ' + appliedCoupon.code + ' · ' + desc;
           couponStatus.style.color = '#3a7d44';
           couponHint.textContent = appliedCoupon.code + ' active';
