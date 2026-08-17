@@ -96,10 +96,10 @@
 
         <div class="field-row" style="margin:10px 0 2px; align-items:flex-start;">
           <div style="flex:1;min-width:240px;">
-            <label style="display:block;font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--text-muted);margin-bottom:8px;">Product photos</label>
+            <label style="display:block;font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--text-muted);margin-bottom:8px;">Product image URL</label>
             <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;">
-              <input id="productImageFile" type="file" accept="image/*" style="flex:1;min-width:240px;"/>
-              <button class="btn-admin" type="button" id="addProductImageBtn">Upload photo</button>
+              <input id="productImageUrl" type="url" placeholder="Paste image URL" style="flex:1;min-width:240px;"/>
+              <button class="btn-admin" type="button" id="addProductImageBtn">Add image</button>
             </div>
             <div style="margin-top:10px;" id="productImagesList"></div>
           </div>
@@ -245,7 +245,7 @@
       pSortOrder: document.getElementById('pSortOrder'),
       pBestseller: document.getElementById('pBestseller'),
       pDescription: document.getElementById('pDescription'),
-      productImageFile: document.getElementById('productImageFile'),
+      productImageUrl: document.getElementById('productImageUrl'),
       addProductImageBtn: document.getElementById('addProductImageBtn'),
       productImagesList: document.getElementById('productImagesList'),
     };
@@ -547,28 +547,25 @@
       setAddNewMode();
     });
 
-    // Upload product image (creates images for existing product only)
+    // Add product image by URL
     els.addProductImageBtn.addEventListener('click', async ()=>{
       if(!getToken()){ showToast('Enter ADMIN token first.','err'); return; }
       const pid = currentSelectedProductId();
       if(Number.isNaN(pid) || !pid){ showToast('Select a product first.','err'); return; }
-      const file = els.productImageFile.files && els.productImageFile.files[0];
-      if(!file){ showToast('Choose an image file first.','err'); return; }
+      const url = (els.productImageUrl.value || '').trim();
+      if(!url){ showToast('Enter an image URL.','err'); return; }
 
-      const formData = new FormData();
-      formData.append('image', file);
       try{
-        await fetch(`/api/admin/products/${pid}/images`, {
+        await apiJson(`/api/admin/products/${pid}/images-url`, {
           method: 'POST',
-          headers: authHeaders(),
-          body: formData,
-        }).then(r=>r.json().then(d=>{ if(!r.ok) throw new Error(d.error || 'Failed to upload'); }));
-
-        showToast('Photo uploaded.');
+          headers: { ...authHeaders(), 'Content-Type': 'application/json' },
+          body: JSON.stringify({ image_url: url })
+        });
+        showToast('Image added.');
         loadProductImages(pid);
-        els.productImageFile.value='';
+        els.productImageUrl.value='';
       }catch(err){
-        showToast(err.message || 'Upload failed','err');
+        showToast(err.message || 'Failed to add image','err');
       }
     });
 

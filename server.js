@@ -821,6 +821,34 @@ app.post('/api/admin/products/:id/images', adminAuth, upload.single('image'), as
   }
 });
 
+app.post('/api/admin/products/:id/images-url', adminAuth, async (req, res) => {
+  const id = Number(req.params.id);
+  if (!id) return res.status(400).json({ error: 'Invalid product id.' });
+
+  const { image_url, alt_text, sort_order } = req.body || {};
+  if (!image_url || typeof image_url !== 'string' || !image_url.trim()) {
+    return res.status(400).json({ error: 'image_url is required.' });
+  }
+
+  try {
+    const existing = await pool.query('SELECT id FROM products WHERE id = $1', [id]);
+    if (!existing.rows.length) return res.status(404).json({ error: 'Product not found.' });
+
+    const trimmedUrl = image_url.trim();
+    const sortOrder = Number.isFinite(Number(sort_order)) ? Number(sort_order) : 0;
+
+    await pool.query(
+      `INSERT INTO product_images (product_id, image_url, alt_text, sort_order)
+       VALUES ($1, $2, $3, $4)`,
+      [id, trimmedUrl, (alt_text || '').trim() || null, sortOrder]
+    );
+
+    res.json({ ok: true, image_url: trimmedUrl });
+  } catch (e) {
+    res.status(500).json({ error: 'Failed to add image URL.' });
+  }
+});
+
 app.delete('/api/admin/product-images/:imageId', adminAuth, async (req, res) => {
   const imageId = Number(req.params.imageId);
   if (!imageId) return res.status(400).json({ error: 'Invalid image id.' });
