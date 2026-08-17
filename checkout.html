@@ -162,7 +162,10 @@
     let savedAddresses = [];
     let selectedAddress = null;
     let isNewAddress = false;
-    const COUPON_CODE = 'Zivarr10';
+    const COUPONS = {
+      'zivarr10': { code: 'Zivarr10', type: 'percent', value: 10 },
+      'ziv1':     { code: 'ziv1',     type: 'flat',    value: 1 }
+    };
     let appliedCoupon = null;
 
     function formatPrice(v){ return '₹' + Number(v).toLocaleString('en-IN'); }
@@ -282,10 +285,16 @@
       const itemsTotal = cart.reduce((s, item) => s + (item.price || 0) * (item.quantity || 1), 0);
       const count = cart.reduce((s, item) => s + (item.quantity || 1), 0);
       const shipping = count > 0 ? 149 : 0;
-      const discountPercent = appliedCoupon ? appliedCoupon.percent : 0;
-      const discountAmount = Math.round(itemsTotal * (discountPercent / 100));
+      let discountAmount = 0;
+      if(appliedCoupon){
+        if(appliedCoupon.type === 'percent'){
+          discountAmount = Math.round(itemsTotal * (appliedCoupon.value / 100));
+        } else if(appliedCoupon.type === 'flat'){
+          discountAmount = Math.max(0, itemsTotal - appliedCoupon.value);
+        }
+      }
       const grand = itemsTotal - discountAmount + shipping;
-      return { itemsTotal, shipping, discountPercent, discountAmount, grand, count };
+      return { itemsTotal, shipping, discountAmount, grand, count };
     }
 
     function renderSummary(){
@@ -295,7 +304,8 @@
         <div class="co-summary-row"><span>Subtotal (${cart.length} item${cart.length === 1 ? '' : 's'})</span><span>${formatPrice(itemsTotal)}</span></div>
       `;
       if(discountAmount > 0){
-        html += `<div class="co-summary-row" style="color:#3a7d44;"><span>Discount (${appliedCoupon.percent}%)</span><span>-${formatPrice(discountAmount)}</span></div>`;
+        const label = appliedCoupon.type === 'percent' ? appliedCoupon.value + '%' : 'Flat';
+        html += `<div class="co-summary-row" style="color:#3a7d44;"><span>Discount (${label})</span><span>-${formatPrice(discountAmount)}</span></div>`;
       }
       html += `
         <div class="co-summary-row"><span>Shipping</span><span>${formatPrice(shipping)}</span></div>
@@ -499,7 +509,8 @@
         if(appliedCoupon){
           applyCouponBtn.style.display = 'none';
           clearCouponBtn.style.display = 'inline-flex';
-          couponStatus.textContent = 'Applied ' + appliedCoupon.code + ' · ' + appliedCoupon.percent + '% off';
+          const desc = appliedCoupon.type === 'percent' ? appliedCoupon.value + '% off' : 'Total set to ₹' + appliedCoupon.value;
+          couponStatus.textContent = 'Applied ' + appliedCoupon.code + ' · ' + desc;
           couponStatus.style.color = '#3a7d44';
           couponHint.textContent = appliedCoupon.code + ' active';
         } else {
@@ -514,9 +525,10 @@
       applyCouponBtn.addEventListener('click', () => {
         const code = (couponInput.value || '').trim();
         if(!code){ couponStatus.textContent = 'Enter a coupon code.'; couponStatus.style.color = 'var(--rose-mid)'; return; }
-        if(code.toLowerCase() === COUPON_CODE.toLowerCase()){
-          appliedCoupon = { code: COUPON_CODE, percent: 10 };
-          couponInput.value = COUPON_CODE;
+        const match = COUPONS[code.toLowerCase()];
+        if(match){
+          appliedCoupon = { ...match };
+          couponInput.value = match.code;
           updateCouponUI();
         } else {
           appliedCoupon = null;
