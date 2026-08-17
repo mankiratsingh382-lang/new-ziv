@@ -47,6 +47,14 @@ const totalAmount=document.getElementById('totalAmount');
 const giftWrapAmount=document.getElementById('giftWrapAmount');
 const cartCountBadge=document.getElementById('cartCountBadge');
 const shippingNote=document.getElementById('shippingNote');
+const shippingBar=document.getElementById('shippingBar');
+const shippingBarFill=document.getElementById('shippingBarFill');
+const shippingBarMsg=document.getElementById('shippingBarMsg');
+const shippingBarLabel=document.getElementById('shippingBarLabel');
+const shippingRow=document.getElementById('shippingRow');
+const freeShippingRow=document.getElementById('freeShippingRow');
+const checkoutBtn=document.getElementById('checkoutBtn');
+const summaryPanel=document.getElementById('summaryPanel');
 const loginStatus=document.getElementById('loginStatus');
 const orderStatusBox=document.getElementById('orderStatusBox');
 const loginForm=document.getElementById('loginForm');
@@ -155,19 +163,53 @@ function updateCartUI(){
   if(subtotalAmount) subtotalAmount.textContent=formatPrice(subtotal);
   if(shippingAmount) shippingAmount.textContent=shipping===0 ? 'FREE' : formatPrice(shipping);
   if(totalAmount) totalAmount.textContent=formatPrice(total);
-  if(giftWrapAmount) giftWrapAmount.textContent='₹0';
 
-  if(shippingNote) shippingNote.textContent = subtotal >= 2000 ? 'Free doorstep delivery unlocked for this order.' : 'Add items worth ₹2,000+ to unlock free doorstep delivery.';
+  if(shippingRow && freeShippingRow){
+    if(totalItems === 0){
+      shippingRow.style.display='none';
+      freeShippingRow.style.display='none';
+    } else if(shipping === 0){
+      shippingRow.style.display='none';
+      freeShippingRow.style.display='flex';
+    } else {
+      shippingRow.style.display='flex';
+      freeShippingRow.style.display='none';
+    }
+  }
+
+  if(shippingBar){
+    if(totalItems === 0){
+      shippingBar.style.display='none';
+    } else {
+      shippingBar.style.display='block';
+      const remaining=Math.max(0, 2000-subtotal);
+      const pct=Math.min(100, (subtotal/2000)*100);
+      if(shippingBarFill) shippingBarFill.style.width=pct+'%';
+      if(remaining > 0){
+        if(shippingBarLabel) shippingBarLabel.textContent='Free shipping progress';
+        if(shippingBarMsg) shippingBarMsg.innerHTML=`Add <strong>${formatPrice(remaining)}</strong> more for <span class="free">free shipping</span>`;
+      } else {
+        if(shippingBarLabel) shippingBarLabel.textContent='';
+        if(shippingBarMsg) shippingBarMsg.innerHTML='<span class="free">You\'ve unlocked free shipping!</span>';
+      }
+    }
+  }
 
   if(cartItems){
     if(cart.length===0){
-      cartItems.innerHTML='<div class="empty-cart">Your cart is empty. Add a few standout pieces to begin.</div>';
+      cartItems.innerHTML=`<div class="empty-cart"><div class="empty-icon">✦</div><div class="empty-title">Your bag is empty</div><div class="empty-sub">Discover timeless pieces crafted to elevate every moment.</div><a class="btn-primary" href="collections.html">Explore Collections</a></div>`;
+      if(summaryPanel) summaryPanel.style.display='none';
     } else {
+      if(summaryPanel) summaryPanel.style.display='';
       cartItems.innerHTML = cart.map(item=>`
         <article class="cart-item-row">
+          <div class="cart-item-img">
+            ${item.image ? `<img src="${item.image}" alt="${item.name}" onerror="this.parentElement.innerHTML='✦'">` : '<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:24px;color:var(--pink-soft);">✦</div>'}
+          </div>
           <div class="cart-item-details">
             <div class="cart-item-name">${item.name}</div>
             <div class="cart-item-meta">${item.category} · ${formatPrice(item.price)} each</div>
+            <button type="button" class="remove-item" data-name="${item.name}">Remove</button>
           </div>
           <div class="cart-item-controls">
             <button type="button" class="qty-button" data-action="decrease" data-name="${item.name}">−</button>
@@ -175,7 +217,6 @@ function updateCartUI(){
             <button type="button" class="qty-button" data-action="increase" data-name="${item.name}">+</button>
           </div>
           <div class="cart-item-total">${formatPrice(item.price*item.quantity)}</div>
-          <button type="button" class="remove-item" data-name="${item.name}">Remove</button>
         </article>
       `).join('');
     }
@@ -191,9 +232,14 @@ function updateCartUI(){
     });
   }
 
-  if(placeOrderBtn){
-    placeOrderBtn.disabled=cart.length===0;
-    placeOrderBtn.textContent = cart.length===0 ? 'Add items to checkout' : 'Place Order';
+  if(checkoutBtn){
+    if(cart.length===0){
+      checkoutBtn.style.opacity='.45';
+      checkoutBtn.style.pointerEvents='none';
+    } else {
+      checkoutBtn.style.opacity='1';
+      checkoutBtn.style.pointerEvents='';
+    }
   }
 }
 
