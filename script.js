@@ -47,12 +47,7 @@ const totalAmount=document.getElementById('totalAmount');
 const giftWrapAmount=document.getElementById('giftWrapAmount');
 const cartCountBadge=document.getElementById('cartCountBadge');
 const shippingNote=document.getElementById('shippingNote');
-const shippingBar=document.getElementById('shippingBar');
-const shippingBarFill=document.getElementById('shippingBarFill');
-const shippingBarMsg=document.getElementById('shippingBarMsg');
-const shippingBarLabel=document.getElementById('shippingBarLabel');
 const shippingRow=document.getElementById('shippingRow');
-const freeShippingRow=document.getElementById('freeShippingRow');
 const checkoutBtn=document.getElementById('checkoutBtn');
 const summaryPanel=document.getElementById('summaryPanel');
 const loginStatus=document.getElementById('loginStatus');
@@ -155,7 +150,7 @@ function saveUser(){
 function updateCartUI(){
   const totalItems=cart.reduce((sum,item)=>sum + item.quantity,0);
   const subtotal=cart.reduce((sum,item)=>sum + item.price*item.quantity,0);
-  const shipping=totalItems > 0 ? (subtotal >= 2000 ? 0 : 149) : 0;
+  const shipping=totalItems > 0 ? 149 : 0;
   const total=subtotal + shipping;
 
   document.querySelectorAll('.cart-dot').forEach(dot=>dot.textContent=totalItems);
@@ -164,35 +159,8 @@ function updateCartUI(){
   if(shippingAmount) shippingAmount.textContent=shipping===0 ? 'FREE' : formatPrice(shipping);
   if(totalAmount) totalAmount.textContent=formatPrice(total);
 
-  if(shippingRow && freeShippingRow){
-    if(totalItems === 0){
-      shippingRow.style.display='none';
-      freeShippingRow.style.display='none';
-    } else if(shipping === 0){
-      shippingRow.style.display='none';
-      freeShippingRow.style.display='flex';
-    } else {
-      shippingRow.style.display='flex';
-      freeShippingRow.style.display='none';
-    }
-  }
-
-  if(shippingBar){
-    if(totalItems === 0){
-      shippingBar.style.display='none';
-    } else {
-      shippingBar.style.display='block';
-      const remaining=Math.max(0, 2000-subtotal);
-      const pct=Math.min(100, (subtotal/2000)*100);
-      if(shippingBarFill) shippingBarFill.style.width=pct+'%';
-      if(remaining > 0){
-        if(shippingBarLabel) shippingBarLabel.textContent='Free shipping progress';
-        if(shippingBarMsg) shippingBarMsg.innerHTML=`Add <strong>${formatPrice(remaining)}</strong> more for <span class="free">free shipping</span>`;
-      } else {
-        if(shippingBarLabel) shippingBarLabel.textContent='';
-        if(shippingBarMsg) shippingBarMsg.innerHTML='<span class="free">You\'ve unlocked free shipping!</span>';
-      }
-    }
+  if(shippingRow){
+    shippingRow.style.display = totalItems === 0 ? 'none' : 'flex';
   }
 
   if(cartItems){
@@ -440,7 +408,7 @@ function handleCheckoutSubmit(event){
   const orderId=`ZIV-${Date.now().toString().slice(-6)}`;
   const subtotal=cart.reduce((sum,item)=>sum + item.price*item.quantity,0);
   const totalItems=cart.reduce((sum,item)=>sum + item.quantity,0);
-  const shipping=totalItems > 0 ? (subtotal >= 2000 ? 0 : 149) : 0;
+  const shipping=totalItems > 0 ? 149 : 0;
   const total=subtotal + shipping;
 
   orderStatusBox.classList.add('success');
