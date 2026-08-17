@@ -345,12 +345,13 @@ app.get('/api/health', async (req, res) => {
   res.json({ status: 'ok', database: process.env.POSTGRES_DB || null });
 });
 
-app.get('/api/products', async (req, res) => {
-  const neonConnectionString = req.headers['x-neon-connection'] || req.headers['x-neon-connection-string'];
-  const requestPool = neonConnectionString ? buildPool(String(neonConnectionString)) : pool;
+app.get('/api/config', (req, res) => {
+  res.json({ razorpayKeyId: process.env.RAZORPAY_KEY_ID || null });
+});
 
+app.get('/api/products', async (req, res) => {
   try {
-    const { rows } = await requestPool.query(
+    const { rows } = await pool.query(
       `SELECT 
          p.id, p.name, p.category, p.price, p.material, p.description, p.badge, p.sort_order, p.is_bestseller,
          COALESCE(
@@ -397,7 +398,7 @@ app.post('/api/auth/register', async (req, res) => {
   if (!name || !email || !password) return res.status(400).json({ error: 'Name, email, and password are required.' });
 
   const normalizedEmail = normalizeEmail(email);
-  if (password.length < 4) return res.status(400).json({ error: 'Password must be at least 4 characters long.' });
+  if (password.length < 8) return res.status(400).json({ error: 'Password must be at least 8 characters long.' });
 
   try {
     const existing = await pool.query('SELECT id FROM users WHERE email = $1', [normalizedEmail]);
@@ -654,7 +655,10 @@ app.delete('/api/addresses/:id', authMiddleware, async (req, res) => {
 });
 
 
-const ADMIN_TOKEN = process.env.ADMIN_TOKEN || 'Zivarradmin@123';
+const ADMIN_TOKEN = process.env.ADMIN_TOKEN;
+if (!ADMIN_TOKEN) {
+  console.error('FATAL: ADMIN_TOKEN environment variable is not set.');
+}
 function adminAuth(req, res, next) {
   const authHeader = req.headers.authorization || '';
   const token = authHeader.startsWith('Bearer ') ? authHeader.slice(7).trim() : '';

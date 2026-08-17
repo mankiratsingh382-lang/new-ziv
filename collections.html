@@ -73,7 +73,6 @@
     </section>
   </main>
   <script>
-    const neonConnectionString = 'postgresql://neondb_owner:npg_n2i5vWTSCHus@ep-wild-dew-ahi26wh0-pooler.c-3.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require';
     const collectionData = [
       {title:'All Jewelry',desc:'A full view of our modern heirlooms — chokers, rings, earrings, and statement pieces.',tag:'Signature'},
       {title:'Necklaces',desc:'Soft silhouettes and sculpted chokers designed for layering or a solo statement.',tag:'Layered'},
@@ -88,8 +87,6 @@
 
     const allowedCategories = new Set(['All','Necklaces','Chains','Bracelets','Earrings','Rings']);
 
-    // If URL has a category=..., preselect and render immediately.
-
     if(!allowedCategories.has(selectedCategory)) selectedCategory = 'All';
 
     const categorySelect = document.getElementById('categorySelect');
@@ -101,8 +98,7 @@
       });
     }
 
-
-    fetch('/api/products', { headers: { 'X-Neon-Connection': neonConnectionString } })
+    fetch('/api/products')
       .then(r => r.json())
       .then(data => { productData.push(...data); render(); })
       .catch(() => renderFallback());

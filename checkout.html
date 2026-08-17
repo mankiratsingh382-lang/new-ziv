@@ -149,7 +149,14 @@
     const AUTH_TOKEN_KEY = 'zivarr-demo-auth-token';
     const DASH_USER_KEY = 'zivarr-demo-user';
     const ORDERS_KEY = 'zivarr-demo-orders';
-    const RAZORPAY_KEY_ID = 'rzp_live_TECFLncXvE6ZZe';
+    let RAZORPAY_KEY_ID = null;
+
+    (async function(){
+      try{
+        const cfg = await fetch('/api/config').then(r=>r.json());
+        RAZORPAY_KEY_ID = cfg.razorpayKeyId;
+      }catch(e){}
+    })();
 
     let cart = [];
     let savedAddresses = [];
@@ -371,6 +378,7 @@
         if(!paymentOrderRes.ok) throw new Error(paymentOrderData.error || 'Unable to start payment.');
 
         if(!window.Razorpay){ throw new Error('Payment gateway could not be loaded.'); }
+        if(!RAZORPAY_KEY_ID){ throw new Error('Payment configuration not loaded. Please refresh and try again.'); }
 
         const user = JSON.parse(localStorage.getItem(DASH_USER_KEY) || 'null');
 
