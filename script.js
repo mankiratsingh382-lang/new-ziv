@@ -12,31 +12,6 @@
   }
 })();
 
-/* ── CURSOR ── */
-const cur=document.getElementById('cur');
-const curR=document.getElementById('cur-r');
-let mx=0,my=0,rx=0,ry=0;
-
-if(cur && curR){
-  document.addEventListener('mousemove',e=>{
-    mx=e.clientX;my=e.clientY;
-    cur.style.left=mx+'px';
-    cur.style.top=my+'px';
-  });
-
-  function animRing(){
-    rx+=(mx-rx)*.12;ry+=(my-ry)*.12;
-    curR.style.left=rx+'px';
-    curR.style.top=ry+'px';
-    requestAnimationFrame(animRing);
-  }
-  animRing();
-}
-document.querySelectorAll('a,button,.coll-card,.prod-card,.social-icon,.nl-perk,.pillar').forEach(el=>{
-  el.addEventListener('mouseenter',()=>document.body.classList.add('link-hover'));
-  el.addEventListener('mouseleave',()=>document.body.classList.remove('link-hover'));
-});
-
 /* ── SCROLL EFFECTS ── */
 const nav=document.getElementById('main-nav');
 const btt=document.getElementById('btt');

@@ -22,10 +22,10 @@
       width:100%;text-align:left;padding:14px 16px;border-radius:14px;border:1px solid rgba(212,114,126,.25);
       background:rgba(255,255,255,.82);backdrop-filter:blur(8px);
       color:var(--rose-mid);font-size:12px;letter-spacing:2.5px;text-transform:uppercase;font-weight:400;
-      margin-bottom:10px;cursor:none;
+      margin-bottom:10px;
       transition:all .25s;
     }
-.admin-nav button.active{background:var(--rose-dark);color:var(--pink-soft);border-color:var(--rose-dark);} body{cursor:none;}
+.admin-nav button.active{background:var(--rose-dark);color:var(--pink-soft);border-color:var(--rose-dark);}
     .admin-panel{
       flex:1;border:1px solid rgba(212,114,126,.25);border-radius:16px;padding:18px 18px;background:rgba(255,255,255,.86);
       box-shadow:0 20px 60px rgba(181,80,92,.06);
@@ -34,7 +34,7 @@
     .sub{color:var(--text-muted);font-size:13px;line-height:1.8;margin-bottom:14px;}
     .field-row{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px;align-items:center;}
     .field-row input{flex:1;min-width:240px;border:1px solid rgba(212,114,126,.25);border-radius:12px;padding:12px 14px;font-family:'Jost',sans-serif;font-size:13px;outline:none;}
-    .btn-primary, .btn-ghost{cursor:none;}
+    
     .btn-admin{padding:12px 16px;border-radius:999px;border:1px solid rgba(212,114,126,.35);background:transparent;color:var(--rose-mid);font-size:10px;letter-spacing:3px;text-transform:uppercase;font-weight:400;}
     .btn-admin:hover{background:var(--rose-dark);color:var(--pink-soft);border-color:var(--rose-dark);}
 
@@ -48,7 +48,7 @@
     .cell-actions{display:flex;gap:8px;flex-wrap:wrap;}
     .mini-btn{
       border:none;border-radius:999px;padding:8px 12px;background:rgba(232,160,170,.18);color:var(--rose-mid);
-      font-size:10px;letter-spacing:2px;text-transform:uppercase;cursor:none;
+      font-size:10px;letter-spacing:2px;text-transform:uppercase;
     }
     .mini-btn.danger{background:rgba(181,80,92,.14);color:var(--rose-mid);} 
 
@@ -64,9 +64,6 @@
   </style>
 </head>
 <body>
-  <div id="cur"></div>
-  <div id="cur-r"></div>
-
   <div class="admin-wrap">
     <aside class="admin-nav">
       <h1 style="font-size:30px;letter-spacing:0;margin-top:4px;">Admin</h1>
