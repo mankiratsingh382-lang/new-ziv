@@ -530,6 +530,9 @@
     })();
   </script>
 
-  <script src="script.js" defer></script>
+  <script>
+    const nav=document.getElementById('main-nav');
+    if(nav) window.addEventListener('scroll',()=>nav.classList.toggle('scrolled',window.scrollY>20));
+  </script>
 </body>
 </html>
